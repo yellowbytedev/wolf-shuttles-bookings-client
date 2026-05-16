@@ -1,0 +1,79 @@
+.brxe-qlwoyv input[type="checkbox"] + label {
+    padding-left: 26px !important;
+}
+
+/* Scope strictly to these two forms */
+[data-element-id="qlwoyv"] .ws-tip-icon,
+[data-element-id="ifkszj"] .ws-tip-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-left: 0.5rem;
+  width: 2rem;
+  height: 2rem;
+  line-height: 1;
+  font-size: 1rem;
+  color : var(--primary);
+  border: 1px solid var(--primary);
+  border-radius: 999px;
+  cursor: help;
+  opacity: 0.95;
+  position: relative;
+  bottom: 0.5rem;
+} 
+
+/* Tooltip bubble anchored to the icon (instant show: no transitions) */
+[data-element-id="ifkszj"] .ws-tip-icon::after {
+  transform: translate(-50%, 0.45rem);
+} 
+
+[data-element-id="ifkszj"] .ws-tip-icon::after, 
+[data-element-id="qlwoyv"] .ws-tip-icon::after {
+  content: attr(aria-label);
+  position: absolute;
+  top: 0;
+  min-width: 200px;
+  padding: 0.5rem 0.65rem;
+  font-size: 1rem;
+  line-height: 1.2;
+  color: #fff;
+  background: #111;
+  border-radius: 0.5rem;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.18);
+  opacity: 0;
+  pointer-events: none;
+  white-space: normal;
+  transition: opacity 0.3s ease;
+}
+
+/* Show tooltip ONLY when the icon is hovered, focused (keyboard), or touch-open */
+[data-element-id="qlwoyv"] .ws-tip-icon:hover::after,
+[data-element-id="qlwoyv"] .ws-tip-icon:hover::before,
+[data-element-id="qlwoyv"] .ws-tip-icon:focus::after,
+[data-element-id="qlwoyv"] .ws-tip-icon:focus::before,
+[data-element-id="qlwoyv"] .ws-tip-icon.is-open::after,
+[data-element-id="qlwoyv"] .ws-tip-icon.is-open::before,
+[data-element-id="ifkszj"] .ws-tip-icon:hover::after,
+[data-element-id="ifkszj"] .ws-tip-icon:hover::before,
+[data-element-id="ifkszj"] .ws-tip-icon:focus::after,
+[data-element-id="ifkszj"] .ws-tip-icon:focus::before,
+[data-element-id="ifkszj"] .ws-tip-icon.is-open::after,
+[data-element-id="ifkszj"] .ws-tip-icon.is-open::before {
+  opacity: 1;
+} /* Make sure the label doesn't clip the bubble */
+[data-element-id="qlwoyv"] label.ws-has-tip,
+[data-element-id="ifkszj"] label.ws-has-tip {
+  position: relative; /* new stacking context for children */
+  overflow: visible !important; /* don't clip the bubble */
+} /* Lift the icon above the label text */
+[data-element-id="qlwoyv"] .ws-tip-icon,
+[data-element-id="ifkszj"] .ws-tip-icon {
+  position: relative;
+  z-index: 2; /* icon sits above label text */
+} /* Put the bubble/arrow on top of everything inside the label */
+[data-element-id="qlwoyv"] .ws-tip-icon::after,
+[data-element-id="qlwoyv"] .ws-tip-icon::before,
+[data-element-id="ifkszj"] .ws-tip-icon::after,
+[data-element-id="ifkszj"] .ws-tip-icon::before {
+  z-index: 9999; /* higher than any inline content */
+}

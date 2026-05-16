@@ -10,6 +10,14 @@ if (!defined('ABSPATH')) exit;
 
 define('WSB_CLIENT_VERSION', '1.0.0');
 
+if (!defined('WSB_CLIENT_LOAD_LEGACY_SNIPPETS')) {
+  define('WSB_CLIENT_LOAD_LEGACY_SNIPPETS', false);
+}
+
+if (WSB_CLIENT_LOAD_LEGACY_SNIPPETS) {
+  require_once __DIR__ . '/inc/legacy-snippets/loader.php';
+}
+
 /**
  * SOURCE URL:
  * - Default is the booking site's JSON cache (adjust domain if needed).

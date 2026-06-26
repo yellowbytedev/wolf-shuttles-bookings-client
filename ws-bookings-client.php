@@ -18,6 +18,8 @@ if (WSB_CLIENT_LOAD_LEGACY_SNIPPETS) {
   require_once __DIR__ . '/inc/legacy-snippets/loader.php';
 }
 
+require_once __DIR__ . '/inc/booking-client.php';
+
 /**
  * SOURCE URL:
  * - Default is the booking site's JSON cache (adjust domain if needed).

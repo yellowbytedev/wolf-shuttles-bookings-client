@@ -1,0 +1,165 @@
+<?php
+
+namespace WSB_Booking_Client;
+
+if (!defined('ABSPATH')) {
+    exit;
+}
+
+class BookingFieldRegistry {
+    /**
+     * Return canonical field definitions for the booking builder form.
+     *
+     * @return array<string,array<string,mixed>>
+     */
+    public static function get_fields(): array {
+        $fields = [
+            'trip_type' => [
+                'key' => 'trip_type',
+                'label' => __('Trip type', 'wsb'),
+                'placeholder' => __('One-way or return', 'wsb'),
+                'type' => 'select',
+                'required' => true,
+                'applies_to' => ['transfer', 'charter'],
+                'admin_editable' => true,
+            ],
+            'passengers' => [
+                'key' => 'passengers',
+                'label' => __('Passengers', 'wsb'),
+                'placeholder' => __('Number of passengers', 'wsb'),
+                'type' => 'number',
+                'required' => true,
+                'applies_to' => ['transfer', 'charter'],
+                'admin_editable' => true,
+            ],
+            'baby_seats' => [
+                'key' => 'baby_seats',
+                'label' => __('Baby seats', 'wsb'),
+                'placeholder' => __('Number of baby seats', 'wsb'),
+                'type' => 'number',
+                'required' => false,
+                'applies_to' => ['transfer', 'charter'],
+                'admin_editable' => true,
+            ],
+            'check_in_bags' => [
+                'key' => 'check_in_bags',
+                'label' => __('Check-in bags', 'wsb'),
+                'placeholder' => __('Number of check-in bags', 'wsb'),
+                'type' => 'number',
+                'required' => false,
+                'applies_to' => ['transfer', 'charter'],
+                'admin_editable' => true,
+            ],
+            'carry_on_bags' => [
+                'key' => 'carry_on_bags',
+                'label' => __('Carry-on bags', 'wsb'),
+                'placeholder' => __('Number of carry-on bags', 'wsb'),
+                'type' => 'number',
+                'required' => false,
+                'applies_to' => ['transfer', 'charter'],
+                'admin_editable' => true,
+            ],
+            'trailer' => [
+                'key' => 'trailer',
+                'label' => __('Trailer required', 'wsb'),
+                'placeholder' => __('Need a trailer?', 'wsb'),
+                'type' => 'checkbox',
+                'required' => false,
+                'applies_to' => ['transfer'],
+                'admin_editable' => true,
+            ],
+            'oversize_luggage' => [
+                'key' => 'oversize_luggage',
+                'label' => __('Oversize luggage', 'wsb'),
+                'placeholder' => __('Oversize luggage', 'wsb'),
+                'type' => 'checkbox',
+                'required' => false,
+                'applies_to' => ['transfer'],
+                'admin_editable' => true,
+            ],
+            'outbound_from' => [
+                'key' => 'outbound_from',
+                'label' => __('From', 'wsb'),
+                'placeholder' => __('Pick up from', 'wsb'),
+                'type' => 'text',
+                'required' => true,
+                'applies_to' => ['transfer', 'charter'],
+                'admin_editable' => true,
+            ],
+            'outbound_to' => [
+                'key' => 'outbound_to',
+                'label' => __('To', 'wsb'),
+                'placeholder' => __('Drop off at', 'wsb'),
+                'type' => 'text',
+                'required' => true,
+                'applies_to' => ['transfer', 'charter'],
+                'admin_editable' => true,
+            ],
+            'outbound_pickup_date' => [
+                'key' => 'outbound_pickup_date',
+                'label' => __('Pickup date', 'wsb'),
+                'placeholder' => __('Select pickup date', 'wsb'),
+                'type' => 'date',
+                'required' => true,
+                'applies_to' => ['transfer', 'charter'],
+                'admin_editable' => true,
+            ],
+            'outbound_pickup_time' => [
+                'key' => 'outbound_pickup_time',
+                'label' => __('Pickup time', 'wsb'),
+                'placeholder' => __('Select pickup time', 'wsb'),
+                'type' => 'time',
+                'required' => true,
+                'applies_to' => ['transfer', 'charter'],
+                'admin_editable' => true,
+            ],
+            'return_from' => [
+                'key' => 'return_from',
+                'label' => __('Return from', 'wsb'),
+                'placeholder' => __('Return pickup from', 'wsb'),
+                'type' => 'text',
+                'required' => false,
+                'applies_to' => ['transfer'],
+                'admin_editable' => true,
+            ],
+            'return_to' => [
+                'key' => 'return_to',
+                'label' => __('Return to', 'wsb'),
+                'placeholder' => __('Return drop off at', 'wsb'),
+                'type' => 'text',
+                'required' => false,
+                'applies_to' => ['transfer'],
+                'admin_editable' => true,
+            ],
+            'return_pickup_date' => [
+                'key' => 'return_pickup_date',
+                'label' => __('Return date', 'wsb'),
+                'placeholder' => __('Select return date', 'wsb'),
+                'type' => 'date',
+                'required' => false,
+                'applies_to' => ['transfer'],
+                'admin_editable' => true,
+            ],
+            'return_pickup_time' => [
+                'key' => 'return_pickup_time',
+                'label' => __('Return time', 'wsb'),
+                'placeholder' => __('Select return time', 'wsb'),
+                'type' => 'time',
+                'required' => false,
+                'applies_to' => ['transfer'],
+                'admin_editable' => true,
+            ],
+            'additional_stop' => [
+                'key' => 'additional_stop',
+                'label' => __('Additional stop', 'wsb'),
+                'placeholder' => __('Add an optional stop', 'wsb'),
+                'type' => 'text',
+                'required' => false,
+                'applies_to' => ['transfer'],
+                'admin_editable' => true,
+            ],
+        ];
+
+        return (array) apply_filters('wsb_booking_field_registry', $fields);
+    }
+}

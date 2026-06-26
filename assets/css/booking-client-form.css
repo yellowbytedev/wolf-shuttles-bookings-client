@@ -256,6 +256,42 @@
   color: var(--white);
 }
 
+.wsb-booking-client-validation {
+  margin-bottom: var(--space-s);
+  padding: var(--space-s);
+  border-radius: var(--radius-s);
+  background: var(--base-ultra-light);
+  border: 1px solid var(--base-ultra-dark-trans-10);
+  color: var(--base);
+}
+
+.wsb-booking-client-validation-summary {
+  font-weight: 600;
+  margin-bottom: var(--space-s);
+}
+
+.wsb-booking-client-validation-summary--success {
+  color: var(--success);
+}
+
+.wsb-booking-client-validation-summary--warning {
+  color: var(--warning);
+}
+
+.wsb-booking-client-validation-summary--error {
+  color: var(--danger);
+}
+
+.wsb-booking-client-validation-list {
+  margin: 0;
+  padding-left: 1.2rem;
+  color: var(--base);
+}
+
+.wsb-booking-client-validation-list li {
+  margin-bottom: 0.35rem;
+}
+
 .wsb-booking-client-preview-card {
   min-height: 280px;
 }

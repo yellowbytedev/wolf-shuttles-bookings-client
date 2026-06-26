@@ -42,6 +42,10 @@
 - Fixed fatal render error in `inc/class-booking-client-form-shortcode.php`.
 - Cause: fragile large `sprintf()` template with mismatched argument count.
 - Shortcode render now uses safer output buffering and helper render methods.
+- Added server-side preview validation endpoint: `/wp-json/ws-bookings-client/v1/payload-preview`.
+- Wired `WSB_Client_Booking_Payload_V2_Normalizer` and `WSB_Client_Booking_Payload_V2_Validator`.
+- Added validation result UI to the booking builder preview panel.
+- REST endpoint tested with valid and invalid payloads.
 - Smoke-tested `/booking-builder/` locally: HTTP 200 and Booking Builder form markup present.
 - Checked `wp-content/debug.log` after smoke test; no new `ws-bookings-client` fatal occurred.
 - The form is still preview-only and does not submit real bookings yet.

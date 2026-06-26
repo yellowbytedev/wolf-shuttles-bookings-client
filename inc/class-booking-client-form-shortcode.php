@@ -137,7 +137,8 @@ class BookingClientFormShortcode {
                             <div class="wsb-booking-client-card-header">
                                 <h3><?php echo esc_html__('Payload preview', 'wsb'); ?></h3>
                             </div>
-                            <div class="wsb-booking-client-preview-help"><?php echo esc_html__('Submit the form to render a BookingPayload v2 preview below.', 'wsb'); ?></div>
+                            <div class="wsb-booking-client-preview-help"><?php echo esc_html__('Submit the form to render a BookingPayload v2 preview and server-side validation response below.', 'wsb'); ?></div>
+                            <div class="wsb-booking-client-validation" data-wsb-validation-output aria-live="polite"></div>
                             <pre class="wsb-booking-client-preview-json" data-wsb-payload-preview aria-live="polite" tabindex="0"><?php echo esc_html__('No payload generated yet.', 'wsb'); ?></pre>
                         </section>
                     </aside>
@@ -224,6 +225,23 @@ class BookingClientFormShortcode {
             file_exists($js_path) ? filemtime($js_path) : WSB_CLIENT_VERSION,
             true
         );
+
+        $preview_url = rest_url('ws-bookings-client/v1/payload-preview');
+        $config = array(
+            'previewUrl' => esc_url_raw($preview_url),
+            'nonce' => wp_create_nonce('wp_rest'),
+            'debug' => (bool) current_user_can('manage_options'),
+            'strings' => array(
+                'serverValidationPending' => __('Validating payload on server...', 'wsb'),
+                'serverValidationSuccess' => __('Server validation passed.', 'wsb'),
+                'serverValidationWarnings' => __('Server validation passed with warnings.', 'wsb'),
+                'serverValidationFailed' => __('Server validation failed.', 'wsb'),
+                'serverPreviewUnavailable' => __('Server-side preview endpoint is unavailable.', 'wsb'),
+                'serverPreviewError' => __('Server preview could not be completed.', 'wsb'),
+            ),
+        );
+
+        wp_add_inline_script('wsb-booking-client-form-script', 'window.WSB_BOOKING_CLIENT_FORM = ' . wp_json_encode($config) . ';', 'before');
     }
 
     public static function enqueue_assets(): void {

@@ -33,9 +33,18 @@ if ( ! class_exists( 'WSB_Client_Booking_Payload_V2_Preview_Controller' ) ) {
                 array(
                     'methods'             => 'POST',
                     'callback'            => array( $this, 'preview' ),
-                    'permission_callback' => '__return_true',
+                    'permission_callback' => array( $this, 'verify_preview_request' ),
                 )
             );
+        }
+
+        public function verify_preview_request( WP_REST_Request $request ) : bool {
+            $nonce = $request->get_header( 'X-WP-Nonce' );
+            if ( ! is_string( $nonce ) || empty( $nonce ) ) {
+                return false;
+            }
+
+            return wp_verify_nonce( $nonce, 'wp_rest' );
         }
 
         /**
@@ -53,10 +62,11 @@ if ( ! class_exists( 'WSB_Client_Booking_Payload_V2_Preview_Controller' ) ) {
 
             return new WP_REST_Response(
                 array(
-                    'ok'         => true,
-                    'payload'    => $normalized,
-                    'validation' => $validation,
-                    'meta'       => array(
+                    'ok'                 => true,
+                    'payload'            => $normalized,
+                    'normalized_payload' => $normalized,
+                    'validation'         => $validation,
+                    'meta'               => array(
                         'preview_only' => true,
                         'generated_at' => gmdate( 'c' ),
                     ),

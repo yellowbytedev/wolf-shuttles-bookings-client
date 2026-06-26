@@ -39,6 +39,16 @@ Milestones:
 9. Keep existing Bricks form untouched.
 10. Add a minimal fixture-driven test runner.
 
+### Phase 2F status
+
+- Server-side preview endpoint added.
+- Payload normalizer and validator wired.
+- Validation UI added to the shortcode preview panel.
+- REST endpoint tested with valid and invalid payloads.
+- Preview remains local only; no real booking submission occurs.
+- Booking-site handover is still pending.
+- Google autocomplete is still pending.
+
 ## Phase 3 — Booking-site v2 intake
 
 Add booking-system support for v2 payloads.

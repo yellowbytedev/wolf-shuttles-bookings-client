@@ -4,6 +4,17 @@
     }
 
     var DEBUG = window.location.search.indexOf('debug=1') !== -1;
+    var CONFIG = window.WSB_BOOKING_CLIENT_FORM || {};
+    var PREVIEW_URL = typeof CONFIG.previewUrl === 'string' ? CONFIG.previewUrl : '';
+    var PREVIEW_NONCE = typeof CONFIG.nonce === 'string' ? CONFIG.nonce : '';
+    var STRINGS = CONFIG.strings || {
+        serverValidationPending: 'Validating payload on server...',
+        serverValidationSuccess: 'Server validation passed.',
+        serverValidationWarnings: 'Server validation passed with warnings.',
+        serverValidationFailed: 'Server validation failed.',
+        serverPreviewUnavailable: 'Server-side preview endpoint is unavailable.',
+        serverPreviewError: 'Server preview could not be completed.',
+    };
 
     function logDebug() {
         if (!DEBUG || typeof window.console === 'undefined' || typeof window.console.log !== 'function') {
@@ -130,10 +141,8 @@
             trip_type: tripType,
             passengers: passengers,
             baby_seats: getNumberValue(form, 'input[name="baby_seats"]', 0),
-            luggage: {
-                check_in_bags: getNumberValue(form, 'input[name="check_in_bags"]', 0),
-                carry_on_bags: getNumberValue(form, 'input[name="carry_on_bags"]', 0)
-            },
+            check_in_bags: getNumberValue(form, 'input[name="check_in_bags"]', 0),
+            carry_on_bags: getNumberValue(form, 'input[name="carry_on_bags"]', 0),
             add_ons: {
                 trailer: getBooleanValue(form, 'input[name="trailer"]'),
                 oversize_luggage: getBooleanValue(form, 'input[name="oversize_luggage"]')
@@ -164,6 +173,62 @@
         statusElement.textContent = summary.join(' · ');
     }
 
+    function renderValidationOutput(outputElement, validation) {
+        if (!outputElement) {
+            return;
+        }
+
+        var status = validation.valid ? 'success' : 'error';
+        if (validation.valid && validation.warnings && validation.warnings.length) {
+            status = 'warning';
+        }
+
+        var summaryText = validation.valid ? (validation.warnings && validation.warnings.length ? STRINGS.serverValidationWarnings : STRINGS.serverValidationSuccess) : STRINGS.serverValidationFailed;
+        var summaryClass = 'wsb-booking-client-validation-summary--' + status;
+
+        var html = '<div class="wsb-booking-client-validation-summary ' + summaryClass + '">' + summaryText + '</div>';
+
+        if (validation.errors && validation.errors.length) {
+            html += '<ul class="wsb-booking-client-validation-list">';
+            validation.errors.forEach(function (error) {
+                html += '<li><strong>' + escapeHtml(error.field) + '</strong>: ' + escapeHtml(error.message) + '</li>';
+            });
+            html += '</ul>';
+        }
+
+        if (validation.warnings && validation.warnings.length) {
+            html += '<ul class="wsb-booking-client-validation-list">';
+            validation.warnings.forEach(function (warning) {
+                html += '<li><strong>' + escapeHtml(warning.field) + '</strong>: ' + escapeHtml(warning.message) + '</li>';
+            });
+            html += '</ul>';
+        }
+
+        outputElement.innerHTML = html;
+    }
+
+    function escapeHtml(text) {
+        var str = String(text || '');
+        return str.replace(/[&"'<>]/g, function (match) {
+            var replacements = {
+                '&': '&amp;',
+                '"': '&quot;',
+                "'": '&#39;',
+                '<': '&lt;',
+                '>': '&gt;'
+            };
+            return replacements[match] || match;
+        });
+    }
+
+    function renderValidationError(outputElement, message) {
+        if (!outputElement) {
+            return;
+        }
+
+        outputElement.innerHTML = '<div class="wsb-booking-client-validation-summary wsb-booking-client-validation-summary--error">' + escapeHtml(message) + '</div>';
+    }
+
     function renderPayload(previewElement, statusElement, messageElement, payload, message) {
         if (previewElement) {
             previewElement.textContent = JSON.stringify(payload, null, 2);
@@ -178,12 +243,108 @@
         logDebug('Booking Builder preview updated', payload);
     }
 
+    function postPayloadPreview(payload, validationElement, messageElement) {
+        if (!validationElement) {
+            return;
+        }
+
+        if (!PREVIEW_URL) {
+            renderValidationError(validationElement, STRINGS.serverPreviewUnavailable);
+            if (messageElement) {
+                messageElement.textContent = STRINGS.serverPreviewUnavailable;
+            }
+            return;
+        }
+
+        if (messageElement) {
+            messageElement.textContent = STRINGS.serverValidationPending;
+        }
+
+        var headers = {
+            'Content-Type': 'application/json'
+        };
+
+        if (PREVIEW_NONCE) {
+            headers['X-WP-Nonce'] = PREVIEW_NONCE;
+        }
+
+        fetch(PREVIEW_URL, {
+            method: 'POST',
+            headers: headers,
+            body: JSON.stringify(payload)
+        })
+            .then(function (response) {
+                if (!response.ok) {
+                    throw new Error('HTTP ' + response.status);
+                }
+                return response.json();
+            })
+            .then(function (data) {
+                if (!data || !data.validation) {
+                    throw new Error('Invalid preview response');
+                }
+
+                renderValidationOutput(validationElement, data.validation);
+                if (messageElement) {
+                    messageElement.textContent = data.validation.valid ? (data.validation.warnings && data.validation.warnings.length ? STRINGS.serverValidationWarnings : STRINGS.serverValidationSuccess) : STRINGS.serverValidationFailed;
+                }
+                logDebug('Server preview response', data);
+            })
+            .catch(function (error) {
+                renderValidationError(validationElement, STRINGS.serverPreviewError);
+                if (messageElement) {
+                    messageElement.textContent = STRINGS.serverPreviewError;
+                }
+                logDebug('Server preview failed', error);
+            });
+    }
+
+    function updateReturnVisibility(returnSection, tripTypeInputs) {
+        if (!returnSection || !tripTypeInputs) {
+            return;
+        }
+
+        var hasReturn = false;
+        Array.prototype.forEach.call(tripTypeInputs, function (input) {
+            if (input.checked && input.value === 'return') {
+                hasReturn = true;
+            }
+        });
+
+        if (hasReturn) {
+            returnSection.classList.remove('wsb-booking-client-hidden');
+        } else {
+            returnSection.classList.add('wsb-booking-client-hidden');
+        }
+    }
+
+    function updateAdditionalStop(toggle, section) {
+        if (!section || !toggle) {
+            return;
+        }
+
+        if (toggle.checked) {
+            section.classList.remove('wsb-booking-client-hidden');
+            var input = section.querySelector('input');
+            if (input) {
+                input.disabled = false;
+            }
+        } else {
+            section.classList.add('wsb-booking-client-hidden');
+            var input = section.querySelector('input');
+            if (input) {
+                input.disabled = true;
+            }
+        }
+    }
+
     function initBookingBuilder(root) {
         var form = root.querySelector('[data-wsb-booking-form]');
         var returnSection = root.querySelector('[data-wsb-return-section]');
         var additionalStopToggle = root.querySelector('[data-wsb-additional-stop-toggle]');
         var additionalStopField = root.querySelector('[data-wsb-additional-stop-section]');
         var previewElement = root.querySelector('[data-wsb-payload-preview]');
+        var validationElement = root.querySelector('[data-wsb-validation-output]');
         var statusElement = root.querySelector('[data-wsb-preview-status]');
         var messageElement = root.querySelector('[data-wsb-submit-message]');
 
@@ -204,6 +365,12 @@
         function refreshPreview(message) {
             var payload = buildPayload(form);
             renderPayload(previewElement, statusElement, messageElement, payload, message);
+            return payload;
+        }
+
+        function refreshServerPreview(message) {
+            var payload = buildPayload(form);
+            postPayloadPreview(payload, validationElement, messageElement);
             return payload;
         }
 
@@ -236,6 +403,7 @@
         form.addEventListener('submit', function (event) {
             event.preventDefault();
             refreshPreview('Preview updated. Real booking submission is not enabled yet.');
+            refreshServerPreview();
         });
 
         updateReturnVisibility(returnSection, tripTypeInputs);

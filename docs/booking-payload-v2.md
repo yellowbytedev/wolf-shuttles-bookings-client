@@ -167,3 +167,70 @@ The live preview should update:
 Submit remains intercepted. The preview is local only.
 
 If `?debug=1` is present, the browser logs the generated payload to the console.
+
+## Server-side preview endpoint
+
+The shortcode also supports a server-side preview endpoint for validation only.
+
+- Path: `/wp-json/ws-bookings-client/v1/payload-preview`
+- Method: `POST`
+- Headers: `Content-Type: application/json`, `X-WP-Nonce: <wp_rest nonce>`
+
+### Request shape
+
+The endpoint accepts the canonical BookingPayload v2 payload shape, including:
+
+- `schema_version`
+- `source`
+- `service_type`
+- `trip_type`
+- `passengers`
+- `baby_seats`
+- `luggage.check_in_bags`
+- `luggage.carry_on_bags`
+- `add_ons`
+- `legs[]`
+- `meta.preview_only`
+
+It also accepts the marketing shortcode form's flat field names and normalizes them into the canonical legs structure.
+
+### Response shape
+
+The endpoint returns JSON with:
+
+- `ok` — always `true` for a valid preview request
+- `payload` — the normalized payload
+- `normalized_payload` — alias of the normalized payload
+- `validation` — validation result object
+- `meta.preview_only` — `true`
+- `meta.generated_at` — ISO timestamp
+
+### Normalisation rules
+
+- Accepts nested `luggage` values or flat `check_in_bags` / `carry_on_bags` values.
+- Normalizes `legs[]` payloads, including `from`, `to`, `pickup_date`, `pickup_time`, `stops`, and `route`.
+- Normalizes `customer` into `name`, `email`, and `phone`.
+- Sets `meta.handover_mode` to `preview_only`.
+
+### Validation rules
+
+- `schema_version` must be `2.0`
+- `trip_type` must be `one_way`, `return`, or `charter`
+- `passengers` must be at least `1`
+- At least one leg is required
+- Each leg must have:
+  - `type`
+  - `from.label`
+  - `to.label`
+  - `pickup_date`
+  - `pickup_time`
+
+### Security note
+
+The preview endpoint uses `X-WP-Nonce` protection and verifies a WP REST nonce with action `wp_rest`.
+
+### Current limitations
+
+- Preview is validation-only and does not submit a real booking.
+- Booking-site handover is pending.
+- Google autocomplete is still pending.

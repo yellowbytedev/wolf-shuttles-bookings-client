@@ -29,8 +29,8 @@ if ( ! class_exists( 'WSB_Client_Booking_Payload_V2_Normalizer' ) ) {
                 'customer'       => $this->normalize_customer( $raw['customer'] ?? array() ),
                 'passengers'     => $this->positive_int( $raw['passengers'] ?? 1, 1 ),
                 'baby_seats'     => $this->non_negative_int( $raw['baby_seats'] ?? 0 ),
-                'check_in_bags'  => $this->non_negative_int( $raw['check_in_bags'] ?? 0 ),
-                'carry_on_bags'  => $this->non_negative_int( $raw['carry_on_bags'] ?? 0 ),
+                'check_in_bags'  => $this->non_negative_int( $raw['check_in_bags'] ?? $raw['luggage']['check_in_bags'] ?? 0 ),
+                'carry_on_bags'  => $this->non_negative_int( $raw['carry_on_bags'] ?? $raw['luggage']['carry_on_bags'] ?? 0 ),
                 'add_ons'        => array(
                     'trailer'          => $this->to_bool( $raw['trailer'] ?? ( $raw['add_ons']['trailer'] ?? false ) ),
                     'oversize_luggage' => $this->to_bool( $raw['oversize_luggage'] ?? ( $raw['add_ons']['oversize_luggage'] ?? false ) ),
@@ -103,8 +103,11 @@ if ( ! class_exists( 'WSB_Client_Booking_Payload_V2_Normalizer' ) ) {
          * @return array<int,array<string,mixed>>
          */
         private function normalize_legs( array $raw, string $trip_type ) : array {
-            $legs = array();
+            if ( is_array( $raw['legs'] ?? null ) && ! empty( $raw['legs'] ) ) {
+                return $this->normalize_legs_from_payload( $raw['legs'] );
+            }
 
+            $legs = array();
             $legs[] = $this->normalize_leg_from_flat_fields( 'outbound', $raw );
 
             if ( 'return' === $trip_type ) {
@@ -112,6 +115,61 @@ if ( ! class_exists( 'WSB_Client_Booking_Payload_V2_Normalizer' ) ) {
             }
 
             return $legs;
+        }
+
+        /**
+         * @param array<int,mixed> $legs
+         * @return array<int,array<string,mixed>>
+         */
+        private function normalize_legs_from_payload( array $legs ) : array {
+            $normalized = array();
+
+            foreach ( $legs as $raw_leg ) {
+                if ( ! is_array( $raw_leg ) ) {
+                    continue;
+                }
+
+                $type = $this->sanitize_enum( $raw_leg['type'] ?? 'outbound', array( 'outbound', 'return' ), 'outbound' );
+                $from = $this->normalize_location( $raw_leg['from'] ?? array() );
+                $to   = $this->normalize_location( $raw_leg['to'] ?? array() );
+
+                $date = sanitize_text_field( $raw_leg['pickup_date'] ?? '' );
+                $time = sanitize_text_field( $raw_leg['pickup_time'] ?? '' );
+                $pickup_datetime = trim( $date . ' ' . $time );
+
+                $stops = array();
+                if ( is_array( $raw_leg['stops'] ?? null ) ) {
+                    foreach ( $raw_leg['stops'] as $raw_stop ) {
+                        if ( ! is_array( $raw_stop ) ) {
+                            continue;
+                        }
+
+                        $stop_type = sanitize_key( $raw_stop['type'] ?? 'additional_stop' );
+                        $location = $this->normalize_location( $raw_stop['location'] ?? $raw_stop );
+                        if ( empty( $location['label'] ) ) {
+                            continue;
+                        }
+
+                        $stops[] = array(
+                            'type'     => $stop_type,
+                            'location' => $location,
+                        );
+                    }
+                }
+
+                $normalized[] = array(
+                    'type'            => $type,
+                    'from'            => $from,
+                    'to'              => $to,
+                    'pickup_date'     => $date,
+                    'pickup_time'     => $time,
+                    'pickup_datetime' => $pickup_datetime,
+                    'stops'           => $stops,
+                    'route'           => is_array( $raw_leg['route'] ?? null ) ? $raw_leg['route'] : array(),
+                );
+            }
+
+            return $normalized;
         }
 
         /**

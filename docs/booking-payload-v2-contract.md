@@ -49,3 +49,36 @@ The preview updates on:
 - submit
 
 Submit remains intercepted, and `?debug=1` logs the generated payload to the console.
+
+## Server-side preview endpoint
+
+- POST `/wp-json/ws-bookings-client/v1/payload-preview`
+- Requires `Content-Type: application/json`
+- Requires `X-WP-Nonce` header using a WP REST nonce
+- Returns:
+  - `ok`
+  - `payload`
+  - `normalized_payload`
+  - `validation`
+  - `meta`
+
+## Current normalisation
+
+- Converts nested `luggage` and flat `check_in_bags` / `carry_on_bags` inputs
+- Normalizes inbound `legs[]` payloads and flat marketing form fields
+- Ensures `customer` always has `name`, `email`, and `phone`
+- Normalizes `meta.handover_mode` to `preview_only`
+
+## Current validation
+
+- `schema_version` must equal `2.0`
+- `trip_type` must be one of `one_way`, `return`, or `charter`
+- `passengers` must be at least `1`
+- `legs` must be a non-empty array
+- `from.label`, `to.label`, `pickup_date`, and `pickup_time` are required on each leg
+
+## Limitations
+
+- This endpoint is preview-only and does not create bookings.
+- Booking-site handover is still pending.
+- Google autocomplete remains pending.

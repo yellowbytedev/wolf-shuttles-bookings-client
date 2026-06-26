@@ -59,10 +59,11 @@ if ( ! class_exists( 'WSB_Client_Booking_Payload_V2_Preview_Controller' ) ) {
 
             $normalized = $this->normalizer->normalize( $raw );
             $validation = $this->validator->validate( $normalized );
+            $ok = ! empty( $validation['valid'] );
 
             return new WP_REST_Response(
                 array(
-                    'ok'                 => true,
+                    'ok'                 => $ok,
                     'payload'            => $normalized,
                     'normalized_payload' => $normalized,
                     'validation'         => $validation,

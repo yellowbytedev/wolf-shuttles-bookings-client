@@ -36,7 +36,9 @@
 - The shortcode now renders a styled Booking Builder form shell with stable canonical input names.
 - Added local BookingPayload v2 preview behavior in JS, including one-way/return legs, richer location objects, nested luggage/add-on fields, and additional stop support.
 - The preview now refreshes live on page load, input, change, blur, trip-type toggle, additional-stop toggle, and submit.
-- `?debug=1` now logs the generated payload to the browser console.
+- Added stable form markup selectors and a top preview/status panel for immediate feedback.
+- Fixed browser realtime preview issue by loading the shortcode script via shortcode render path and aligning JS selectors with the rendered form markup.
+- `?debug=1` now logs the generated payload and missing selector diagnostics to the browser console.
 - Fixed fatal render error in `inc/class-booking-client-form-shortcode.php`.
 - Cause: fragile large `sprintf()` template with mismatched argument count.
 - Shortcode render now uses safer output buffering and helper render methods.

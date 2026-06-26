@@ -9,10 +9,12 @@ if (!defined('ABSPATH')) {
 class BookingClientFormShortcode {
     public static function init(): void {
         add_shortcode('ws_booking_client_form', [self::class, 'render_shortcode']);
-        add_action('wp_enqueue_scripts', [self::class, 'enqueue_assets']);
+        add_action('wp_enqueue_scripts', [self::class, 'register_assets']);
     }
 
     public static function render_shortcode(array $atts = []): string {
+        self::enqueue_assets();
+
         $fields = BookingFieldRegistry::get_fields();
         $title = __('Booking Builder', 'wsb');
 
@@ -22,7 +24,7 @@ class BookingClientFormShortcode {
 
         ob_start();
         ?>
-        <div class="wsb-booking-client-shell">
+        <div class="wsb-booking-client-shell" data-wsb-booking-builder>
             <div class="wsb-booking-client-header">
                 <h2><?php echo esc_html($atts['title']); ?></h2>
                 <p><?php echo esc_html__('Build a new booking request. No real booking submission is enabled yet.', 'wsb'); ?></p>
@@ -33,7 +35,7 @@ class BookingClientFormShortcode {
                 <button type="button" class="wsb-booking-client-service-tab" disabled><?php echo esc_html__('Shuttle Hire (coming soon)', 'wsb'); ?></button>
             </div>
 
-            <form class="wsb-booking-client-form" method="post" action="#" novalidate>
+            <form class="wsb-booking-client-form" data-wsb-booking-form method="post" action="#" novalidate>
                 <div class="wsb-booking-client-grid">
                     <div class="wsb-booking-client-main-column">
                         <section class="wsb-booking-client-card wsb-booking-client-card--hero">
@@ -45,6 +47,10 @@ class BookingClientFormShortcode {
                                 <span class="wsb-booking-client-badge"><?php echo esc_html__('Preview only', 'wsb'); ?></span>
                             </div>
                             <p class="wsb-booking-client-card-copy"><?php echo esc_html__('This form builds a local BookingPayload v2 preview. Real booking submission is not enabled yet.', 'wsb'); ?></p>
+                            <div class="wsb-booking-client-preview-summary" data-wsb-payload-summary>
+                                <p class="wsb-booking-client-preview-summary-text"><?php echo esc_html__('Live payload preview active', 'wsb'); ?></p>
+                                <p class="wsb-booking-client-preview-status" data-wsb-preview-status><?php echo esc_html__('Waiting for updates...', 'wsb'); ?></p>
+                            </div>
                         </section>
 
                         <section class="wsb-booking-client-card">
@@ -93,7 +99,7 @@ class BookingClientFormShortcode {
                             </div>
                         </section>
 
-                        <section class="wsb-booking-client-card wsb-booking-client-return wsb-booking-client-hidden">
+                        <section class="wsb-booking-client-card wsb-booking-client-return wsb-booking-client-hidden" data-wsb-return-section>
                             <div class="wsb-booking-client-card-header">
                                 <h3><?php echo esc_html__('Return leg', 'wsb'); ?></h3>
                             </div>
@@ -110,18 +116,18 @@ class BookingClientFormShortcode {
                                 <h3><?php echo esc_html__('Additional stop', 'wsb'); ?></h3>
                             </div>
                             <label class="wsb-booking-client-checkbox-label wsb-booking-client-additional-toggle-label">
-                                <input type="checkbox" name="additional_stop_enabled" class="wsb-booking-client-additional-toggle">
+                                <input type="checkbox" name="additional_stop_enabled" class="wsb-booking-client-additional-toggle" data-wsb-additional-stop-toggle>
                                 <?php echo esc_html__('Enable additional stop', 'wsb'); ?>
                             </label>
-                            <div class="wsb-booking-client-field wsb-booking-client-additional-stop-field wsb-booking-client-hidden">
+                            <div class="wsb-booking-client-field wsb-booking-client-additional-stop-field wsb-booking-client-hidden" data-wsb-additional-stop-section>
                                 <label class="wsb-form__label" for="<?php echo esc_attr($fields['additional_stop']['key']); ?>"><?php echo esc_html($fields['additional_stop']['label']); ?></label>
                                 <input class="wsb-form__input" type="text" id="<?php echo esc_attr($fields['additional_stop']['key']); ?>" name="<?php echo esc_attr($fields['additional_stop']['key']); ?>" placeholder="<?php echo esc_attr($fields['additional_stop']['placeholder']); ?>" disabled />
                             </div>
                         </section>
 
                         <div class="wsb-booking-client-actions">
-                            <button type="submit" class="wsb-booking-client-submit"><?php echo esc_html__('Preview booking payload', 'wsb'); ?></button>
-                            <div class="wsb-booking-client-submit-message" aria-live="polite"></div>
+                            <button type="submit" class="wsb-booking-client-submit" data-wsb-preview-submit><?php echo esc_html__('Preview booking payload', 'wsb'); ?></button>
+                            <div class="wsb-booking-client-submit-message" aria-live="polite" data-wsb-submit-message></div>
                             <p class="wsb-booking-client-note"><?php echo esc_html__('This preview is local only; no real booking is submitted.', 'wsb'); ?></p>
                         </div>
                     </div>
@@ -132,7 +138,7 @@ class BookingClientFormShortcode {
                                 <h3><?php echo esc_html__('Payload preview', 'wsb'); ?></h3>
                             </div>
                             <div class="wsb-booking-client-preview-help"><?php echo esc_html__('Submit the form to render a BookingPayload v2 preview below.', 'wsb'); ?></div>
-                            <pre class="wsb-booking-client-preview-json" aria-live="polite" tabindex="0"><?php echo esc_html__('No payload generated yet.', 'wsb'); ?></pre>
+                            <pre class="wsb-booking-client-preview-json" data-wsb-payload-preview aria-live="polite" tabindex="0"><?php echo esc_html__('No payload generated yet.', 'wsb'); ?></pre>
                         </section>
                     </aside>
                 </div>
@@ -200,26 +206,28 @@ class BookingClientFormShortcode {
         );
     }
 
-    public static function enqueue_assets(): void {
-        if (!is_a(self::get_screen_with_shortcode(), 'WP_Post')) {
-            return;
-        }
+    public static function register_assets(): void {
+        $css_path = plugin_dir_path(__DIR__) . 'assets/css/booking-client-form.css';
+        $js_path = plugin_dir_path(__DIR__) . 'assets/js/booking-client-form.js';
 
         wp_register_style(
             'wsb-booking-client-form-style',
             plugins_url('assets/css/booking-client-form.css', __DIR__ . '/../ws-bookings-client.php'),
             [],
-            WSB_CLIENT_VERSION
+            file_exists($css_path) ? filemtime($css_path) : WSB_CLIENT_VERSION
         );
 
         wp_register_script(
             'wsb-booking-client-form-script',
             plugins_url('assets/js/booking-client-form.js', __DIR__ . '/../ws-bookings-client.php'),
             [],
-            WSB_CLIENT_VERSION,
+            file_exists($js_path) ? filemtime($js_path) : WSB_CLIENT_VERSION,
             true
         );
+    }
 
+    public static function enqueue_assets(): void {
+        self::register_assets();
         wp_enqueue_style('wsb-booking-client-form-style');
         wp_enqueue_script('wsb-booking-client-form-script');
     }

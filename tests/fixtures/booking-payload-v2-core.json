@@ -1,0 +1,60 @@
+[
+  {
+    "id": "one-way-basic",
+    "description": "Basic one-way transfer",
+    "input": {
+      "trip_type": "one_way",
+      "service_type": "city_transfer",
+      "passengers": 2,
+      "outbound_from": "Cape Town International Airport",
+      "outbound_to": "Stellenbosch Central",
+      "outbound_pickup_date": "2026-07-15",
+      "outbound_pickup_time": "14:00",
+      "check_in_bags": 2,
+      "carry_on_bags": 2
+    }
+  },
+  {
+    "id": "return-basic",
+    "description": "Basic return transfer",
+    "input": {
+      "trip_type": "return",
+      "service_type": "airport_pickup",
+      "passengers": 4,
+      "outbound_from": "Cape Town International Airport",
+      "outbound_to": "Franschhoek",
+      "outbound_pickup_date": "2026-07-15",
+      "outbound_pickup_time": "14:00",
+      "return_from": "Franschhoek",
+      "return_to": "Cape Town International Airport",
+      "return_pickup_date": "2026-07-20",
+      "return_pickup_time": "09:00",
+      "check_in_bags": 4,
+      "carry_on_bags": 4
+    }
+  },
+  {
+    "id": "one-way-additional-stop",
+    "description": "One-way transfer with additional stop",
+    "input": {
+      "trip_type": "one_way",
+      "service_type": "city_transfer",
+      "passengers": 3,
+      "outbound_from": "Somerset West",
+      "outbound_to": "Sun City",
+      "outbound_pickup_date": "2026-08-01",
+      "outbound_pickup_time": "08:30",
+      "additional_stop_enabled": true,
+      "additional_stop": "Engen Winelands 1 Stop"
+    }
+  },
+  {
+    "id": "invalid-missing-route",
+    "description": "Invalid payload missing route fields",
+    "input": {
+      "trip_type": "one_way",
+      "service_type": "city_transfer",
+      "passengers": 1
+    }
+  }
+]

@@ -3,17 +3,21 @@
         return;
     }
 
-    function isDebugMode() {
-        return window.location.search.indexOf('debug=1') !== -1;
+    var DEBUG = window.location.search.indexOf('debug=1') !== -1;
+
+    function logDebug() {
+        if (!DEBUG || typeof window.console === 'undefined' || typeof window.console.log !== 'function') {
+            return;
+        }
+
+        window.console.log.apply(window.console, arguments);
     }
 
     function debounce(fn, delay) {
         var timer = null;
-
         return function debounced() {
             var context = this;
             var args = arguments;
-
             clearTimeout(timer);
             timer = window.setTimeout(function () {
                 fn.apply(context, args);
@@ -35,7 +39,6 @@
 
     function getFieldValue(form, selector, fallback) {
         var input = getField(form, selector);
-
         if (!input) {
             return fallback;
         }
@@ -65,9 +68,8 @@
         return Boolean(getFieldValue(form, selector, false));
     }
 
-    function buildLocation(label) {
+    function textLocation(label) {
         var text = trimValue(label);
-
         return {
             label: text,
             name: '',
@@ -82,59 +84,18 @@
         };
     }
 
-    function buildSource() {
-        return {
-            site: 'marketing',
-            channel: 'shortcode_form',
-            page_url: window.location.href,
-            referrer: document.referrer || ''
-        };
-    }
-
-    function buildTracking() {
-        var params = {};
-        var search = window.location.search.replace(/^\?/, '');
-
-        if (!search) {
-            return params;
-        }
-
-        search.split('&').forEach(function (pair) {
-            if (!pair) {
-                return;
-            }
-
-            var parts = pair.split('=');
-            var key = decodeURIComponent((parts[0] || '').replace(/\+/g, '%20')).trim();
-            var value = decodeURIComponent((parts[1] || '').replace(/\+/g, '%20')).trim();
-            var allowed = key.indexOf('utm_') === 0 || 'gclid' === key || 'fbclid' === key;
-
-            if (allowed && key) {
-                params[key] = value;
-            }
-        });
-
-        return params;
-    }
-
     function buildLeg(form, type) {
-        var prefix = 'return' === type ? 'return_' : 'outbound_';
+        var prefix = type === 'return' ? 'return_' : 'outbound_';
         var leg = {
-            sequence: 'return' === type ? 2 : 1,
-            leg_group: 'return' === type ? 'return' : 'outbound',
-            leg_type: 'direct',
-            service_type: 'city_transfer',
-            from: buildLocation(getFieldValue(form, 'input[name="' + prefix + 'from"]', '')),
-            to: buildLocation(getFieldValue(form, 'input[name="' + prefix + 'to"]', '')),
+            type: type,
+            from: textLocation(getFieldValue(form, 'input[name="' + prefix + 'from"]', '')),
+            to: textLocation(getFieldValue(form, 'input[name="' + prefix + 'to"]', '')),
             pickup_date: getFieldValue(form, 'input[name="' + prefix + 'pickup_date"]', ''),
             pickup_time: getFieldValue(form, 'input[name="' + prefix + 'pickup_time"]', ''),
-            pickup_datetime: '',
+            pickup_datetime: trimValue(getFieldValue(form, 'input[name="' + prefix + 'pickup_date"]', '') + ' ' + getFieldValue(form, 'input[name="' + prefix + 'pickup_time"]', '')),
             stops: [],
             route: {}
         };
-
-        leg.pickup_datetime = trimValue(leg.pickup_date + ' ' + leg.pickup_time);
-
         return leg;
     }
 
@@ -153,176 +114,146 @@
         if (additionalStopEnabled && additionalStop) {
             outboundLeg.stops.push({
                 type: 'additional_stop',
-                location: buildLocation(additionalStop)
+                location: textLocation(additionalStop)
             });
         }
 
-        if ('return' === tripType) {
+        if (tripType === 'return') {
             legs.push(buildLeg(form, 'return'));
         }
 
         return {
             schema_version: '2.0',
-            source: buildSource(),
+            source: 'marketing_booking_builder',
             service_group: 'transfer',
             service_type: 'city_transfer',
             trip_type: tripType,
-            customer: {
-                name: '',
-                email: '',
-                phone: ''
-            },
             passengers: passengers,
+            baby_seats: getNumberValue(form, 'input[name="baby_seats"]', 0),
             luggage: {
                 check_in_bags: getNumberValue(form, 'input[name="check_in_bags"]', 0),
                 carry_on_bags: getNumberValue(form, 'input[name="carry_on_bags"]', 0)
             },
-            baby_seats: getNumberValue(form, 'input[name="baby_seats"]', 0),
             add_ons: {
-                baby_seats: getNumberValue(form, 'input[name="baby_seats"]', 0),
                 trailer: getBooleanValue(form, 'input[name="trailer"]'),
                 oversize_luggage: getBooleanValue(form, 'input[name="oversize_luggage"]')
             },
             legs: legs,
-            route: {
-                place_ids: [],
-                toll_gates: [],
-                route_options: []
-            },
-            tracking: buildTracking(),
-            validation_flags: {},
             meta: {
-                handover_mode: 'preview_only',
+                preview_only: true,
                 created_at: new Date().toISOString()
-            },
-            charter: null
+            }
         };
     }
 
-    function updateReturnVisibility(returnSection, tripTypeRadios) {
-        if (!returnSection) {
+    function renderPreviewSummary(statusElement, payload) {
+        if (!statusElement) {
             return;
         }
 
-        var isReturn = false;
+        var legCount = payload.legs ? payload.legs.length : 0;
+        var hasAdditional = payload.legs && payload.legs[0] && payload.legs[0].stops && payload.legs[0].stops.length > 0;
+        var summary = [
+            'Live payload preview active',
+            'trip: ' + payload.trip_type,
+            legCount + ' leg' + (legCount === 1 ? '' : 's'),
+            'additional stop: ' + (hasAdditional ? 'enabled' : 'disabled'),
+            'updated: ' + new Date().toLocaleTimeString()
+        ];
 
-        forEachNode(tripTypeRadios, function (radio) {
-            if (radio.checked && 'return' === radio.value) {
-                isReturn = true;
-            }
-        });
-
-        if (isReturn) {
-            returnSection.classList.remove('wsb-booking-client-hidden');
-        } else {
-            returnSection.classList.add('wsb-booking-client-hidden');
-        }
+        statusElement.textContent = summary.join(' · ');
     }
 
-    function updateAdditionalStop(additionalStopToggle, additionalStopField) {
-        if (!additionalStopToggle || !additionalStopField) {
+    function renderPayload(previewElement, statusElement, messageElement, payload, message) {
+        if (previewElement) {
+            previewElement.textContent = JSON.stringify(payload, null, 2);
+        }
+
+        renderPreviewSummary(statusElement, payload);
+
+        if (messageElement) {
+            messageElement.textContent = message || '';
+        }
+
+        logDebug('Booking Builder preview updated', payload);
+    }
+
+    function initBookingBuilder(root) {
+        var form = root.querySelector('[data-wsb-booking-form]');
+        var returnSection = root.querySelector('[data-wsb-return-section]');
+        var additionalStopToggle = root.querySelector('[data-wsb-additional-stop-toggle]');
+        var additionalStopField = root.querySelector('[data-wsb-additional-stop-section]');
+        var previewElement = root.querySelector('[data-wsb-payload-preview]');
+        var statusElement = root.querySelector('[data-wsb-preview-status]');
+        var messageElement = root.querySelector('[data-wsb-submit-message]');
+
+        if (!form) {
+            if (DEBUG) {
+                logDebug('Missing booking form in wrapper', root);
+            }
             return;
         }
 
-        var additionalInput = additionalStopField.querySelector('input');
-
-        if (additionalStopToggle.checked) {
-            additionalStopField.classList.remove('wsb-booking-client-hidden');
-            if (additionalInput) {
-                additionalInput.removeAttribute('disabled');
-            }
-        } else {
-            additionalStopField.classList.add('wsb-booking-client-hidden');
-            if (additionalInput) {
-                additionalInput.setAttribute('disabled', 'disabled');
-            }
-        }
-    }
-
-    function renderPayloadPreview(previewElement, payload) {
         if (!previewElement) {
+            if (DEBUG) {
+                logDebug('Missing payload preview element in booking builder', root);
+            }
             return;
         }
 
-        previewElement.textContent = JSON.stringify(payload, null, 2);
-    }
-
-    function initBookingBuilder(shell) {
-        var form = shell.querySelector('.wsb-booking-client-form') || shell;
-        var returnSection = form.querySelector('.wsb-booking-client-return');
-        var additionalStopToggle = form.querySelector('.wsb-booking-client-additional-toggle');
-        var additionalStopField = form.querySelector('.wsb-booking-client-additional-stop-field');
-        var tripTypeRadios = form.querySelectorAll('input[name="trip_type"]');
-        var previewElement = form.querySelector('.wsb-booking-client-preview-json');
-        var messageElement = form.querySelector('.wsb-booking-client-submit-message');
-
-        if (!form || !previewElement) {
-            return;
-        }
-
-        function renderPreview(message) {
+        function refreshPreview(message) {
             var payload = buildPayload(form);
-
-            renderPayloadPreview(previewElement, payload);
-
-            if (messageElement) {
-                messageElement.textContent = message || '';
-            }
-
-            if (isDebugMode() && window.console && typeof window.console.log === 'function') {
-                window.console.log('[WSB BookingPayload v2]', payload);
-            }
-
+            renderPayload(previewElement, statusElement, messageElement, payload, message);
             return payload;
         }
 
-        var debouncedRenderPreview = debounce(function () {
-            renderPreview('');
+        var debouncedRefresh = debounce(function () {
+            refreshPreview('');
         }, 150);
 
-        forEachNode(tripTypeRadios, function (radio) {
+        var tripTypeInputs = form.querySelectorAll('input[name="trip_type"]');
+        forEachNode(tripTypeInputs, function (radio) {
             radio.addEventListener('change', function () {
-                updateReturnVisibility(returnSection, tripTypeRadios);
-                renderPreview('');
+                updateReturnVisibility(returnSection, tripTypeInputs);
+                refreshPreview('');
             });
         });
 
         if (additionalStopToggle) {
             additionalStopToggle.addEventListener('change', function () {
                 updateAdditionalStop(additionalStopToggle, additionalStopField);
-                renderPreview('');
+                refreshPreview('');
             });
         }
 
-        form.addEventListener('input', debouncedRenderPreview);
+        form.addEventListener('input', debouncedRefresh);
         form.addEventListener('change', function () {
-            renderPreview('');
+            refreshPreview('');
         });
         form.addEventListener('blur', function () {
-            renderPreview('');
+            refreshPreview('');
         }, true);
         form.addEventListener('submit', function (event) {
             event.preventDefault();
-
-            renderPreview('Real booking submission is disabled. This is a local BookingPayload v2 preview only.');
+            refreshPreview('Preview updated. Real booking submission is not enabled yet.');
         });
 
-        updateReturnVisibility(returnSection, tripTypeRadios);
+        updateReturnVisibility(returnSection, tripTypeInputs);
         updateAdditionalStop(additionalStopToggle, additionalStopField);
-        renderPreview('');
+        refreshPreview('Live payload preview initialised');
     }
 
     document.addEventListener('DOMContentLoaded', function () {
-        var shells = document.querySelectorAll('.wsb-booking-client-shell');
+        var wrappers = document.querySelectorAll('[data-wsb-booking-builder]');
 
-        if (shells.length) {
-            forEachNode(shells, initBookingBuilder);
+        if (!wrappers.length) {
+            if (DEBUG) {
+                logDebug('No booking builder wrapper found on page');
+            }
             return;
         }
 
-        var form = document.querySelector('.wsb-booking-client-form');
-        if (form) {
-            initBookingBuilder(form);
-        }
+        logDebug('Booking Builder preview initialised', 'wrapper count:', wrappers.length);
+        forEachNode(wrappers, initBookingBuilder);
     });
 })();

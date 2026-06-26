@@ -1,0 +1,2430 @@
+{
+  "generated_from": "debug.zip",
+  "generated_at": "2026-06-26",
+  "note": "Seed fixtures derived from uploaded production debug logs. Values must be treated as regression inputs, not final expected prices until a pricing expectation file is added.",
+  "fixtures": [
+    {
+      "id": "wsb-v2-001-airport-dropoff-early",
+      "description": "One-way airport drop-off, early pickup, normal valid transfer",
+      "status": "seed_from_debug_log",
+      "payload_v2": {
+        "schema_version": "2.0",
+        "source": {
+          "site": "marketing",
+          "channel": "fixture_from_production_debug",
+          "legacy_source_log": "debug_1.log"
+        },
+        "trip_type": "one_way",
+        "service_group": "transfer",
+        "service_type": "airport_dropoff",
+        "customer": {
+          "name": "",
+          "email": "",
+          "phone": ""
+        },
+        "passengers": 1,
+        "luggage": {
+          "check_in_bags": 1,
+          "carry_on_bags": 1
+        },
+        "add_ons": {
+          "baby_seats": 0,
+          "trailer": false,
+          "oversize_luggage": false
+        },
+        "legs": [
+          {
+            "sequence": 1,
+            "leg_group": "outbound",
+            "leg_type": "direct",
+            "from": {
+              "label": "12G Main Road, Courtrai, Paarl, South Africa",
+              "name": "12G Main Rd",
+              "town": "Paarl",
+              "neighbourhood": "Courtrai",
+              "coords": {
+                "lat": -33.7716559,
+                "lng": 18.9586923
+              }
+            },
+            "to": {
+              "label": "Cape Town International Airport (CPT), Matroosfontein, Cape Town, South Africa",
+              "name": "Cape Town International Airport",
+              "town": "Cape Town",
+              "neighbourhood": "Matroosfontein",
+              "coords": {
+                "lat": -33.9688707,
+                "lng": 18.5997595
+              }
+            },
+            "pickup_date": "15/06/2026",
+            "pickup_time": "04:00",
+            "dropoff_time": "",
+            "distance_km": 54.1,
+            "duration_text": "37 mins",
+            "service_type": "airport_dropoff"
+          }
+        ],
+        "charter": null,
+        "route": {
+          "place_ids": [
+            "ChIJv4HQcPmozR0RP0S_5wAGoyg",
+            "ChIJvQtA90JFzB0RkF7P43l1SEA"
+          ],
+          "toll_gates": "[null]",
+          "route_options": []
+        },
+        "validation_flags": {
+          "within_zone_threshold": true,
+          "outside_max_radius": false,
+          "ineligible_trip": false
+        },
+        "legacy_map": {
+          "largeBags": "luggage.check_in_bags",
+          "carryOnBags": "luggage.carry_on_bags",
+          "babySeatCount": "add_ons.baby_seats"
+        }
+      },
+      "raw_legacy_subset": {
+        "tripType": "one-way",
+        "serviceType": "airport_dropoff",
+        "locationFrom": "12G Main Road, Courtrai, Paarl, South Africa",
+        "locationTo": "Cape Town International Airport (CPT), Matroosfontein, Cape Town, South Africa",
+        "pickupDate": "15/06/2026",
+        "pickupTime": "04:00",
+        "dropOffTime": "",
+        "returnFrom": "",
+        "returnTo": "",
+        "returnDate": "13/06/2026",
+        "returnTime": "07:52",
+        "passengers": "1",
+        "largeBags": "1",
+        "carryOnBags": "1",
+        "babySeatCount": "0",
+        "trailerRequired": "false",
+        "oversizeLuggage": "false",
+        "tripDistance": "54.1",
+        "distance": "54.1",
+        "origin_hq_km": "54.1",
+        "destination_hq_km": "0",
+        "return_origin_hq_km": "0",
+        "return_destination_hq_km": "0",
+        "return_service_type": "",
+        "tollGates": "[null]",
+        "withinZoneThreshold": "true",
+        "outsideMaxRadius": "false",
+        "ineligibleTrip": "false"
+      }
+    },
+    {
+      "id": "wsb-v2-002-airport-pickup-with-baby-seat",
+      "description": "One-way airport pickup with one baby seat",
+      "status": "seed_from_debug_log",
+      "payload_v2": {
+        "schema_version": "2.0",
+        "source": {
+          "site": "marketing",
+          "channel": "fixture_from_production_debug",
+          "legacy_source_log": "debug_1.log"
+        },
+        "trip_type": "one_way",
+        "service_group": "transfer",
+        "service_type": "airport_pickup",
+        "customer": {
+          "name": "",
+          "email": "",
+          "phone": ""
+        },
+        "passengers": 5,
+        "luggage": {
+          "check_in_bags": 6,
+          "carry_on_bags": 5
+        },
+        "add_ons": {
+          "baby_seats": 1,
+          "trailer": false,
+          "oversize_luggage": false
+        },
+        "legs": [
+          {
+            "sequence": 1,
+            "leg_group": "outbound",
+            "leg_type": "direct",
+            "from": {
+              "label": "Cape Town International Airport (CPT), Matroosfontein, Cape Town, South Africa",
+              "name": "Cape Town International Airport",
+              "town": "Cape Town",
+              "neighbourhood": "Matroosfontein",
+              "coords": {
+                "lat": -33.9688707,
+                "lng": 18.5997595
+              }
+            },
+            "to": {
+              "label": "Victoria & Alfred Hotel, Dock Road, Victoria & Alfred Waterfront, Cape Town, South Africa",
+              "name": "Victoria & Alfred Hotel",
+              "town": "Cape Town",
+              "neighbourhood": "Victoria & Alfred Waterfront",
+              "coords": {
+                "lat": -33.90610789999999,
+                "lng": 18.4201401
+              }
+            },
+            "pickup_date": "20/11/2026",
+            "pickup_time": "11:30",
+            "dropoff_time": "",
+            "distance_km": 21.0,
+            "duration_text": "21 mins",
+            "service_type": "airport_pickup"
+          }
+        ],
+        "charter": null,
+        "route": {
+          "place_ids": [
+            "ChIJvQtA90JFzB0RkF7P43l1SEA",
+            "ChIJjWnWa1pnzB0RHyRw-wpDTLI"
+          ],
+          "toll_gates": "[null]",
+          "route_options": []
+        },
+        "validation_flags": {
+          "within_zone_threshold": true,
+          "outside_max_radius": false,
+          "ineligible_trip": false
+        },
+        "legacy_map": {
+          "largeBags": "luggage.check_in_bags",
+          "carryOnBags": "luggage.carry_on_bags",
+          "babySeatCount": "add_ons.baby_seats"
+        }
+      },
+      "raw_legacy_subset": {
+        "tripType": "one-way",
+        "serviceType": "airport_pickup",
+        "locationFrom": "Cape Town International Airport (CPT), Matroosfontein, Cape Town, South Africa",
+        "locationTo": "Victoria & Alfred Hotel, Dock Road, Victoria & Alfred Waterfront, Cape Town, South Africa",
+        "pickupDate": "20/11/2026",
+        "pickupTime": "11:30",
+        "dropOffTime": "",
+        "returnFrom": "",
+        "returnTo": "",
+        "returnDate": "13/06/2026",
+        "returnTime": "07:28",
+        "passengers": "5",
+        "largeBags": "6",
+        "carryOnBags": "5",
+        "babySeatCount": "1",
+        "trailerRequired": "false",
+        "oversizeLuggage": "false",
+        "tripDistance": "21",
+        "distance": "21",
+        "origin_hq_km": "0",
+        "destination_hq_km": "21",
+        "return_origin_hq_km": "0",
+        "return_destination_hq_km": "0",
+        "return_service_type": "",
+        "tollGates": "[null]",
+        "withinZoneThreshold": "true",
+        "outsideMaxRadius": "false",
+        "ineligibleTrip": "false"
+      }
+    },
+    {
+      "id": "wsb-v2-003-city-transfer-local",
+      "description": "One-way local/medium city transfer",
+      "status": "seed_from_debug_log",
+      "payload_v2": {
+        "schema_version": "2.0",
+        "source": {
+          "site": "marketing",
+          "channel": "fixture_from_production_debug",
+          "legacy_source_log": "debug_1.log"
+        },
+        "trip_type": "one_way",
+        "service_group": "transfer",
+        "service_type": "city_transfer",
+        "customer": {
+          "name": "",
+          "email": "",
+          "phone": ""
+        },
+        "passengers": 5,
+        "luggage": {
+          "check_in_bags": 6,
+          "carry_on_bags": 1
+        },
+        "add_ons": {
+          "baby_seats": 1,
+          "trailer": false,
+          "oversize_luggage": false
+        },
+        "legs": [
+          {
+            "sequence": 1,
+            "leg_group": "outbound",
+            "leg_type": "direct",
+            "from": {
+              "label": "Victoria & Alfred Hotel, Dock Road, Victoria & Alfred Waterfront, Cape Town, South Africa",
+              "name": "Victoria & Alfred Hotel",
+              "town": "Cape Town",
+              "neighbourhood": "Victoria & Alfred Waterfront",
+              "coords": {
+                "lat": -33.90610789999999,
+                "lng": 18.4201401
+              }
+            },
+            "to": {
+              "label": "Oude Werf Hotel, Church Street, Stellenbosch Central, Stellenbosch, South Africa",
+              "name": "Oude Werf Hotel",
+              "town": "Stellenbosch",
+              "neighbourhood": "Stellenbosch Central",
+              "coords": {
+                "lat": -33.9377928,
+                "lng": 18.8620772
+              }
+            },
+            "pickup_date": "23/11/2026",
+            "pickup_time": "11:40",
+            "dropoff_time": "",
+            "distance_km": 53.3,
+            "duration_text": "51 mins",
+            "service_type": "city_transfer"
+          }
+        ],
+        "charter": null,
+        "route": {
+          "place_ids": [
+            "ChIJjWnWa1pnzB0RHyRw-wpDTLI",
+            "ChIJK0IZDlyyzR0RLhkZ96CoP7w"
+          ],
+          "toll_gates": "[null]",
+          "route_options": []
+        },
+        "validation_flags": {
+          "within_zone_threshold": true,
+          "outside_max_radius": false,
+          "ineligible_trip": false
+        },
+        "legacy_map": {
+          "largeBags": "luggage.check_in_bags",
+          "carryOnBags": "luggage.carry_on_bags",
+          "babySeatCount": "add_ons.baby_seats"
+        }
+      },
+      "raw_legacy_subset": {
+        "tripType": "one-way",
+        "serviceType": "city",
+        "locationFrom": "Victoria & Alfred Hotel, Dock Road, Victoria & Alfred Waterfront, Cape Town, South Africa",
+        "locationTo": "Oude Werf Hotel, Church Street, Stellenbosch Central, Stellenbosch, South Africa",
+        "pickupDate": "23/11/2026",
+        "pickupTime": "11:40",
+        "dropOffTime": "",
+        "returnFrom": "",
+        "returnTo": "",
+        "returnDate": "13/06/2026",
+        "returnTime": "07:42",
+        "passengers": "5",
+        "largeBags": "6",
+        "carryOnBags": "1",
+        "babySeatCount": "1",
+        "trailerRequired": "false",
+        "oversizeLuggage": "false",
+        "tripDistance": "53.3",
+        "distance": "53.3",
+        "origin_hq_km": "21",
+        "destination_hq_km": "36.2",
+        "return_origin_hq_km": "0",
+        "return_destination_hq_km": "0",
+        "return_service_type": "",
+        "tollGates": "[null]",
+        "withinZoneThreshold": "true",
+        "outsideMaxRadius": "false",
+        "ineligibleTrip": "false"
+      }
+    },
+    {
+      "id": "wsb-v2-004-city-transfer-long",
+      "description": "One-way longer city transfer under/near operating radius",
+      "status": "seed_from_debug_log",
+      "payload_v2": {
+        "schema_version": "2.0",
+        "source": {
+          "site": "marketing",
+          "channel": "fixture_from_production_debug",
+          "legacy_source_log": "debug_1.log"
+        },
+        "trip_type": "one_way",
+        "service_group": "transfer",
+        "service_type": "city_transfer",
+        "customer": {
+          "name": "",
+          "email": "",
+          "phone": ""
+        },
+        "passengers": 5,
+        "luggage": {
+          "check_in_bags": 6,
+          "carry_on_bags": 5
+        },
+        "add_ons": {
+          "baby_seats": 1,
+          "trailer": false,
+          "oversize_luggage": false
+        },
+        "legs": [
+          {
+            "sequence": 1,
+            "leg_group": "outbound",
+            "leg_type": "direct",
+            "from": {
+              "label": "Oude Werf Hotel, Church Street, Stellenbosch Central, Stellenbosch, South Africa",
+              "name": "Oude Werf Hotel",
+              "town": "Stellenbosch",
+              "neighbourhood": "Stellenbosch Central",
+              "coords": {
+                "lat": -33.9377928,
+                "lng": 18.8620772
+              }
+            },
+            "to": {
+              "label": "Harbour House Hotel, Harbour Road, Hermanus, South Africa",
+              "name": "Harbour House Hotel",
+              "town": "Hermanus",
+              "neighbourhood": "Hermanus",
+              "coords": {
+                "lat": -34.4211679,
+                "lng": 19.2431438
+              }
+            },
+            "pickup_date": "26/11/2026",
+            "pickup_time": "11:45",
+            "dropoff_time": "",
+            "distance_km": 94.7,
+            "duration_text": "1 hour 26 mins",
+            "service_type": "city_transfer"
+          }
+        ],
+        "charter": null,
+        "route": {
+          "place_ids": [
+            "ChIJK0IZDlyyzR0RLhkZ96CoP7w",
+            "ChIJYWMSNaQLzh0RyKTjqCm6mpI"
+          ],
+          "toll_gates": "[null]",
+          "route_options": []
+        },
+        "validation_flags": {
+          "within_zone_threshold": true,
+          "outside_max_radius": false,
+          "ineligible_trip": false
+        },
+        "legacy_map": {
+          "largeBags": "luggage.check_in_bags",
+          "carryOnBags": "luggage.carry_on_bags",
+          "babySeatCount": "add_ons.baby_seats"
+        }
+      },
+      "raw_legacy_subset": {
+        "tripType": "one-way",
+        "serviceType": "city",
+        "locationFrom": "Oude Werf Hotel, Church Street, Stellenbosch Central, Stellenbosch, South Africa",
+        "locationTo": "Harbour House Hotel, Harbour Road, Hermanus, South Africa",
+        "pickupDate": "26/11/2026",
+        "pickupTime": "11:45",
+        "dropOffTime": "",
+        "returnFrom": "",
+        "returnTo": "",
+        "returnDate": "13/06/2026",
+        "returnTime": "07:45",
+        "passengers": "5",
+        "largeBags": "6",
+        "carryOnBags": "5",
+        "babySeatCount": "1",
+        "trailerRequired": "false",
+        "oversizeLuggage": "false",
+        "tripDistance": "94.7",
+        "distance": "94.7",
+        "origin_hq_km": "36.2",
+        "destination_hq_km": "105",
+        "return_origin_hq_km": "0",
+        "return_destination_hq_km": "0",
+        "return_service_type": "",
+        "tollGates": "[null]",
+        "withinZoneThreshold": "true",
+        "outsideMaxRadius": "false",
+        "ineligibleTrip": "false"
+      }
+    },
+    {
+      "id": "wsb-v2-005-outside-max-radius",
+      "description": "Invalid/outside max radius edge case",
+      "status": "seed_from_debug_log",
+      "payload_v2": {
+        "schema_version": "2.0",
+        "source": {
+          "site": "marketing",
+          "channel": "fixture_from_production_debug",
+          "legacy_source_log": "debug_1.log"
+        },
+        "trip_type": "one_way",
+        "service_group": "transfer",
+        "service_type": "city_transfer",
+        "customer": {
+          "name": "",
+          "email": "",
+          "phone": ""
+        },
+        "passengers": 2,
+        "luggage": {
+          "check_in_bags": 2,
+          "carry_on_bags": 1
+        },
+        "add_ons": {
+          "baby_seats": 0,
+          "trailer": false,
+          "oversize_luggage": false
+        },
+        "legs": [
+          {
+            "sequence": 1,
+            "leg_group": "outbound",
+            "leg_type": "direct",
+            "from": {
+              "label": "Camps Bay, Cape Town, South Africa",
+              "name": "Camps Bay",
+              "town": "Cape Town",
+              "neighbourhood": "Camps Bay",
+              "coords": {
+                "lat": -33.951298,
+                "lng": 18.3830983
+              }
+            },
+            "to": {
+              "label": "Airport Company South Africa, O.R. Tambo Airport Road, O.R. Tambo, Kempton Park, South Africa",
+              "name": "Airport Company South Africa",
+              "town": "Kempton Park",
+              "neighbourhood": "O.R. Tambo",
+              "coords": {
+                "lat": -26.1323698,
+                "lng": 28.2294258
+              }
+            },
+            "pickup_date": "14/06/2026",
+            "pickup_time": "12:30",
+            "dropoff_time": "",
+            "distance_km": 1431.0,
+            "duration_text": "15 hours 11 mins",
+            "service_type": "city_transfer"
+          }
+        ],
+        "charter": null,
+        "route": {
+          "place_ids": [
+            "ChIJiYwyDq1nzB0Rl0tGxEGyoMc",
+            "ChIJ11l7wEIUlR4Rp0NnnYPRgJ0"
+          ],
+          "toll_gates": "[\"huguenot\"]",
+          "route_options": []
+        },
+        "validation_flags": {
+          "within_zone_threshold": true,
+          "outside_max_radius": true,
+          "ineligible_trip": true
+        },
+        "legacy_map": {
+          "largeBags": "luggage.check_in_bags",
+          "carryOnBags": "luggage.carry_on_bags",
+          "babySeatCount": "add_ons.baby_seats"
+        }
+      },
+      "raw_legacy_subset": {
+        "tripType": "one-way",
+        "serviceType": "city",
+        "locationFrom": "Camps Bay, Cape Town, South Africa",
+        "locationTo": "Airport Company South Africa, O.R. Tambo Airport Road, O.R. Tambo, Kempton Park, South Africa",
+        "pickupDate": "14/06/2026",
+        "pickupTime": "12:30",
+        "dropOffTime": "",
+        "returnFrom": "",
+        "returnTo": "",
+        "returnDate": "13/06/2026",
+        "returnTime": "08:03",
+        "passengers": "2",
+        "largeBags": "2",
+        "carryOnBags": "1",
+        "babySeatCount": "0",
+        "trailerRequired": "false",
+        "oversizeLuggage": "false",
+        "tripDistance": "1431",
+        "distance": "1431",
+        "origin_hq_km": "23.5",
+        "destination_hq_km": "1422",
+        "return_origin_hq_km": "0",
+        "return_destination_hq_km": "0",
+        "return_service_type": "",
+        "tollGates": "[\"huguenot\"]",
+        "withinZoneThreshold": "true",
+        "outsideMaxRadius": "true",
+        "ineligibleTrip": "true"
+      }
+    },
+    {
+      "id": "wsb-v2-006-airport-dropoff-trailer",
+      "description": "One-way airport drop-off with trailer",
+      "status": "seed_from_debug_log",
+      "payload_v2": {
+        "schema_version": "2.0",
+        "source": {
+          "site": "marketing",
+          "channel": "fixture_from_production_debug",
+          "legacy_source_log": "debug_4.log"
+        },
+        "trip_type": "one_way",
+        "service_group": "transfer",
+        "service_type": "airport_dropoff",
+        "customer": {
+          "name": "",
+          "email": "",
+          "phone": ""
+        },
+        "passengers": 7,
+        "luggage": {
+          "check_in_bags": 7,
+          "carry_on_bags": 0
+        },
+        "add_ons": {
+          "baby_seats": 0,
+          "trailer": true,
+          "oversize_luggage": false
+        },
+        "legs": [
+          {
+            "sequence": 1,
+            "leg_group": "outbound",
+            "leg_type": "direct",
+            "from": {
+              "label": "Ave Marina, Bantry Bay, Cape Town, South Africa",
+              "name": "Avenue Marina",
+              "town": "Cape Town",
+              "neighbourhood": "Bantry Bay",
+              "coords": {
+                "lat": -33.9279873,
+                "lng": 18.3804985
+              }
+            },
+            "to": {
+              "label": "Cape Town International Airport (CPT), Matroosfontein, Cape Town, South Africa",
+              "name": "Cape Town International Airport",
+              "town": "Cape Town",
+              "neighbourhood": "Matroosfontein",
+              "coords": {
+                "lat": -33.9688707,
+                "lng": 18.5997595
+              }
+            },
+            "pickup_date": "11/07/2026",
+            "pickup_time": "08:30",
+            "dropoff_time": "",
+            "distance_km": 25.1,
+            "duration_text": "28 mins",
+            "service_type": "airport_dropoff"
+          }
+        ],
+        "charter": null,
+        "route": {
+          "place_ids": [
+            "EjVBdmUgTWFyaW5hLCBCYW50cnkgQmF5LCBDYXBlIFRvd24sIDgwMDUsIFNvdXRoIEFmcmljYSIuKiwKFAoSCVm4Y_sdZ8wdEY_X60vKNauXEhQKEgmXVVyh4mbMHRGX9jIOTLOQgQ",
+            "ChIJvQtA90JFzB0RkF7P43l1SEA"
+          ],
+          "toll_gates": "[null]",
+          "route_options": []
+        },
+        "validation_flags": {
+          "within_zone_threshold": true,
+          "outside_max_radius": false,
+          "ineligible_trip": false
+        },
+        "legacy_map": {
+          "largeBags": "luggage.check_in_bags",
+          "carryOnBags": "luggage.carry_on_bags",
+          "babySeatCount": "add_ons.baby_seats"
+        }
+      },
+      "raw_legacy_subset": {
+        "tripType": "one-way",
+        "serviceType": "airport_dropoff",
+        "locationFrom": "Ave Marina, Bantry Bay, Cape Town, South Africa",
+        "locationTo": "Cape Town International Airport (CPT), Matroosfontein, Cape Town, South Africa",
+        "pickupDate": "11/07/2026",
+        "pickupTime": "08:30",
+        "dropOffTime": "",
+        "returnFrom": "",
+        "returnTo": "",
+        "returnDate": "16/06/2026",
+        "returnTime": "14:29",
+        "passengers": "7",
+        "largeBags": "7",
+        "carryOnBags": "0",
+        "babySeatCount": "0",
+        "trailerRequired": "true",
+        "oversizeLuggage": "false",
+        "tripDistance": "25.1",
+        "distance": "25.1",
+        "origin_hq_km": "25.1",
+        "destination_hq_km": "0",
+        "return_origin_hq_km": "0",
+        "return_destination_hq_km": "0",
+        "return_service_type": "",
+        "tollGates": "[null]",
+        "withinZoneThreshold": "true",
+        "outsideMaxRadius": "false",
+        "ineligibleTrip": "false"
+      }
+    },
+    {
+      "id": "wsb-v2-007-airport-dropoff-oversize",
+      "description": "One-way airport drop-off with oversize luggage",
+      "status": "seed_from_debug_log",
+      "payload_v2": {
+        "schema_version": "2.0",
+        "source": {
+          "site": "marketing",
+          "channel": "fixture_from_production_debug",
+          "legacy_source_log": "debug_2.log"
+        },
+        "trip_type": "one_way",
+        "service_group": "transfer",
+        "service_type": "airport_dropoff",
+        "customer": {
+          "name": "",
+          "email": "",
+          "phone": ""
+        },
+        "passengers": 1,
+        "luggage": {
+          "check_in_bags": 1,
+          "carry_on_bags": 2
+        },
+        "add_ons": {
+          "baby_seats": 0,
+          "trailer": false,
+          "oversize_luggage": true
+        },
+        "legs": [
+          {
+            "sequence": 1,
+            "leg_group": "outbound",
+            "leg_type": "direct",
+            "from": {
+              "label": "80 De Villiers Way, Glencairn, Cape Town, South Africa",
+              "name": "80 De Villiers Way",
+              "town": "Cape Town",
+              "neighbourhood": "Glencairn",
+              "coords": {
+                "lat": -34.1557101,
+                "lng": 18.4154144
+              }
+            },
+            "to": {
+              "label": "Cape Town International Airport (CPT), Matroosfontein, Cape Town, South Africa",
+              "name": "Cape Town International Airport",
+              "town": "Cape Town",
+              "neighbourhood": "Matroosfontein",
+              "coords": {
+                "lat": -33.9688707,
+                "lng": 18.5997595
+              }
+            },
+            "pickup_date": "14/06/2026",
+            "pickup_time": "18:30",
+            "dropoff_time": "",
+            "distance_km": 45.0,
+            "duration_text": "49 mins",
+            "service_type": "airport_dropoff"
+          }
+        ],
+        "charter": null,
+        "route": {
+          "place_ids": [
+            "ChIJdQ8QfE0VzB0RsGeRSfhJgHw",
+            "ChIJvQtA90JFzB0RkF7P43l1SEA"
+          ],
+          "toll_gates": "[null]",
+          "route_options": []
+        },
+        "validation_flags": {
+          "within_zone_threshold": true,
+          "outside_max_radius": false,
+          "ineligible_trip": false
+        },
+        "legacy_map": {
+          "largeBags": "luggage.check_in_bags",
+          "carryOnBags": "luggage.carry_on_bags",
+          "babySeatCount": "add_ons.baby_seats"
+        }
+      },
+      "raw_legacy_subset": {
+        "tripType": "one-way",
+        "serviceType": "airport_dropoff",
+        "locationFrom": "80 De Villiers Way, Glencairn, Cape Town, South Africa",
+        "locationTo": "Cape Town International Airport (CPT), Matroosfontein, Cape Town, South Africa",
+        "pickupDate": "14/06/2026",
+        "pickupTime": "18:30",
+        "dropOffTime": "",
+        "returnFrom": "",
+        "returnTo": "",
+        "returnDate": "14/06/2026",
+        "returnTime": "20:35",
+        "passengers": "1",
+        "largeBags": "1",
+        "carryOnBags": "2",
+        "babySeatCount": "0",
+        "trailerRequired": "false",
+        "oversizeLuggage": "true",
+        "tripDistance": "45",
+        "distance": "45",
+        "origin_hq_km": "45",
+        "destination_hq_km": "0",
+        "return_origin_hq_km": "0",
+        "return_destination_hq_km": "0",
+        "return_service_type": "",
+        "tollGates": "[null]",
+        "withinZoneThreshold": "true",
+        "outsideMaxRadius": "false",
+        "ineligibleTrip": "false"
+      }
+    },
+    {
+      "id": "wsb-v2-008-roundtrip-city-local",
+      "description": "Return/roundtrip city transfer, local route",
+      "status": "seed_from_debug_log",
+      "payload_v2": {
+        "schema_version": "2.0",
+        "source": {
+          "site": "marketing",
+          "channel": "fixture_from_production_debug",
+          "legacy_source_log": "debug_1.log"
+        },
+        "trip_type": "return",
+        "service_group": "transfer",
+        "service_type": "city_transfer",
+        "customer": {
+          "name": "",
+          "email": "",
+          "phone": ""
+        },
+        "passengers": 4,
+        "luggage": {
+          "check_in_bags": 0,
+          "carry_on_bags": 0
+        },
+        "add_ons": {
+          "baby_seats": 0,
+          "trailer": false,
+          "oversize_luggage": false
+        },
+        "legs": [
+          {
+            "sequence": 1,
+            "leg_group": "outbound",
+            "leg_type": "direct",
+            "from": {
+              "label": "Radisson Hotel Cape Town Foreshore, Heerengracht Street, Foreshore, Cape Town, South Africa",
+              "name": "Radisson Hotel Cape Town Foreshore",
+              "town": "Cape Town",
+              "neighbourhood": "Foreshore",
+              "coords": {
+                "lat": -33.9189126,
+                "lng": 18.4259466
+              }
+            },
+            "to": {
+              "label": "The Grand Cafe & Beach, Haul Road, Victoria & Alfred Waterfront, Cape Town, South Africa",
+              "name": "Grand Africa CafÃ© & Beach",
+              "town": "Cape Town",
+              "neighbourhood": "Victoria & Alfred Waterfront",
+              "coords": {
+                "lat": -33.9017332,
+                "lng": 18.4160233
+              }
+            },
+            "pickup_date": "15/06/2026",
+            "pickup_time": "17:00",
+            "distance_km": 3.5,
+            "duration_text": "10 mins",
+            "service_type": "city_transfer"
+          },
+          {
+            "sequence": 2,
+            "leg_group": "return",
+            "leg_type": "direct",
+            "from": {
+              "label": "The Grand Cafe & Beach, Haul Road, Victoria & Alfred Waterfront, Cape Town, South Africa",
+              "name": "Grand Africa CafÃ© & Beach",
+              "town": "Cape Town",
+              "neighbourhood": "Victoria & Alfred Waterfront",
+              "coords": {
+                "lat": -33.9017332,
+                "lng": 18.4160233
+              }
+            },
+            "to": {
+              "label": "Radisson Hotel Cape Town Foreshore, Heerengracht Street, Foreshore, Cape Town, South Africa",
+              "name": "Radisson Hotel Cape Town Foreshore",
+              "town": "Cape Town",
+              "neighbourhood": "Foreshore",
+              "coords": {
+                "lat": -33.9189126,
+                "lng": 18.4259466
+              }
+            },
+            "pickup_date": "13/06/2026",
+            "pickup_time": "22:00",
+            "distance_km": 3.2,
+            "duration_text": "9 mins",
+            "service_type": "city_transfer"
+          }
+        ],
+        "charter": null,
+        "route": {
+          "place_ids": [
+            "ChIJj_1PuGFnzB0RHGHUrRPACGo",
+            "ChIJtTTXGU5nzB0Rsbczl3yS4dI",
+            "ChIJtTTXGU5nzB0Rsbczl3yS4dI",
+            "ChIJj_1PuGFnzB0RHGHUrRPACGo"
+          ],
+          "toll_gates": "[null,null]",
+          "route_options": []
+        },
+        "validation_flags": {
+          "within_zone_threshold": true,
+          "outside_max_radius": false,
+          "ineligible_trip": false
+        },
+        "legacy_map": {
+          "largeBags": "luggage.check_in_bags",
+          "carryOnBags": "luggage.carry_on_bags",
+          "babySeatCount": "add_ons.baby_seats"
+        }
+      },
+      "raw_legacy_subset": {
+        "tripType": "roundtrip",
+        "serviceType": "city",
+        "locationFrom": "Radisson Hotel Cape Town Foreshore, Heerengracht Street, Foreshore, Cape Town, South Africa",
+        "locationTo": "The Grand Cafe & Beach, Haul Road, Victoria & Alfred Waterfront, Cape Town, South Africa",
+        "pickupDate": "15/06/2026",
+        "pickupTime": "17:00",
+        "dropOffTime": "",
+        "returnFrom": "The Grand Cafe & Beach, Haul Road, Victoria & Alfred Waterfront, Cape Town, South Africa",
+        "returnTo": "Radisson Hotel Cape Town Foreshore, Heerengracht Street, Foreshore, Cape Town, South Africa",
+        "returnDate": "13/06/2026",
+        "returnTime": "22:00",
+        "passengers": "4",
+        "largeBags": "0",
+        "carryOnBags": "0",
+        "babySeatCount": "0",
+        "trailerRequired": "false",
+        "oversizeLuggage": "false",
+        "tripDistance": "3.5,3.2",
+        "distance": "6.7",
+        "origin_hq_km": "18.2",
+        "destination_hq_km": "21.6",
+        "return_origin_hq_km": "21.6",
+        "return_destination_hq_km": "18.2",
+        "return_service_type": "city",
+        "tollGates": "[null,null]",
+        "withinZoneThreshold": "true",
+        "outsideMaxRadius": "false",
+        "ineligibleTrip": "false"
+      }
+    },
+    {
+      "id": "wsb-v2-009-roundtrip-airport-dropoff",
+      "description": "Return/roundtrip airport drop-off",
+      "status": "seed_from_debug_log",
+      "payload_v2": {
+        "schema_version": "2.0",
+        "source": {
+          "site": "marketing",
+          "channel": "fixture_from_production_debug",
+          "legacy_source_log": "debug_1.log"
+        },
+        "trip_type": "return",
+        "service_group": "transfer",
+        "service_type": "airport_dropoff",
+        "customer": {
+          "name": "",
+          "email": "",
+          "phone": ""
+        },
+        "passengers": 4,
+        "luggage": {
+          "check_in_bags": 4,
+          "carry_on_bags": 4
+        },
+        "add_ons": {
+          "baby_seats": 0,
+          "trailer": false,
+          "oversize_luggage": false
+        },
+        "legs": [
+          {
+            "sequence": 1,
+            "leg_group": "outbound",
+            "leg_type": "direct",
+            "from": {
+              "label": "Meadow Drive, 16 Hanging Crescent, Hout Bay, Kapstadt, SÃ¼dafrika",
+              "name": "Meadow Drive",
+              "town": "Cape Town",
+              "neighbourhood": "Scott Estate",
+              "coords": {
+                "lat": -34.0474153,
+                "lng": 18.3634257
+              }
+            },
+            "to": {
+              "label": "Cape Town International Airport (CPT), Matroosfontein, Kapstadt, SÃ¼dafrika",
+              "name": "Flughafen Kapstadt",
+              "town": "Cape Town",
+              "neighbourhood": "Matroosfontein",
+              "coords": {
+                "lat": -33.9688707,
+                "lng": 18.5997595
+              }
+            },
+            "pickup_date": "26/06/2026",
+            "pickup_time": "15:30",
+            "distance_km": 32.3,
+            "duration_text": "37 mins",
+            "service_type": "airport_dropoff"
+          },
+          {
+            "sequence": 2,
+            "leg_group": "return",
+            "leg_type": "direct",
+            "from": {
+              "label": "Cape Town International Airport (CPT), Matroosfontein, Kapstadt, SÃ¼dafrika",
+              "name": "Flughafen Kapstadt",
+              "town": "Cape Town",
+              "neighbourhood": "Matroosfontein",
+              "coords": {
+                "lat": -33.9688707,
+                "lng": 18.5997595
+              }
+            },
+            "to": {
+              "label": "Meadow Drive, 16 Hanging Crescent, Hout Bay, Kapstadt, SÃ¼dafrika",
+              "name": "Meadow Drive",
+              "town": "Cape Town",
+              "neighbourhood": "Scott Estate",
+              "coords": {
+                "lat": -34.0474153,
+                "lng": 18.3634257
+              }
+            },
+            "pickup_date": "20/07/2026",
+            "pickup_time": "15:00",
+            "distance_km": 32.2,
+            "duration_text": "37 mins",
+            "service_type": "airport_pickup"
+          }
+        ],
+        "charter": null,
+        "route": {
+          "place_ids": [
+            "ChIJP6k1QRFpzB0RznnKM7f-fxU",
+            "ChIJvQtA90JFzB0RkF7P43l1SEA",
+            "ChIJvQtA90JFzB0RkF7P43l1SEA",
+            "ChIJP6k1QRFpzB0RznnKM7f-fxU"
+          ],
+          "toll_gates": "[null,null]",
+          "route_options": []
+        },
+        "validation_flags": {
+          "within_zone_threshold": true,
+          "outside_max_radius": false,
+          "ineligible_trip": false
+        },
+        "legacy_map": {
+          "largeBags": "luggage.check_in_bags",
+          "carryOnBags": "luggage.carry_on_bags",
+          "babySeatCount": "add_ons.baby_seats"
+        }
+      },
+      "raw_legacy_subset": {
+        "tripType": "roundtrip",
+        "serviceType": "airport_dropoff",
+        "locationFrom": "Meadow Drive, 16 Hanging Crescent, Hout Bay, Kapstadt, SÃ¼dafrika",
+        "locationTo": "Cape Town International Airport (CPT), Matroosfontein, Kapstadt, SÃ¼dafrika",
+        "pickupDate": "26/06/2026",
+        "pickupTime": "15:30",
+        "dropOffTime": "",
+        "returnFrom": "Cape Town International Airport (CPT), Matroosfontein, Kapstadt, SÃ¼dafrika",
+        "returnTo": "Meadow Drive, 16 Hanging Crescent, Hout Bay, Kapstadt, SÃ¼dafrika",
+        "returnDate": "20/07/2026",
+        "returnTime": "15:00",
+        "passengers": "4",
+        "largeBags": "4",
+        "carryOnBags": "4",
+        "babySeatCount": "0",
+        "trailerRequired": "false",
+        "oversizeLuggage": "false",
+        "tripDistance": "32.3,32.2",
+        "distance": "64.5",
+        "origin_hq_km": "32.3",
+        "destination_hq_km": "0",
+        "return_origin_hq_km": "0",
+        "return_destination_hq_km": "32.2",
+        "return_service_type": "airport_pickup",
+        "tollGates": "[null,null]",
+        "withinZoneThreshold": "true",
+        "outsideMaxRadius": "false",
+        "ineligibleTrip": "false"
+      }
+    },
+    {
+      "id": "wsb-v2-010-roundtrip-airport-pickup",
+      "description": "Return/roundtrip airport pickup",
+      "status": "seed_from_debug_log",
+      "payload_v2": {
+        "schema_version": "2.0",
+        "source": {
+          "site": "marketing",
+          "channel": "fixture_from_production_debug",
+          "legacy_source_log": "debug_1.log"
+        },
+        "trip_type": "return",
+        "service_group": "transfer",
+        "service_type": "airport_pickup",
+        "customer": {
+          "name": "",
+          "email": "",
+          "phone": ""
+        },
+        "passengers": 1,
+        "luggage": {
+          "check_in_bags": 0,
+          "carry_on_bags": 1
+        },
+        "add_ons": {
+          "baby_seats": 0,
+          "trailer": false,
+          "oversize_luggage": false
+        },
+        "legs": [
+          {
+            "sequence": 1,
+            "leg_group": "outbound",
+            "leg_type": "direct",
+            "from": {
+              "label": "Cape Town International Airport (CPT), Matroosfontein, Cape Town, South Africa",
+              "name": "Cape Town International Airport",
+              "town": "Cape Town",
+              "neighbourhood": "Matroosfontein",
+              "coords": {
+                "lat": -33.9688707,
+                "lng": 18.5997595
+              }
+            },
+            "to": {
+              "label": "Somerset West, Cape Town, South Africa",
+              "name": "Somerset West",
+              "town": "Cape Town",
+              "neighbourhood": "Somerset West",
+              "coords": {
+                "lat": -34.0756899,
+                "lng": 18.8432656
+              }
+            },
+            "pickup_date": "20/06/2026",
+            "pickup_time": "11:51",
+            "distance_km": 31.4,
+            "duration_text": "26 mins",
+            "service_type": "airport_pickup"
+          },
+          {
+            "sequence": 2,
+            "leg_group": "return",
+            "leg_type": "direct",
+            "from": {
+              "label": "Somerset West, Cape Town, South Africa",
+              "name": "Somerset West",
+              "town": "Cape Town",
+              "neighbourhood": "Somerset West",
+              "coords": {
+                "lat": -34.0756899,
+                "lng": 18.8432656
+              }
+            },
+            "to": {
+              "label": "Cape Town International Airport (CPT), Matroosfontein, Cape Town, South Africa",
+              "name": "Cape Town International Airport",
+              "town": "Cape Town",
+              "neighbourhood": "Matroosfontein",
+              "coords": {
+                "lat": -33.9688707,
+                "lng": 18.5997595
+              }
+            },
+            "pickup_date": "13/06/2026",
+            "pickup_time": "11:51",
+            "distance_km": 31.5,
+            "duration_text": "24 mins",
+            "service_type": "airport_dropoff"
+          }
+        ],
+        "charter": null,
+        "route": {
+          "place_ids": [
+            "ChIJvQtA90JFzB0RkF7P43l1SEA",
+            "ChIJN_fE-2W1zR0RuWuhB_OJ-EI",
+            "ChIJN_fE-2W1zR0RuWuhB_OJ-EI",
+            "ChIJvQtA90JFzB0RkF7P43l1SEA"
+          ],
+          "toll_gates": "[null,null]",
+          "route_options": []
+        },
+        "validation_flags": {
+          "within_zone_threshold": true,
+          "outside_max_radius": false,
+          "ineligible_trip": false
+        },
+        "legacy_map": {
+          "largeBags": "luggage.check_in_bags",
+          "carryOnBags": "luggage.carry_on_bags",
+          "babySeatCount": "add_ons.baby_seats"
+        }
+      },
+      "raw_legacy_subset": {
+        "tripType": "roundtrip",
+        "serviceType": "airport_pickup",
+        "locationFrom": "Cape Town International Airport (CPT), Matroosfontein, Cape Town, South Africa",
+        "locationTo": "Somerset West, Cape Town, South Africa",
+        "pickupDate": "20/06/2026",
+        "pickupTime": "11:51",
+        "dropOffTime": "",
+        "returnFrom": "Somerset West, Cape Town, South Africa",
+        "returnTo": "Cape Town International Airport (CPT), Matroosfontein, Cape Town, South Africa",
+        "returnDate": "13/06/2026",
+        "returnTime": "11:51",
+        "passengers": "1",
+        "largeBags": "0",
+        "carryOnBags": "1",
+        "babySeatCount": "0",
+        "trailerRequired": "false",
+        "oversizeLuggage": "false",
+        "tripDistance": "31.4,31.5",
+        "distance": "62.9",
+        "origin_hq_km": "0",
+        "destination_hq_km": "31.4",
+        "return_origin_hq_km": "31.5",
+        "return_destination_hq_km": "0",
+        "return_service_type": "airport_dropoff",
+        "tollGates": "[null,null]",
+        "withinZoneThreshold": "true",
+        "outsideMaxRadius": "false",
+        "ineligibleTrip": "false"
+      }
+    },
+    {
+      "id": "wsb-v2-011-roundtrip-oversize-peak-window",
+      "description": "Return/roundtrip with oversize luggage during year-end period",
+      "status": "seed_from_debug_log",
+      "payload_v2": {
+        "schema_version": "2.0",
+        "source": {
+          "site": "marketing",
+          "channel": "fixture_from_production_debug",
+          "legacy_source_log": "debug_1.log"
+        },
+        "trip_type": "return",
+        "service_group": "transfer",
+        "service_type": "airport_pickup",
+        "customer": {
+          "name": "",
+          "email": "",
+          "phone": ""
+        },
+        "passengers": 2,
+        "luggage": {
+          "check_in_bags": 2,
+          "carry_on_bags": 2
+        },
+        "add_ons": {
+          "baby_seats": 0,
+          "trailer": false,
+          "oversize_luggage": true
+        },
+        "legs": [
+          {
+            "sequence": 1,
+            "leg_group": "outbound",
+            "leg_type": "direct",
+            "from": {
+              "label": "Cape Town International Airport (CPT), Matroosfontein, Cape Town, South Africa",
+              "name": "Cape Town International Airport",
+              "town": "Cape Town",
+              "neighbourhood": "Matroosfontein",
+              "coords": {
+                "lat": -33.9688707,
+                "lng": 18.5997595
+              }
+            },
+            "to": {
+              "label": "The Glen Apartments, Chilworth Road, Camps Bay, Cape Town, South Africa",
+              "name": "The Glen Apartments",
+              "town": "Cape Town",
+              "neighbourhood": "Camps Bay",
+              "coords": {
+                "lat": -33.9460092,
+                "lng": 18.3814247
+              }
+            },
+            "pickup_date": "27/12/2026",
+            "pickup_time": "19:00",
+            "distance_km": 23.6,
+            "duration_text": "27 mins",
+            "service_type": "airport_pickup"
+          },
+          {
+            "sequence": 2,
+            "leg_group": "return",
+            "leg_type": "direct",
+            "from": {
+              "label": "The Glen Apartments, Chilworth Road, Camps Bay, Cape Town, South Africa",
+              "name": "The Glen Apartments",
+              "town": "Cape Town",
+              "neighbourhood": "Camps Bay",
+              "coords": {
+                "lat": -33.9460092,
+                "lng": 18.3814247
+              }
+            },
+            "to": {
+              "label": "Cape Town International Airport (CPT), Matroosfontein, Cape Town, South Africa",
+              "name": "Cape Town International Airport",
+              "town": "Cape Town",
+              "neighbourhood": "Matroosfontein",
+              "coords": {
+                "lat": -33.9688707,
+                "lng": 18.5997595
+              }
+            },
+            "pickup_date": "03/01/2027",
+            "pickup_time": "18:00",
+            "distance_km": 23.4,
+            "duration_text": "27 mins",
+            "service_type": "airport_dropoff"
+          }
+        ],
+        "charter": null,
+        "route": {
+          "place_ids": [
+            "ChIJvQtA90JFzB0RkF7P43l1SEA",
+            "ChIJRXTZKKtnzB0RuMwsB_Zw24Y",
+            "ChIJRXTZKKtnzB0RuMwsB_Zw24Y",
+            "ChIJvQtA90JFzB0RkF7P43l1SEA"
+          ],
+          "toll_gates": "[null,null]",
+          "route_options": []
+        },
+        "validation_flags": {
+          "within_zone_threshold": true,
+          "outside_max_radius": false,
+          "ineligible_trip": false
+        },
+        "legacy_map": {
+          "largeBags": "luggage.check_in_bags",
+          "carryOnBags": "luggage.carry_on_bags",
+          "babySeatCount": "add_ons.baby_seats"
+        }
+      },
+      "raw_legacy_subset": {
+        "tripType": "roundtrip",
+        "serviceType": "airport_pickup",
+        "locationFrom": "Cape Town International Airport (CPT), Matroosfontein, Cape Town, South Africa",
+        "locationTo": "The Glen Apartments, Chilworth Road, Camps Bay, Cape Town, South Africa",
+        "pickupDate": "27/12/2026",
+        "pickupTime": "19:00",
+        "dropOffTime": "",
+        "returnFrom": "The Glen Apartments, Chilworth Road, Camps Bay, Cape Town, South Africa",
+        "returnTo": "Cape Town International Airport (CPT), Matroosfontein, Cape Town, South Africa",
+        "returnDate": "03/01/2027",
+        "returnTime": "18:00",
+        "passengers": "2",
+        "largeBags": "2",
+        "carryOnBags": "2",
+        "babySeatCount": "0",
+        "trailerRequired": "false",
+        "oversizeLuggage": "true",
+        "tripDistance": "23.6,23.4",
+        "distance": "47",
+        "origin_hq_km": "0",
+        "destination_hq_km": "23.6",
+        "return_origin_hq_km": "23.4",
+        "return_destination_hq_km": "0",
+        "return_service_type": "airport_dropoff",
+        "tollGates": "[null,null]",
+        "withinZoneThreshold": "true",
+        "outsideMaxRadius": "false",
+        "ineligibleTrip": "false"
+      }
+    },
+    {
+      "id": "wsb-v2-012-roundtrip-city-long",
+      "description": "Return/roundtrip longer city route",
+      "status": "seed_from_debug_log",
+      "payload_v2": {
+        "schema_version": "2.0",
+        "source": {
+          "site": "marketing",
+          "channel": "fixture_from_production_debug",
+          "legacy_source_log": "debug_1.log"
+        },
+        "trip_type": "return",
+        "service_group": "transfer",
+        "service_type": "city_transfer",
+        "customer": {
+          "name": "",
+          "email": "",
+          "phone": ""
+        },
+        "passengers": 1,
+        "luggage": {
+          "check_in_bags": 1,
+          "carry_on_bags": 1
+        },
+        "add_ons": {
+          "baby_seats": 0,
+          "trailer": false,
+          "oversize_luggage": false
+        },
+        "legs": [
+          {
+            "sequence": 1,
+            "leg_group": "outbound",
+            "leg_type": "direct",
+            "from": {
+              "label": "Cape Town, South Africa",
+              "name": "Cape Town",
+              "town": "Cape Town",
+              "neighbourhood": "",
+              "coords": {
+                "lat": -33.922087,
+                "lng": 18.4231418
+              }
+            },
+            "to": {
+              "label": "Hermanus, South Africa",
+              "name": "Hermanus",
+              "town": "Hermanus",
+              "neighbourhood": "",
+              "coords": {
+                "lat": -34.4063429,
+                "lng": 19.2686949
+              }
+            },
+            "pickup_date": "16/06/2026",
+            "pickup_time": "12:00",
+            "distance_km": 122.0,
+            "duration_text": "1 hour 39 mins",
+            "service_type": "city_transfer"
+          },
+          {
+            "sequence": 2,
+            "leg_group": "return",
+            "leg_type": "direct",
+            "from": {
+              "label": "Hermanus, South Africa",
+              "name": "Hermanus",
+              "town": "Hermanus",
+              "neighbourhood": "",
+              "coords": {
+                "lat": -34.4063429,
+                "lng": 19.2686949
+              }
+            },
+            "to": {
+              "label": "Cape Town, South Africa",
+              "name": "Cape Town",
+              "town": "Cape Town",
+              "neighbourhood": "",
+              "coords": {
+                "lat": -33.922087,
+                "lng": 18.4231418
+              }
+            },
+            "pickup_date": "17/06/2026",
+            "pickup_time": "12:00",
+            "distance_km": 123.0,
+            "duration_text": "1 hour 39 mins",
+            "service_type": "city_transfer"
+          }
+        ],
+        "charter": null,
+        "route": {
+          "place_ids": [
+            "ChIJ1-4miA9QzB0Rh6ooKPzhf2g",
+            "ChIJ1005JgELzh0RC86f9m76atI",
+            "ChIJ1005JgELzh0RC86f9m76atI",
+            "ChIJ1-4miA9QzB0Rh6ooKPzhf2g"
+          ],
+          "toll_gates": "[null,null]",
+          "route_options": []
+        },
+        "validation_flags": {
+          "within_zone_threshold": true,
+          "outside_max_radius": false,
+          "ineligible_trip": false
+        },
+        "legacy_map": {
+          "largeBags": "luggage.check_in_bags",
+          "carryOnBags": "luggage.carry_on_bags",
+          "babySeatCount": "add_ons.baby_seats"
+        }
+      },
+      "raw_legacy_subset": {
+        "tripType": "roundtrip",
+        "serviceType": "city",
+        "locationFrom": "Cape Town, South Africa",
+        "locationTo": "Hermanus, South Africa",
+        "pickupDate": "16/06/2026",
+        "pickupTime": "12:00",
+        "dropOffTime": "",
+        "returnFrom": "Hermanus, South Africa",
+        "returnTo": "Cape Town, South Africa",
+        "returnDate": "17/06/2026",
+        "returnTime": "12:00",
+        "passengers": "1",
+        "largeBags": "1",
+        "carryOnBags": "1",
+        "babySeatCount": "0",
+        "trailerRequired": "false",
+        "oversizeLuggage": "false",
+        "tripDistance": "122,123",
+        "distance": "245",
+        "origin_hq_km": "17.8",
+        "destination_hq_km": "108",
+        "return_origin_hq_km": "108",
+        "return_destination_hq_km": "17.8",
+        "return_service_type": "city",
+        "tollGates": "[null,null]",
+        "withinZoneThreshold": "true",
+        "outsideMaxRadius": "false",
+        "ineligibleTrip": "false"
+      }
+    },
+    {
+      "id": "wsb-v2-013-charter-winelands",
+      "description": "Charter hire with Winelands POI",
+      "status": "seed_from_debug_log",
+      "payload_v2": {
+        "schema_version": "2.0",
+        "source": {
+          "site": "marketing",
+          "channel": "fixture_from_production_debug",
+          "legacy_source_log": "debug_1.log"
+        },
+        "trip_type": "charter",
+        "service_group": "charter",
+        "service_type": "charter_hire",
+        "customer": {
+          "name": "",
+          "email": "",
+          "phone": ""
+        },
+        "passengers": 7,
+        "luggage": {
+          "check_in_bags": 0,
+          "carry_on_bags": 0
+        },
+        "add_ons": {
+          "baby_seats": 0,
+          "trailer": false,
+          "oversize_luggage": false
+        },
+        "legs": [
+          {
+            "sequence": 1,
+            "leg_group": "outbound",
+            "leg_type": "direct",
+            "from": {
+              "label": "Abalone Hotel & Villas - Paternoster, Kriedoring Street, Bek Bay, Paternoster, South Africa",
+              "name": "Abalone Hotel & Villas - Paternoster",
+              "town": "Paternoster",
+              "neighbourhood": "Bek Bay",
+              "coords": {
+                "lat": -32.811218,
+                "lng": 17.8853683
+              }
+            },
+            "to": {
+              "label": "Stellenbosch Central, Stellenbosch, South Africa",
+              "name": "Stellenbosch Central",
+              "town": "Stellenbosch",
+              "neighbourhood": "Stellenbosch Central",
+              "coords": {
+                "lat": -33.9372166,
+                "lng": 18.8595733
+              }
+            },
+            "pickup_date": "14/06/2026",
+            "pickup_time": "08:00",
+            "dropoff_time": "18:00",
+            "distance_km": 0.0,
+            "duration_text": "10 hours",
+            "service_type": "charter_hire"
+          }
+        ],
+        "charter": {
+          "poi": "Franschhoek/Paarl - Winelands",
+          "poi_other": "",
+          "poi_reference": {},
+          "poi_distance_from_pickup_km": 172.3,
+          "duration_text": "10 hours"
+        },
+        "route": {
+          "place_ids": [
+            "ChIJpWwbqEmYNBwR55Z9oi015nw",
+            "ChIJpeKIUfeyzR0RlSUsY_BNkPI"
+          ],
+          "toll_gates": "[null]",
+          "route_options": []
+        },
+        "validation_flags": {
+          "within_zone_threshold": true,
+          "outside_max_radius": false,
+          "ineligible_trip": false
+        },
+        "legacy_map": {
+          "largeBags": "luggage.check_in_bags",
+          "carryOnBags": "luggage.carry_on_bags",
+          "babySeatCount": "add_ons.baby_seats"
+        }
+      },
+      "raw_legacy_subset": {
+        "tripType": "charter",
+        "locationFrom": "Abalone Hotel & Villas - Paternoster, Kriedoring Street, Bek Bay, Paternoster, South Africa",
+        "locationTo": "Stellenbosch Central, Stellenbosch, South Africa",
+        "pickupDate": "14/06/2026",
+        "pickupTime": "08:00",
+        "dropOffTime": "18:00",
+        "returnFrom": "",
+        "returnTo": "",
+        "returnDate": "",
+        "returnTime": "",
+        "passengers": "7",
+        "largeBags": "0",
+        "carryOnBags": "0",
+        "babySeatCount": "0",
+        "trailerRequired": "false",
+        "oversizeLuggage": "false",
+        "tripDistance": "",
+        "distance": "0",
+        "origin_hq_km": "169",
+        "destination_hq_km": "35.8",
+        "tollGates": "[null]",
+        "withinZoneThreshold": "true",
+        "outsideMaxRadius": "false",
+        "ineligibleTrip": "false"
+      }
+    },
+    {
+      "id": "wsb-v2-014-charter-whale-watching",
+      "description": "Charter hire with Hermanus Whale Watching POI",
+      "status": "seed_from_debug_log",
+      "payload_v2": {
+        "schema_version": "2.0",
+        "source": {
+          "site": "marketing",
+          "channel": "fixture_from_production_debug",
+          "legacy_source_log": "debug_1.log"
+        },
+        "trip_type": "charter",
+        "service_group": "charter",
+        "service_type": "charter_hire",
+        "customer": {
+          "name": "",
+          "email": "",
+          "phone": ""
+        },
+        "passengers": 2,
+        "luggage": {
+          "check_in_bags": 0,
+          "carry_on_bags": 0
+        },
+        "add_ons": {
+          "baby_seats": 0,
+          "trailer": false,
+          "oversize_luggage": false
+        },
+        "legs": [
+          {
+            "sequence": 1,
+            "leg_group": "outbound",
+            "leg_type": "direct",
+            "from": {
+              "label": "Abalone Hotel & Villas - Paternoster, Kriedoring Street, Bek Bay, Paternoster, South Africa",
+              "name": "Abalone Hotel & Villas - Paternoster",
+              "town": "Paternoster",
+              "neighbourhood": "Bek Bay",
+              "coords": {
+                "lat": -32.811218,
+                "lng": 17.8853683
+              }
+            },
+            "to": {
+              "label": "Misty Waves Boutique Hotel, Marine Drive, Hermanus, South Africa",
+              "name": "Misty Waves Boutique Hotel",
+              "town": "Hermanus",
+              "neighbourhood": "Hermanus",
+              "coords": {
+                "lat": -34.4213272,
+                "lng": 19.2365796
+              }
+            },
+            "pickup_date": "25/06/2026",
+            "pickup_time": "08:00",
+            "dropoff_time": "18:00",
+            "distance_km": 450.0,
+            "duration_text": "10 hours",
+            "service_type": "charter_hire"
+          }
+        ],
+        "charter": {
+          "poi": "Hermanus - Whale Watching",
+          "poi_other": "",
+          "poi_reference": {},
+          "poi_distance_from_pickup_km": 262.8,
+          "duration_text": "10 hours"
+        },
+        "route": {
+          "place_ids": [
+            "ChIJpWwbqEmYNBwR55Z9oi015nw",
+            "ChIJt6PimacLzh0R0iDwemOtCmQ"
+          ],
+          "toll_gates": "[null]",
+          "route_options": []
+        },
+        "validation_flags": {
+          "within_zone_threshold": true,
+          "outside_max_radius": false,
+          "ineligible_trip": false
+        },
+        "legacy_map": {
+          "largeBags": "luggage.check_in_bags",
+          "carryOnBags": "luggage.carry_on_bags",
+          "babySeatCount": "add_ons.baby_seats"
+        }
+      },
+      "raw_legacy_subset": {
+        "tripType": "charter",
+        "locationFrom": "Abalone Hotel & Villas - Paternoster, Kriedoring Street, Bek Bay, Paternoster, South Africa",
+        "locationTo": "Misty Waves Boutique Hotel, Marine Drive, Hermanus, South Africa",
+        "pickupDate": "25/06/2026",
+        "pickupTime": "08:00",
+        "dropOffTime": "18:00",
+        "returnFrom": "",
+        "returnTo": "",
+        "returnDate": "",
+        "returnTime": "",
+        "passengers": "2",
+        "largeBags": "0",
+        "carryOnBags": "0",
+        "babySeatCount": "0",
+        "trailerRequired": "false",
+        "oversizeLuggage": "false",
+        "tripDistance": "",
+        "distance": "450",
+        "origin_hq_km": "169",
+        "destination_hq_km": "",
+        "tollGates": "[null]",
+        "withinZoneThreshold": "true",
+        "outsideMaxRadius": "false",
+        "ineligibleTrip": "false"
+      }
+    },
+    {
+      "id": "wsb-v2-015-charter-cape-point",
+      "description": "Charter hire with Cape Point POI",
+      "status": "seed_from_debug_log",
+      "payload_v2": {
+        "schema_version": "2.0",
+        "source": {
+          "site": "marketing",
+          "channel": "fixture_from_production_debug",
+          "legacy_source_log": "debug_1.log"
+        },
+        "trip_type": "charter",
+        "service_group": "charter",
+        "service_type": "charter_hire",
+        "customer": {
+          "name": "",
+          "email": "",
+          "phone": ""
+        },
+        "passengers": 9,
+        "luggage": {
+          "check_in_bags": 3,
+          "carry_on_bags": 4
+        },
+        "add_ons": {
+          "baby_seats": 0,
+          "trailer": false,
+          "oversize_luggage": false
+        },
+        "legs": [
+          {
+            "sequence": 1,
+            "leg_group": "outbound",
+            "leg_type": "direct",
+            "from": {
+              "label": "Cape Town City Centre, Cape Town, South Africa",
+              "name": "Cape Town City Centre",
+              "town": "Cape Town",
+              "neighbourhood": "Cape Town City Centre",
+              "coords": {
+                "lat": -33.9242692,
+                "lng": 18.4187029
+              }
+            },
+            "to": {
+              "label": "Cape Town City Centre, Cape Town, South Africa",
+              "name": "Cape Town City Centre",
+              "town": "Cape Town",
+              "neighbourhood": "Cape Town City Centre",
+              "coords": {
+                "lat": -33.9242692,
+                "lng": 18.4187029
+              }
+            },
+            "pickup_date": "26/06/2026",
+            "pickup_time": "08:00",
+            "dropoff_time": "17:00",
+            "distance_km": 200.0,
+            "duration_text": "9 hours",
+            "service_type": "charter_hire"
+          }
+        ],
+        "charter": {
+          "poi": "Cape Point",
+          "poi_other": "",
+          "poi_reference": {},
+          "poi_distance_from_pickup_km": 70.0,
+          "duration_text": "9 hours"
+        },
+        "route": {
+          "place_ids": [
+            "ChIJ6U_uo2NnzB0R9eheP_JsUZU",
+            "ChIJ6U_uo2NnzB0R9eheP_JsUZU"
+          ],
+          "toll_gates": "[null]",
+          "route_options": []
+        },
+        "validation_flags": {
+          "within_zone_threshold": true,
+          "outside_max_radius": false,
+          "ineligible_trip": false
+        },
+        "legacy_map": {
+          "largeBags": "luggage.check_in_bags",
+          "carryOnBags": "luggage.carry_on_bags",
+          "babySeatCount": "add_ons.baby_seats"
+        }
+      },
+      "raw_legacy_subset": {
+        "tripType": "charter",
+        "locationFrom": "Cape Town City Centre, Cape Town, South Africa",
+        "locationTo": "Cape Town City Centre, Cape Town, South Africa",
+        "pickupDate": "26/06/2026",
+        "pickupTime": "08:00",
+        "dropOffTime": "17:00",
+        "returnFrom": "",
+        "returnTo": "",
+        "returnDate": "",
+        "returnTime": "",
+        "passengers": "9",
+        "largeBags": "3",
+        "carryOnBags": "4",
+        "babySeatCount": "0",
+        "trailerRequired": "false",
+        "oversizeLuggage": "false",
+        "tripDistance": "",
+        "distance": "200",
+        "origin_hq_km": "18.3",
+        "destination_hq_km": "18.3",
+        "tollGates": "[null]",
+        "withinZoneThreshold": "true",
+        "outsideMaxRadius": "false",
+        "ineligibleTrip": "false"
+      }
+    },
+    {
+      "id": "wsb-v2-016-charter-trailer",
+      "description": "Charter hire with trailer add-on",
+      "status": "seed_from_debug_log",
+      "payload_v2": {
+        "schema_version": "2.0",
+        "source": {
+          "site": "marketing",
+          "channel": "fixture_from_production_debug",
+          "legacy_source_log": "debug_3.log"
+        },
+        "trip_type": "charter",
+        "service_group": "charter",
+        "service_type": "charter_hire",
+        "customer": {
+          "name": "",
+          "email": "",
+          "phone": ""
+        },
+        "passengers": 6,
+        "luggage": {
+          "check_in_bags": 1,
+          "carry_on_bags": 7
+        },
+        "add_ons": {
+          "baby_seats": 1,
+          "trailer": true,
+          "oversize_luggage": false
+        },
+        "legs": [
+          {
+            "sequence": 1,
+            "leg_group": "outbound",
+            "leg_type": "direct",
+            "from": {
+              "label": "20 John Laguma Rd, Elfindale, Cape Town, South Africa",
+              "name": "20 John Laguma Rd",
+              "town": "Cape Town",
+              "neighbourhood": "Elfindale",
+              "coords": {
+                "lat": -34.041446,
+                "lng": 18.4684957
+              }
+            },
+            "to": {
+              "label": "Cape Town International Airport (CPT), Matroosfontein, Cape Town, South Africa",
+              "name": "Cape Town International Airport",
+              "town": "Cape Town",
+              "neighbourhood": "Matroosfontein",
+              "coords": {
+                "lat": -33.9688707,
+                "lng": 18.5997595
+              }
+            },
+            "pickup_date": "31/07/2026",
+            "pickup_time": "08:00",
+            "dropoff_time": "09:30",
+            "distance_km": 200.0,
+            "duration_text": "2 hours",
+            "service_type": "charter_hire"
+          }
+        ],
+        "charter": {
+          "poi": "City",
+          "poi_other": "",
+          "poi_reference": {},
+          "poi_distance_from_pickup_km": 19.6,
+          "duration_text": "2 hours"
+        },
+        "route": {
+          "place_ids": [
+            "ChIJV6S_mTZCzB0R-LfW0qAbP3k",
+            "ChIJvQtA90JFzB0RkF7P43l1SEA"
+          ],
+          "toll_gates": "[null]",
+          "route_options": []
+        },
+        "validation_flags": {
+          "within_zone_threshold": true,
+          "outside_max_radius": false,
+          "ineligible_trip": false
+        },
+        "legacy_map": {
+          "largeBags": "luggage.check_in_bags",
+          "carryOnBags": "luggage.carry_on_bags",
+          "babySeatCount": "add_ons.baby_seats"
+        }
+      },
+      "raw_legacy_subset": {
+        "tripType": "charter",
+        "locationFrom": "20 John Laguma Rd, Elfindale, Cape Town, South Africa",
+        "locationTo": "Cape Town International Airport (CPT), Matroosfontein, Cape Town, South Africa",
+        "pickupDate": "31/07/2026",
+        "pickupTime": "08:00",
+        "dropOffTime": "09:30",
+        "returnFrom": "",
+        "returnTo": "",
+        "returnDate": "",
+        "returnTime": "",
+        "passengers": "6",
+        "largeBags": "1",
+        "carryOnBags": "7",
+        "babySeatCount": "1",
+        "trailerRequired": "true",
+        "oversizeLuggage": "false",
+        "tripDistance": "",
+        "distance": "200",
+        "origin_hq_km": "23.4",
+        "destination_hq_km": "0",
+        "tollGates": "[null]",
+        "withinZoneThreshold": "true",
+        "outsideMaxRadius": "false",
+        "ineligibleTrip": "false"
+      }
+    },
+    {
+      "id": "wsb-v2-017-airport-pickup-night",
+      "description": "One-way airport pickup at night",
+      "status": "seed_from_debug_log",
+      "payload_v2": {
+        "schema_version": "2.0",
+        "source": {
+          "site": "marketing",
+          "channel": "fixture_from_production_debug",
+          "legacy_source_log": "debug_1.log"
+        },
+        "trip_type": "one_way",
+        "service_group": "transfer",
+        "service_type": "airport_pickup",
+        "customer": {
+          "name": "",
+          "email": "",
+          "phone": ""
+        },
+        "passengers": 1,
+        "luggage": {
+          "check_in_bags": 1,
+          "carry_on_bags": 1
+        },
+        "add_ons": {
+          "baby_seats": 0,
+          "trailer": false,
+          "oversize_luggage": false
+        },
+        "legs": [
+          {
+            "sequence": 1,
+            "leg_group": "outbound",
+            "leg_type": "direct",
+            "from": {
+              "label": "Cape Town International Airport (CPT), Matroosfontein, Cape Town, South Africa",
+              "name": "Cape Town International Airport",
+              "town": "Cape Town",
+              "neighbourhood": "Matroosfontein",
+              "coords": {
+                "lat": -33.9688707,
+                "lng": 18.5997595
+              }
+            },
+            "to": {
+              "label": "The Edge Apartments, Bree Street, Gardens, Cape Town, South Africa",
+              "name": "The Edge Apartments",
+              "town": "Cape Town",
+              "neighbourhood": "Gardens",
+              "coords": {
+                "lat": -33.9266309,
+                "lng": 18.4122836
+              }
+            },
+            "pickup_date": "12/06/2026",
+            "pickup_time": "21:50",
+            "dropoff_time": "",
+            "distance_km": 19.0,
+            "duration_text": "20 mins",
+            "service_type": "airport_pickup"
+          }
+        ],
+        "charter": null,
+        "route": {
+          "place_ids": [
+            "ChIJvQtA90JFzB0RkF7P43l1SEA",
+            "ChIJ35GVfgBnzB0RMchALa2U6GI"
+          ],
+          "toll_gates": "[null]",
+          "route_options": []
+        },
+        "validation_flags": {
+          "within_zone_threshold": true,
+          "outside_max_radius": false,
+          "ineligible_trip": false
+        },
+        "legacy_map": {
+          "largeBags": "luggage.check_in_bags",
+          "carryOnBags": "luggage.carry_on_bags",
+          "babySeatCount": "add_ons.baby_seats"
+        }
+      },
+      "raw_legacy_subset": {
+        "tripType": "one-way",
+        "serviceType": "airport_pickup",
+        "locationFrom": "Cape Town International Airport (CPT), Matroosfontein, Cape Town, South Africa",
+        "locationTo": "The Edge Apartments, Bree Street, Gardens, Cape Town, South Africa",
+        "pickupDate": "12/06/2026",
+        "pickupTime": "21:50",
+        "dropOffTime": "",
+        "returnFrom": "",
+        "returnTo": "",
+        "returnDate": "13/06/2026",
+        "returnTime": "11:05",
+        "passengers": "1",
+        "largeBags": "1",
+        "carryOnBags": "1",
+        "babySeatCount": "0",
+        "trailerRequired": "false",
+        "oversizeLuggage": "false",
+        "tripDistance": "19",
+        "distance": "19",
+        "origin_hq_km": "0",
+        "destination_hq_km": "19",
+        "return_origin_hq_km": "0",
+        "return_destination_hq_km": "0",
+        "return_service_type": "",
+        "tollGates": "[null]",
+        "withinZoneThreshold": "true",
+        "outsideMaxRadius": "false",
+        "ineligibleTrip": "false"
+      }
+    },
+    {
+      "id": "wsb-v2-018-city-transfer-trailer",
+      "description": "One-way city transfer with trailer",
+      "status": "seed_from_debug_log",
+      "payload_v2": {
+        "schema_version": "2.0",
+        "source": {
+          "site": "marketing",
+          "channel": "fixture_from_production_debug",
+          "legacy_source_log": "debug_8.log"
+        },
+        "trip_type": "one_way",
+        "service_group": "transfer",
+        "service_type": "city_transfer",
+        "customer": {
+          "name": "",
+          "email": "",
+          "phone": ""
+        },
+        "passengers": 2,
+        "luggage": {
+          "check_in_bags": 2,
+          "carry_on_bags": 0
+        },
+        "add_ons": {
+          "baby_seats": 0,
+          "trailer": true,
+          "oversize_luggage": false
+        },
+        "legs": [
+          {
+            "sequence": 1,
+            "leg_group": "outbound",
+            "leg_type": "direct",
+            "from": {
+              "label": "Noordhoek, Cape Town, Cape Town, South Africa",
+              "name": "Noordhoek",
+              "town": "Cape Town",
+              "neighbourhood": "Noordhoek",
+              "coords": {
+                "lat": -34.0989491,
+                "lng": 18.3798435
+              }
+            },
+            "to": {
+              "label": "Swellendam, South Africa",
+              "name": "Swellendam",
+              "town": "Swellendam",
+              "neighbourhood": "",
+              "coords": {
+                "lat": -34.0275079,
+                "lng": 20.4436269
+              }
+            },
+            "pickup_date": "19/06/2026",
+            "pickup_time": "18:11",
+            "dropoff_time": "",
+            "distance_km": 240.0,
+            "duration_text": "2 hours 52 mins",
+            "service_type": "city_transfer"
+          }
+        ],
+        "charter": null,
+        "route": {
+          "place_ids": [
+            "ChIJH8utEc1rzB0RmedAi7_MgEw",
+            "ChIJL4U7UYnR0x0R8F32Lq5CYuA"
+          ],
+          "toll_gates": "[null]",
+          "route_options": []
+        },
+        "validation_flags": {
+          "within_zone_threshold": true,
+          "outside_max_radius": false,
+          "ineligible_trip": false
+        },
+        "legacy_map": {
+          "largeBags": "luggage.check_in_bags",
+          "carryOnBags": "luggage.carry_on_bags",
+          "babySeatCount": "add_ons.baby_seats"
+        }
+      },
+      "raw_legacy_subset": {
+        "tripType": "one-way",
+        "serviceType": "city",
+        "locationFrom": "Noordhoek, Cape Town, Cape Town, South Africa",
+        "locationTo": "Swellendam, South Africa",
+        "pickupDate": "19/06/2026",
+        "pickupTime": "18:11",
+        "dropOffTime": "",
+        "returnFrom": "",
+        "returnTo": "",
+        "returnDate": "19/06/2026",
+        "returnTime": "18:11",
+        "passengers": "2",
+        "largeBags": "2",
+        "carryOnBags": "0",
+        "babySeatCount": "0",
+        "trailerRequired": "true",
+        "oversizeLuggage": "false",
+        "tripDistance": "240",
+        "distance": "240",
+        "origin_hq_km": "41.7",
+        "destination_hq_km": "203",
+        "return_origin_hq_km": "0",
+        "return_destination_hq_km": "0",
+        "return_service_type": "",
+        "tollGates": "[null]",
+        "withinZoneThreshold": "true",
+        "outsideMaxRadius": "false",
+        "ineligibleTrip": "false"
+      }
+    },
+    {
+      "id": "wsb-v2-019-airport-dropoff-long",
+      "description": "Long airport drop-off near operating edge",
+      "status": "seed_from_debug_log",
+      "payload_v2": {
+        "schema_version": "2.0",
+        "source": {
+          "site": "marketing",
+          "channel": "fixture_from_production_debug",
+          "legacy_source_log": "debug_1.log"
+        },
+        "trip_type": "one_way",
+        "service_group": "transfer",
+        "service_type": "airport_dropoff",
+        "customer": {
+          "name": "",
+          "email": "",
+          "phone": ""
+        },
+        "passengers": 1,
+        "luggage": {
+          "check_in_bags": 1,
+          "carry_on_bags": 1
+        },
+        "add_ons": {
+          "baby_seats": 0,
+          "trailer": false,
+          "oversize_luggage": false
+        },
+        "legs": [
+          {
+            "sequence": 1,
+            "leg_group": "outbound",
+            "leg_type": "direct",
+            "from": {
+              "label": "Lutzville, South Africa",
+              "name": "Lutzville",
+              "town": "Lutzville",
+              "neighbourhood": "",
+              "coords": {
+                "lat": -31.55601089999999,
+                "lng": 18.3455831
+              }
+            },
+            "to": {
+              "label": "Cape Town International Airport (CPT), Matroosfontein, Cape Town, South Africa",
+              "name": "Cape Town International Airport",
+              "town": "Cape Town",
+              "neighbourhood": "Matroosfontein",
+              "coords": {
+                "lat": -33.9688707,
+                "lng": 18.5997595
+              }
+            },
+            "pickup_date": "28/06/2026",
+            "pickup_time": "08:00",
+            "dropoff_time": "",
+            "distance_km": 326.0,
+            "duration_text": "3 hours 41 mins",
+            "service_type": "airport_dropoff"
+          }
+        ],
+        "charter": null,
+        "route": {
+          "place_ids": [
+            "ChIJ_3-dP4JaMRwRZdHjq0z1Zjk",
+            "ChIJvQtA90JFzB0RkF7P43l1SEA"
+          ],
+          "toll_gates": "[null]",
+          "route_options": []
+        },
+        "validation_flags": {
+          "within_zone_threshold": true,
+          "outside_max_radius": false,
+          "ineligible_trip": false
+        },
+        "legacy_map": {
+          "largeBags": "luggage.check_in_bags",
+          "carryOnBags": "luggage.carry_on_bags",
+          "babySeatCount": "add_ons.baby_seats"
+        }
+      },
+      "raw_legacy_subset": {
+        "tripType": "one-way",
+        "serviceType": "airport_dropoff",
+        "locationFrom": "Lutzville, South Africa",
+        "locationTo": "Cape Town International Airport (CPT), Matroosfontein, Cape Town, South Africa",
+        "pickupDate": "28/06/2026",
+        "pickupTime": "08:00",
+        "dropOffTime": "",
+        "returnFrom": "",
+        "returnTo": "",
+        "returnDate": "13/06/2026",
+        "returnTime": "10:05",
+        "passengers": "1",
+        "largeBags": "1",
+        "carryOnBags": "1",
+        "babySeatCount": "0",
+        "trailerRequired": "false",
+        "oversizeLuggage": "false",
+        "tripDistance": "326",
+        "distance": "326",
+        "origin_hq_km": "326",
+        "destination_hq_km": "0",
+        "return_origin_hq_km": "0",
+        "return_destination_hq_km": "0",
+        "return_service_type": "",
+        "tollGates": "[null]",
+        "withinZoneThreshold": "true",
+        "outsideMaxRadius": "false",
+        "ineligibleTrip": "false"
+      }
+    },
+    {
+      "id": "wsb-v2-020-airport-pickup-long",
+      "description": "Long airport pickup",
+      "status": "seed_from_debug_log",
+      "payload_v2": {
+        "schema_version": "2.0",
+        "source": {
+          "site": "marketing",
+          "channel": "fixture_from_production_debug",
+          "legacy_source_log": "debug_1.log"
+        },
+        "trip_type": "one_way",
+        "service_group": "transfer",
+        "service_type": "airport_pickup",
+        "customer": {
+          "name": "",
+          "email": "",
+          "phone": ""
+        },
+        "passengers": 2,
+        "luggage": {
+          "check_in_bags": 2,
+          "carry_on_bags": 2
+        },
+        "add_ons": {
+          "baby_seats": 0,
+          "trailer": false,
+          "oversize_luggage": false
+        },
+        "legs": [
+          {
+            "sequence": 1,
+            "leg_group": "outbound",
+            "leg_type": "direct",
+            "from": {
+              "label": "Cape Town International Airport (CPT), Matroosfontein, Cape Town, South Africa",
+              "name": "Cape Town International Airport",
+              "town": "Cape Town",
+              "neighbourhood": "Matroosfontein",
+              "coords": {
+                "lat": -33.9688707,
+                "lng": 18.5997595
+              }
+            },
+            "to": {
+              "label": "44 Koringland St, Swellendam, 6740, South Africa",
+              "name": "44 Koringland St",
+              "town": "Swellendam",
+              "neighbourhood": "Swellendam",
+              "coords": {
+                "lat": -34.0533379,
+                "lng": 20.4238504
+              }
+            },
+            "pickup_date": "17/06/2026",
+            "pickup_time": "14:30",
+            "dropoff_time": "",
+            "distance_km": 201.0,
+            "duration_text": "2 hours 15 mins",
+            "service_type": "airport_pickup"
+          }
+        ],
+        "charter": null,
+        "route": {
+          "place_ids": [
+            "ChIJvQtA90JFzB0RkF7P43l1SEA",
+            "ChIJBTZM5tjT0x0RomiY657KvEM"
+          ],
+          "toll_gates": "[null]",
+          "route_options": []
+        },
+        "validation_flags": {
+          "within_zone_threshold": true,
+          "outside_max_radius": false,
+          "ineligible_trip": false
+        },
+        "legacy_map": {
+          "largeBags": "luggage.check_in_bags",
+          "carryOnBags": "luggage.carry_on_bags",
+          "babySeatCount": "add_ons.baby_seats"
+        }
+      },
+      "raw_legacy_subset": {
+        "tripType": "one-way",
+        "serviceType": "airport_pickup",
+        "locationFrom": "Cape Town International Airport (CPT), Matroosfontein, Cape Town, South Africa",
+        "locationTo": "44 Koringland St, Swellendam, 6740, South Africa",
+        "pickupDate": "17/06/2026",
+        "pickupTime": "14:30",
+        "dropOffTime": "",
+        "returnFrom": "",
+        "returnTo": "",
+        "returnDate": "13/06/2026",
+        "returnTime": "08:38",
+        "passengers": "2",
+        "largeBags": "2",
+        "carryOnBags": "2",
+        "babySeatCount": "0",
+        "trailerRequired": "false",
+        "oversizeLuggage": "false",
+        "tripDistance": "201",
+        "distance": "201",
+        "origin_hq_km": "0",
+        "destination_hq_km": "201",
+        "return_origin_hq_km": "0",
+        "return_destination_hq_km": "0",
+        "return_service_type": "",
+        "tollGates": "[null]",
+        "withinZoneThreshold": "true",
+        "outsideMaxRadius": "false",
+        "ineligibleTrip": "false"
+      }
+    }
+  ]
+}

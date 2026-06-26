@@ -34,10 +34,11 @@
 - One-way/return UI added.
 - Additional stop scaffold added.
 - The shortcode now renders a styled Booking Builder form shell with stable canonical input names.
+- Added local BookingPayload v2 preview behavior in JS, including one-way/return legs and additional stop support.
 - Fixed fatal render error in `inc/class-booking-client-form-shortcode.php`.
 - Cause: fragile large `sprintf()` template with mismatched argument count.
 - Shortcode render now uses safer output buffering and helper render methods.
 - Smoke-tested `/booking-builder/` locally: HTTP 200 and Booking Builder form markup present.
 - Checked `wp-content/debug.log` after smoke test; no new `ws-bookings-client` fatal occurred.
-- The form is still placeholder-only and does not submit real bookings yet.
+- The form is still preview-only and does not submit real bookings yet.
 - Existing legacy Bricks/Fluent booking flow is unchanged.

@@ -38,6 +38,9 @@ Any task that changes shortcode rendering, frontend form output, WooCommerce hoo
 - inspect `wp-content/debug.log`
 - not mark the task complete if the page returns a critical error
 
+Every phase task must update `docs/booking-intake-roadmap.md` and `docs/phase-2-progress.md` when roadmap state changes.
+Any UI/shortcode task must run the page smoke-test workflow before completion.
+
 ## Architecture direction
 
 The desired direction is:

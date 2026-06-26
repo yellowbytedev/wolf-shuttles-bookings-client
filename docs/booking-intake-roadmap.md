@@ -32,7 +32,7 @@ Milestones:
 2. Define BookingPayload v2.
 3. Build PHP payload builder, normaliser, validator, and booking-site client classes.
 4. Build a shortcode shell: `[ws_booking_client_form]`.
-5. Create a new official local page, e.g. `/booking-builder/`.
+5. Create a new official local page, e.g. `/booking-builder/`, that renders the shortcode and local BookingPayload v2 preview UI.
 6. Support one-way and return transfers.
 7. Keep charter scaffolded in the schema but not necessarily in the first UI.
 8. Support both `legacy_hash` and `v2_token` handover modes during development.

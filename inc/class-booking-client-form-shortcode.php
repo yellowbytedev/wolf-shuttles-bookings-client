@@ -20,102 +20,142 @@ class BookingClientFormShortcode {
             'title' => $title,
         ], $atts, 'ws_booking_client_form');
 
-        $showReturn = false;
-        $returnHiddenClass = $showReturn ? '' : 'wsb-booking-client-hidden';
-        $additionalStopHiddenClass = 'wsb-booking-client-hidden';
+        ob_start();
+        ?>
+        <div class="wsb-booking-client-shell">
+            <div class="wsb-booking-client-header">
+                <h2><?php echo esc_html($atts['title']); ?></h2>
+                <p><?php echo esc_html__('Build a new booking request. No real booking submission is enabled yet.', 'wsb'); ?></p>
+            </div>
+
+            <div class="wsb-booking-client-service-tabs" role="tablist">
+                <button type="button" class="wsb-booking-client-service-tab wsb-booking-client-service-tab--active" data-service="transfer"><?php echo esc_html__('City Transfers', 'wsb'); ?></button>
+                <button type="button" class="wsb-booking-client-service-tab" disabled><?php echo esc_html__('Shuttle Hire (coming soon)', 'wsb'); ?></button>
+            </div>
+
+            <form class="wsb-booking-client-form" method="post" action="#" novalidate>
+                <fieldset class="wsb-booking-client-fieldset">
+                    <legend class="wsb-booking-client-legend"><?php echo esc_html($fields['trip_type']['label'] ?? __('Trip type', 'wsb')); ?></legend>
+                    <label class="wsb-booking-client-radio-label">
+                        <input type="radio" name="trip_type" value="one_way" checked>
+                        <?php echo esc_html__('One-way', 'wsb'); ?>
+                    </label>
+                    <label class="wsb-booking-client-radio-label">
+                        <input type="radio" name="trip_type" value="return">
+                        <?php echo esc_html__('Return', 'wsb'); ?>
+                    </label>
+                </fieldset>
+
+                <div class="wsb-booking-client-columns">
+                    <div class="wsb-booking-client-column">
+                        <?php echo self::render_number_field($fields['passengers']); ?>
+                        <?php echo self::render_number_field($fields['baby_seats']); ?>
+                        <?php echo self::render_number_field($fields['check_in_bags']); ?>
+                        <?php echo self::render_number_field($fields['carry_on_bags']); ?>
+                    </div>
+                    <div class="wsb-booking-client-column">
+                        <fieldset class="wsb-booking-client-fieldset wsb-booking-client-addons">
+                            <legend class="wsb-booking-client-legend"><?php echo esc_html__('Add-ons', 'wsb'); ?></legend>
+                            <label class="wsb-booking-client-checkbox-label">
+                                <input type="checkbox" name="trailer">
+                                <?php echo esc_html($fields['trailer']['label'] ?? __('Trailer required', 'wsb')); ?>
+                            </label>
+                            <label class="wsb-booking-client-checkbox-label">
+                                <input type="checkbox" name="oversize_luggage">
+                                <?php echo esc_html($fields['oversize_luggage']['label'] ?? __('Oversize luggage', 'wsb')); ?>
+                            </label>
+                        </fieldset>
+                    </div>
+                </div>
+
+                <div class="wsb-booking-client-section">
+                    <h3><?php echo esc_html__('Outbound leg', 'wsb'); ?></h3>
+                    <?php echo self::render_text_field($fields['outbound_from']); ?>
+                    <?php echo self::render_text_field($fields['outbound_to']); ?>
+                    <?php echo self::render_date_field($fields['outbound_pickup_date']); ?>
+                    <?php echo self::render_time_field($fields['outbound_pickup_time']); ?>
+                </div>
+
+                <div class="wsb-booking-client-section wsb-booking-client-return wsb-booking-client-hidden">
+                    <h3><?php echo esc_html__('Return leg', 'wsb'); ?></h3>
+                    <?php echo self::render_text_field($fields['return_from'], false); ?>
+                    <?php echo self::render_text_field($fields['return_to'], false); ?>
+                    <?php echo self::render_date_field($fields['return_pickup_date'], false); ?>
+                    <?php echo self::render_time_field($fields['return_pickup_time'], false); ?>
+                </div>
+
+                <fieldset class="wsb-booking-client-fieldset wsb-booking-client-additional-stop-fieldset">
+                    <legend class="wsb-booking-client-legend"><?php echo esc_html__('Additional stop', 'wsb'); ?></legend>
+                    <label class="wsb-booking-client-checkbox-label">
+                        <input type="checkbox" name="additional_stop_enabled" class="wsb-booking-client-additional-toggle">
+                        <?php echo esc_html__('Enable additional stop', 'wsb'); ?>
+                    </label>
+                    <input class="wsb-form__input wsb-booking-client-hidden" type="text" name="additional_stop" placeholder="<?php echo esc_attr($fields['additional_stop']['placeholder'] ?? __('Add an optional stop', 'wsb')); ?>" disabled />
+                </fieldset>
+
+                <p class="wsb-booking-client-note"><?php echo esc_html__('An early Booking Builder preview only. No real submission is enabled yet.', 'wsb'); ?></p>
+                <button type="submit" class="wsb-booking-client-submit"><?php echo esc_html__('Check Pricing & Availability', 'wsb'); ?></button>
+            </form>
+        </div>
+        <?php
+
+        return (string) ob_get_clean();
+    }
+
+    private static function render_number_field(array $field): string {
+        if (empty($field['key']) || empty($field['label'])) {
+            return '';
+        }
+
+        $required = !empty($field['required']) ? 'required' : '';
+        return sprintf(
+            '<label class="wsb-form__label" for="%1$s">%2$s</label><input class="wsb-form__input" type="number" id="%1$s" name="%1$s" min="0" value="0" placeholder="%3$s" %4$s />',
+            esc_attr($field['key']),
+            esc_html($field['label']),
+            esc_attr($field['placeholder'] ?? ''),
+            $required
+        );
+    }
+
+    private static function render_text_field(array $field, bool $required = true): string {
+        if (empty($field['key']) || empty($field['label'])) {
+            return '';
+        }
 
         return sprintf(
-            '<div class="wsb-booking-client-shell">
-                <div class="wsb-booking-client-header">
-                    <h2>%s</h2>
-                    <p>%s</p>
-                </div>
-                <div class="wsb-booking-client-service-tabs" role="tablist">
-                    <button type="button" class="wsb-booking-client-service-tab wsb-booking-client-service-tab--active" data-service="transfer">%s</button>
-                    <button type="button" class="wsb-booking-client-service-tab" disabled>%s</button>
-                </div>
-                <form class="wsb-booking-client-form" method="post" action="#" novalidate>
-                    <fieldset class="wsb-booking-client-fieldset">
-                        <legend class="wsb-booking-client-legend">%s</legend>
-                        <label class="wsb-booking-client-radio-label"><input type="radio" name="trip_type" value="one_way" checked>%s</label>
-                        <label class="wsb-booking-client-radio-label"><input type="radio" name="trip_type" value="return">%s</label>
-                    </fieldset>
+            '<label class="wsb-form__label" for="%1$s">%2$s</label><input class="wsb-form__input" type="text" id="%1$s" name="%1$s" placeholder="%3$s" %4$s />',
+            esc_attr($field['key']),
+            esc_html($field['label']),
+            esc_attr($field['placeholder'] ?? ''),
+            $required ? 'required' : ''
+        );
+    }
 
-                    <div class="wsb-booking-client-columns">
-                        <div class="wsb-booking-client-column">
-                            %s
-                            %s
-                            %s
-                            %s
-                        </div>
-                        <div class="wsb-booking-client-column">
-                            %s
-                            %s
-                        </div>
-                    </div>
+    private static function render_date_field(array $field, bool $required = true): string {
+        if (empty($field['key']) || empty($field['label'])) {
+            return '';
+        }
 
-                    <fieldset class="wsb-booking-client-fieldset wsb-booking-client-addons">
-                        <legend class="wsb-booking-client-legend">%s</legend>
-                        <label class="wsb-booking-client-checkbox-label"><input type="checkbox" name="trailer"> %s</label>
-                        <label class="wsb-booking-client-checkbox-label"><input type="checkbox" name="oversize_luggage"> %s</label>
-                    </fieldset>
+        return sprintf(
+            '<label class="wsb-form__label" for="%1$s">%2$s</label><input class="wsb-form__input" type="date" id="%1$s" name="%1$s" placeholder="%3$s" %4$s />',
+            esc_attr($field['key']),
+            esc_html($field['label']),
+            esc_attr($field['placeholder'] ?? ''),
+            $required ? 'required' : ''
+        );
+    }
 
-                    <div class="wsb-booking-client-section">
-                        <h3>%s</h3>
-                        %s
-                        %s
-                        %s
-                        %s
-                    </div>
+    private static function render_time_field(array $field, bool $required = true): string {
+        if (empty($field['key']) || empty($field['label'])) {
+            return '';
+        }
 
-                    <div class="wsb-booking-client-section wsb-booking-client-return %s">
-                        <h3>%s</h3>
-                        %s
-                        %s
-                        %s
-                        %s
-                    </div>
-
-                    <fieldset class="wsb-booking-client-fieldset wsb-booking-client-additional-stop-fieldset">
-                        <legend class="wsb-booking-client-legend">%s</legend>
-                        <label class="wsb-booking-client-checkbox-label">
-                            <input type="checkbox" name="additional_stop_enabled" class="wsb-booking-client-additional-toggle"> %s
-                        </label>
-                        <input class="wsb-form__input %s" type="text" name="additional_stop" placeholder="%s" disabled />
-                    </fieldset>
-
-                    <p class="wsb-booking-client-note">%s</p>
-                    <button type="submit" class="wsb-booking-client-submit">%s</button>
-                </form>
-            </div>',
-            esc_html($atts['title']),
-            esc_html__('Build a new booking request. No real booking submission is enabled yet.', 'wsb'),
-            esc_html__('City Transfers', 'wsb'),
-            esc_html__('Shuttle Hire (coming soon)', 'wsb'),
-            esc_html($fields['trip_type']['label'] ?? __('Trip type', 'wsb')),
-            esc_html__('One-way', 'wsb'),
-            esc_html__('Return', 'wsb'),
-            $fields['passengers']['label'] ? sprintf('<label class="wsb-form__label">%s</label><input class="wsb-form__input" type="number" name="passengers" min="1" value="1" placeholder="%s" required />', esc_html($fields['passengers']['label']), esc_attr($fields['passengers']['placeholder'])) : '',
-            $fields['baby_seats']['label'] ? sprintf('<label class="wsb-form__label">%s</label><input class="wsb-form__input" type="number" name="baby_seats" min="0" value="0" placeholder="%s" />', esc_html($fields['baby_seats']['label']), esc_attr($fields['baby_seats']['placeholder'])) : '',
-            $fields['check_in_bags']['label'] ? sprintf('<label class="wsb-form__label">%s</label><input class="wsb-form__input" type="number" name="check_in_bags" min="0" value="0" placeholder="%s" />', esc_html($fields['check_in_bags']['label']), esc_attr($fields['check_in_bags']['placeholder'])) : '',
-            $fields['carry_on_bags']['label'] ? sprintf('<label class="wsb-form__label">%s</label><input class="wsb-form__input" type="number" name="carry_on_bags" min="0" value="0" placeholder="%s" />', esc_html($fields['carry_on_bags']['label']), esc_attr($fields['carry_on_bags']['placeholder'])) : '',
-            esc_html($fields['outbound_from']['label'] ?? __('From', 'wsb')),
-            sprintf('<input class="wsb-form__input" type="text" name="outbound_from" placeholder="%s" required />', esc_attr($fields['outbound_from']['placeholder'] ?? __('Pick up from', 'wsb'))),
-            sprintf('<label class="wsb-form__label">%s</label><input class="wsb-form__input" type="text" name="outbound_to" placeholder="%s" required />', esc_html($fields['outbound_to']['label'] ?? __('To', 'wsb')), esc_attr($fields['outbound_to']['placeholder'] ?? __('Drop off at', 'wsb'))),
-            sprintf('<label class="wsb-form__label">%s</label><input class="wsb-form__input" type="date" name="outbound_pickup_date" placeholder="%s" required />', esc_html($fields['outbound_pickup_date']['label'] ?? __('Pickup date', 'wsb')), esc_attr($fields['outbound_pickup_date']['placeholder'] ?? __('Select pickup date', 'wsb'))),
-            sprintf('<label class="wsb-form__label">%s</label><input class="wsb-form__input" type="time" name="outbound_pickup_time" placeholder="%s" required />', esc_html($fields['outbound_pickup_time']['label'] ?? __('Pickup time', 'wsb')), esc_attr($fields['outbound_pickup_time']['placeholder'] ?? __('Select pickup time', 'wsb'))),
-            $returnHiddenClass,
-            esc_html__('Return leg', 'wsb'),
-            sprintf('<label class="wsb-form__label">%s</label><input class="wsb-form__input" type="text" name="return_from" placeholder="%s" />', esc_html($fields['return_from']['label'] ?? __('Return from', 'wsb')), esc_attr($fields['return_from']['placeholder'] ?? __('Return pickup from', 'wsb'))),
-            sprintf('<label class="wsb-form__label">%s</label><input class="wsb-form__input" type="text" name="return_to" placeholder="%s" />', esc_html($fields['return_to']['label'] ?? __('Return to', 'wsb')), esc_attr($fields['return_to']['placeholder'] ?? __('Return drop off at', 'wsb'))),
-            sprintf('<label class="wsb-form__label">%s</label><input class="wsb-form__input" type="date" name="return_pickup_date" placeholder="%s" />', esc_html($fields['return_pickup_date']['label'] ?? __('Return date', 'wsb')), esc_attr($fields['return_pickup_date']['placeholder'] ?? __('Select return date', 'wsb'))),
-            sprintf('<label class="wsb-form__label">%s</label><input class="wsb-form__input" type="time" name="return_pickup_time" placeholder="%s" />', esc_html($fields['return_pickup_time']['label'] ?? __('Return time', 'wsb')), esc_attr($fields['return_pickup_time']['placeholder'] ?? __('Select return time', 'wsb'))),
-            esc_html__('Additional stop', 'wsb'),
-            esc_html__('Enable additional stop', 'wsb'),
-            $additionalStopHiddenClass,
-            esc_attr($fields['additional_stop']['placeholder'] ?? __('Add an optional stop', 'wsb')),
-            esc_html__('An early Booking Builder preview only. No real submission is enabled yet.', 'wsb'),
-            esc_html__('Check Pricing & Availability', 'wsb')
+        return sprintf(
+            '<label class="wsb-form__label" for="%1$s">%2$s</label><input class="wsb-form__input" type="time" id="%1$s" name="%1$s" placeholder="%3$s" %4$s />',
+            esc_attr($field['key']),
+            esc_html($field['label']),
+            esc_attr($field['placeholder'] ?? ''),
+            $required ? 'required' : ''
         );
     }
 

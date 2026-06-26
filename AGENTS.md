@@ -27,6 +27,17 @@ The goal is not to replace the live booking flow immediately. The goal is to bui
 11. Add or update tests/fixtures/docs when behaviour changes.
 12. Never change production/staging URLs or secrets without confirmation.
 
+## Page smoke testing for shortcode/UI changes
+
+Any task that changes shortcode rendering, frontend form output, WooCommerce hooks, or page-facing PHP must:
+- run PHP lint
+- confirm Local is running or ask the user to start it
+- curl the affected local URL
+- check HTTP status
+- inspect saved HTML for critical errors
+- inspect `wp-content/debug.log`
+- not mark the task complete if the page returns a critical error
+
 ## Architecture direction
 
 The desired direction is:

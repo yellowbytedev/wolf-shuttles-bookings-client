@@ -2,16 +2,9 @@
 
 ## Purpose
 
-BookingPayload v2 is the new canonical payload contract for the Wolf Shuttles marketing-site booking intake.
+BookingPayload v2 is the canonical marketing-site booking intake shape for the Booking Builder.
 
-The goals are:
-
-- remove dependency on Bricks hashed field IDs
-- remove hidden fields as the source of truth
-- support one-way and return transfers immediately
-- support charter next
-- support additional stops / multi-leg trips later
-- allow the booking site to branch cleanly between legacy and v2 payloads
+The live shortcode preview now renders this payload in real time as the form changes, including page load, input, change, blur, trip-type toggles, additional-stop toggles, and submit.
 
 ## Naming decisions
 
@@ -26,15 +19,30 @@ trip_type: one_way | return | charter
 
 Avoid `service_family`.
 
-Rename legacy luggage fields:
+Keep the canonical marketing field names:
 
 ```text
-largeBags      → luggage.check_in_bags
-carryOnBags    → luggage.carry_on_bags
-babySeatCount  → add_ons.baby_seats
+passengers
+baby_seats
+check_in_bags
+carry_on_bags
+trailer
+oversize_luggage
+outbound_from
+outbound_to
+outbound_pickup_date
+outbound_pickup_time
+return_from
+return_to
+return_pickup_date
+return_pickup_time
+additional_stop_enabled
+additional_stop
 ```
 
 ## Core structure
+
+The browser preview uses this shape:
 
 ```json
 {
@@ -42,18 +50,19 @@ babySeatCount  → add_ons.baby_seats
   "source": {
     "site": "marketing",
     "channel": "shortcode_form",
-    "page_url": "",
+    "page_url": "https://wolfshuttles.local/booking-builder/",
     "referrer": ""
   },
-  "trip_type": "one_way",
   "service_group": "transfer",
-  "service_type": "airport_pickup",
+  "service_type": "city_transfer",
+  "trip_type": "one_way",
   "customer": {
     "name": "",
     "email": "",
     "phone": ""
   },
   "passengers": 1,
+  "baby_seats": 0,
   "luggage": {
     "check_in_bags": 0,
     "carry_on_bags": 0
@@ -70,13 +79,16 @@ babySeatCount  → add_ons.baby_seats
     "route_options": []
   },
   "tracking": {},
-  "validation_flags": {}
+  "validation_flags": {},
+  "meta": {
+    "handover_mode": "preview_only",
+    "created_at": ""
+  },
+  "charter": null
 }
 ```
 
 ## Legs model
-
-A trip is made from one or more legs.
 
 A direct one-way trip has one leg:
 
@@ -85,132 +97,73 @@ A direct one-way trip has one leg:
   "sequence": 1,
   "leg_group": "outbound",
   "leg_type": "direct",
-  "from": {},
-  "to": {},
-  "pickup_date": "27/06/2026",
-  "pickup_time": "14:42",
-  "distance_km": 31.4,
-  "duration_text": "35 mins",
-  "service_type": "airport_pickup"
+  "service_type": "city_transfer",
+  "from": {
+    "label": "",
+    "name": "",
+    "town": "",
+    "neighbourhood": "",
+    "place_id": "",
+    "coords": {
+      "lat": null,
+      "lng": null
+    },
+    "formatted_address": ""
+  },
+  "to": {
+    "label": "",
+    "name": "",
+    "town": "",
+    "neighbourhood": "",
+    "place_id": "",
+    "coords": {
+      "lat": null,
+      "lng": null
+    },
+    "formatted_address": ""
+  },
+  "pickup_date": "",
+  "pickup_time": "",
+  "pickup_datetime": "",
+  "stops": [],
+  "route": {}
 }
 ```
 
-A return trip has at least two legs:
+A return trip adds a second leg with `leg_group: "return"` and `sequence: 2`.
 
-```json
-[
-  {
-    "sequence": 1,
-    "leg_group": "outbound",
-    "leg_type": "direct"
-  },
-  {
-    "sequence": 2,
-    "leg_group": "return",
-    "leg_type": "direct"
-  }
-]
-```
-
-An additional stop should be represented as extra legs. For example, A → garage stop → B should become:
-
-```json
-[
-  {
-    "sequence": 1,
-    "leg_group": "outbound",
-    "leg_type": "stopover_segment",
-    "from": "A",
-    "to": "Garage stop"
-  },
-  {
-    "sequence": 2,
-    "leg_group": "outbound",
-    "leg_type": "final_segment",
-    "from": "Garage stop",
-    "to": "B"
-  }
-]
-```
-
-The first implementation does not need to render additional stops in the form, but the schema must allow them.
-
-## Location object
-
-Each `from` and `to` object should use this structure:
+An additional stop is stored on the outbound leg:
 
 ```json
 {
-  "label": "Cape Town International Airport (CPT), Matroosfontein, Cape Town, South Africa",
-  "name": "Cape Town International Airport",
-  "town": "Cape Town",
-  "neighbourhood": "Matroosfontein",
-  "place_id": "",
-  "coords": {
-    "lat": -33.9688707,
-    "lng": 18.5997595
+  "type": "additional_stop",
+  "location": {
+    "label": "",
+    "name": "",
+    "town": "",
+    "neighbourhood": "",
+    "place_id": "",
+    "coords": {
+      "lat": null,
+      "lng": null
+    },
+    "formatted_address": ""
   }
 }
 ```
 
-## Charter structure
+## Preview behavior
 
-Charter can use the same top-level structure with:
+The live preview should update:
 
-```json
-{
-  "trip_type": "charter",
-  "service_group": "charter",
-  "service_type": "charter_hire",
-  "charter": {
-    "poi": "Cape Point",
-    "poi_other": "",
-    "poi_reference": {},
-    "poi_distance_from_pickup_km": 0,
-    "duration_text": "10 hours"
-  }
-}
-```
+- on page load
+- on input
+- on change
+- on blur
+- when the trip type toggles
+- when the additional stop toggle changes
+- on submit
 
-Charter does not need to be built in the first shortcode milestone, but v2 must not block charter.
+Submit remains intercepted. The preview is local only.
 
-## Handover modes
-
-The marketing plugin should be able to switch between handover modes during development:
-
-```text
-legacy_hash
-v2_token
-```
-
-`legacy_hash` keeps current behaviour:
-
-```text
-/bookings/?hash=<hash>
-```
-
-`v2_token` prepares the future URL:
-
-```text
-/bookings/?booking_token=<token>&trip_id=<trip_id>
-```
-
-The booking site will later branch based on payload version and URL parameters.
-
-## Trust boundary
-
-Frontend JS may collect route facts, but the backend must not blindly trust frontend-derived pricing flags.
-
-The backend should validate/normalise:
-
-- required fields
-- date and time
-- minimum lead time
-- blockouts
-- passengers and luggage values
-- trip type
-- service group/type
-- route metadata shape
-- add-on flags
-
-The booking system remains the final source for pricing and vehicle availability.
+If `?debug=1` is present, the browser logs the generated payload to the console.

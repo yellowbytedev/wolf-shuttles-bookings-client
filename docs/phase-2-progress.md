@@ -97,3 +97,15 @@
 - Handover preview fixture runner: `php scripts/run-booking-handover-preview-fixtures.php`.
   - Valid fixtures only, asserts envelope structure and signing fields.
 - All Phase 2G fixtures still pass; existing legacy flow unchanged.
+
+### Phase 2H verification check
+
+- Verified the current `feature/phase-2h-v2-handover-foundation` branch with lint, fixture runners, page smoke tests, REST preview tests, and debug-log inspection.
+- `php scripts/run-booking-payload-fixtures.php` passed: 18/18 fixtures matched expectations.
+- `php scripts/run-booking-handover-preview-fixtures.php` passed: 14 valid fixtures passed, 4 invalid fixtures skipped, 0 failures.
+- `/booking-builder/` returned HTTP 200.
+- `/booking-builder/?debug=1` returned HTTP 200.
+- Valid handover preview request returned `200 OK`, `ok: true`, and a dry-run handover envelope.
+- Invalid handover preview request returned `200 OK`, `ok: false`, and validation errors without a handover envelope.
+- Fresh `wp-content/debug.log` entries from this run showed no new `ws-bookings-client` fatal or critical error.
+- Historical fatal entries remain in the log from earlier failed iterations, but they were not reintroduced by the latest smoke test.

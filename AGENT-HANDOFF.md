@@ -56,11 +56,11 @@ If roadmap or phase status changes, update this file at the same time.
 
 ## 5. What Currently Works
 
-- The `/booking-builder/` page renders the Booking Builder shortcode shell.
+- The `/booking-builder/` page renders the Booking Builder shortcode shell and smoke-tested at HTTP 200.
 - Realtime BookingPayload v2 preview works in the browser.
 - The server-side preview endpoint works at `POST /wp-json/ws-bookings-client/v1/payload-preview`.
 - The payload fixture runner passes.
-- The dry-run v2 handover foundation exists at `POST /wp-json/ws-bookings-client/v1/handover-preview`.
+- The dry-run v2 handover foundation exists at `POST /wp-json/ws-bookings-client/v1/handover-preview` and was smoke-tested with valid and invalid requests at HTTP 200.
 - Legacy Bricks/Fluent booking flow is still untouched.
 - No real booking submission is enabled yet.
 

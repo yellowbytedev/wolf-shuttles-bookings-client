@@ -109,3 +109,13 @@
 - Invalid handover preview request returned `200 OK`, `ok: false`, and validation errors without a handover envelope.
 - Fresh `wp-content/debug.log` entries from this run showed no new `ws-bookings-client` fatal or critical error.
 - Historical fatal entries remain in the log from earlier failed iterations, but they were not reintroduced by the latest smoke test.
+
+## Phase 2I — Developer fixture drawer / payload test lab
+
+- Added a debug-only fixture drawer behind the Booking Builder shortcode.
+- The drawer is exposed on `/booking-builder/?debug=1` and stays hidden on the normal page.
+- Added a fixed `Test payloads` button, fixture chips, drawer status text, and close control.
+- The drawer reads from `tests/fixtures/booking-payload-v2-fixtures.json` and can populate the live form with fixture payloads.
+- Clicking a fixture runs the existing server-side payload preview and the dry-run handover preview so the browser can compare expected vs actual results.
+- The payload fixture corpus was expanded to support the drawer workflow while keeping the existing fixture runner passing.
+- Phase 2I keeps the legacy Bricks/Fluent flow untouched and does not enable real booking submission.

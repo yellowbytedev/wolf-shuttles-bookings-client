@@ -95,6 +95,90 @@
         };
     }
 
+    function getInput(form, name) {
+        return form.querySelector('[name="' + name + '"]');
+    }
+
+    function setInputValue(form, name, value) {
+        var input = getInput(form, name);
+        if (!input) {
+            return;
+        }
+
+        input.value = value;
+    }
+
+    function setCheckboxValue(form, name, value) {
+        var input = getInput(form, name);
+        if (!input) {
+            return;
+        }
+
+        input.checked = Boolean(value);
+    }
+
+    function setRadioValue(form, name, value) {
+        var inputs = form.querySelectorAll('input[name="' + name + '"]');
+        forEachNode(inputs, function (input) {
+            input.checked = input.value === value;
+        });
+    }
+
+    function setFieldGroupDisabled(form, selector, disabled) {
+        var container = form.querySelector(selector);
+        if (!container) {
+            return;
+        }
+
+        var input = container.querySelector('input');
+        if (input) {
+            input.disabled = disabled;
+        }
+    }
+
+    function parseFixtures(rawFixtures) {
+        if (!rawFixtures) {
+            return [];
+        }
+
+        if (Array.isArray(rawFixtures)) {
+            return rawFixtures;
+        }
+
+        if (typeof rawFixtures === 'string') {
+            try {
+                var parsed = JSON.parse(rawFixtures);
+                return Array.isArray(parsed) ? parsed : [];
+            } catch (error) {
+                logDebug('Could not parse fixture data', error);
+            }
+        }
+
+        return [];
+    }
+
+    function readFixtureCollection(root) {
+        return parseFixtures(root && root.dataset ? root.dataset.wsbFixtures : []);
+    }
+
+    function findFixtureById(fixtures, fixtureId) {
+        var id = trimValue(fixtureId);
+        for (var i = 0; i < fixtures.length; i += 1) {
+            if (trimValue(fixtures[i].id) === id) {
+                return fixtures[i];
+            }
+        }
+        return null;
+    }
+
+    function inferServiceGroup(serviceType) {
+        var type = trimValue(serviceType);
+        if (type === 'charter_hire' || type === 'charter') {
+            return 'charter';
+        }
+        return 'transfer';
+    }
+
     function buildLeg(form, type) {
         var prefix = type === 'return' ? 'return_' : 'outbound_';
         var leg = {
@@ -110,13 +194,16 @@
         return leg;
     }
 
-    function buildPayload(form) {
+    function buildPayload(form, state) {
+        var currentState = state || {};
         var tripType = getFieldValue(form, 'input[name="trip_type"]:checked', 'one_way');
         var additionalStopEnabled = getBooleanValue(form, 'input[name="additional_stop_enabled"]');
         var additionalStop = trimValue(getFieldValue(form, 'input[name="additional_stop"]', ''));
         var outboundLeg = buildLeg(form, 'outbound');
         var legs = [outboundLeg];
         var passengers = getNumberValue(form, 'input[name="passengers"]', 1);
+        var serviceType = trimValue(currentState.serviceType || (form.closest('[data-wsb-booking-builder]') ? form.closest('[data-wsb-booking-builder]').dataset.wsbServiceType : '')) || 'city_transfer';
+        var serviceGroup = trimValue(currentState.serviceGroup || (form.closest('[data-wsb-booking-builder]') ? form.closest('[data-wsb-booking-builder]').dataset.wsbServiceGroup : '')) || inferServiceGroup(serviceType);
 
         if (passengers < 1) {
             passengers = 1;
@@ -136,9 +223,14 @@
         return {
             schema_version: '2.0',
             source: 'marketing_booking_builder',
-            service_group: 'transfer',
-            service_type: 'city_transfer',
+            service_group: serviceGroup,
+            service_type: serviceType,
             trip_type: tripType,
+            customer: {
+                name: '',
+                email: '',
+                phone: ''
+            },
             passengers: passengers,
             baby_seats: getNumberValue(form, 'input[name="baby_seats"]', 0),
             check_in_bags: getNumberValue(form, 'input[name="check_in_bags"]', 0),
@@ -148,6 +240,8 @@
                 oversize_luggage: getBooleanValue(form, 'input[name="oversize_luggage"]')
             },
             legs: legs,
+            tracking: {},
+            validation_flags: {},
             meta: {
                 preview_only: true,
                 created_at: new Date().toISOString()
@@ -155,7 +249,7 @@
         };
     }
 
-    function renderPreviewSummary(statusElement, payload) {
+    function renderPreviewSummary(statusElement, payload, state) {
         if (!statusElement) {
             return;
         }
@@ -164,11 +258,16 @@
         var hasAdditional = payload.legs && payload.legs[0] && payload.legs[0].stops && payload.legs[0].stops.length > 0;
         var summary = [
             'Live payload preview active',
+            'service: ' + payload.service_type,
             'trip: ' + payload.trip_type,
             legCount + ' leg' + (legCount === 1 ? '' : 's'),
             'additional stop: ' + (hasAdditional ? 'enabled' : 'disabled'),
             'updated: ' + new Date().toLocaleTimeString()
         ];
+
+        if (state && state.fixtureId) {
+            summary.splice(2, 0, 'fixture: ' + state.fixtureId);
+        }
 
         statusElement.textContent = summary.join(' · ');
     }
@@ -229,35 +328,9 @@
         outputElement.innerHTML = '<div class="wsb-booking-client-validation-summary wsb-booking-client-validation-summary--error">' + escapeHtml(message) + '</div>';
     }
 
-    function renderPayload(previewElement, statusElement, messageElement, payload, message) {
-        if (previewElement) {
-            previewElement.textContent = JSON.stringify(payload, null, 2);
-        }
-
-        renderPreviewSummary(statusElement, payload);
-
-        if (messageElement) {
-            messageElement.textContent = message || '';
-        }
-
-        logDebug('Booking Builder preview updated', payload);
-    }
-
-    function postPayloadPreview(payload, validationElement, messageElement) {
-        if (!validationElement) {
-            return;
-        }
-
-        if (!PREVIEW_URL) {
-            renderValidationError(validationElement, STRINGS.serverPreviewUnavailable);
-            if (messageElement) {
-                messageElement.textContent = STRINGS.serverPreviewUnavailable;
-            }
-            return;
-        }
-
-        if (messageElement) {
-            messageElement.textContent = STRINGS.serverValidationPending;
+    function requestJsonPreview(endpointUrl, payload) {
+        if (!endpointUrl) {
+            return Promise.resolve(null);
         }
 
         var headers = {
@@ -268,17 +341,51 @@
             headers['X-WP-Nonce'] = PREVIEW_NONCE;
         }
 
-        fetch(PREVIEW_URL, {
+        return fetch(endpointUrl, {
             method: 'POST',
             headers: headers,
             body: JSON.stringify(payload)
-        })
-            .then(function (response) {
-                if (!response.ok) {
-                    throw new Error('HTTP ' + response.status);
-                }
-                return response.json();
-            })
+        }).then(function (response) {
+            if (!response.ok) {
+                throw new Error('HTTP ' + response.status);
+            }
+
+            return response.json();
+        });
+    }
+
+    function renderPayload(previewElement, statusElement, messageElement, payload, message, state) {
+        if (previewElement) {
+            previewElement.textContent = JSON.stringify(payload, null, 2);
+        }
+
+        renderPreviewSummary(statusElement, payload, state);
+
+        if (messageElement) {
+            messageElement.textContent = message || '';
+        }
+
+        logDebug('Booking Builder preview updated', payload);
+    }
+
+    function postPayloadPreview(payload, validationElement, messageElement) {
+        if (!validationElement) {
+            return Promise.resolve(null);
+        }
+
+        if (!PREVIEW_URL) {
+            renderValidationError(validationElement, STRINGS.serverPreviewUnavailable);
+            if (messageElement) {
+                messageElement.textContent = STRINGS.serverPreviewUnavailable;
+            }
+            return Promise.resolve(null);
+        }
+
+        if (messageElement) {
+            messageElement.textContent = STRINGS.serverValidationPending;
+        }
+
+        return requestJsonPreview(PREVIEW_URL, payload)
             .then(function (data) {
                 if (!data || !data.validation) {
                     throw new Error('Invalid preview response');
@@ -289,6 +396,7 @@
                     messageElement.textContent = data.validation.valid ? (data.validation.warnings && data.validation.warnings.length ? STRINGS.serverValidationWarnings : STRINGS.serverValidationSuccess) : STRINGS.serverValidationFailed;
                 }
                 logDebug('Server preview response', data);
+                return data;
             })
             .catch(function (error) {
                 renderValidationError(validationElement, STRINGS.serverPreviewError);
@@ -296,7 +404,160 @@
                     messageElement.textContent = STRINGS.serverPreviewError;
                 }
                 logDebug('Server preview failed', error);
+                return null;
             });
+    }
+
+    function postHandoverPreview(payload, messageElement) {
+        var handoverUrl = typeof CONFIG.handoverPreviewUrl === 'string' ? CONFIG.handoverPreviewUrl : '';
+        if (!handoverUrl) {
+            if (messageElement && CONFIG.strings && CONFIG.strings.fixtureDrawerHandoverUnavailable) {
+                messageElement.textContent = CONFIG.strings.fixtureDrawerHandoverUnavailable;
+            }
+            return Promise.resolve(null);
+        }
+
+        return requestJsonPreview(handoverUrl, payload)
+            .then(function (data) {
+                logDebug('Handover preview response', data);
+                return data;
+            })
+            .catch(function (error) {
+                logDebug('Handover preview failed', error);
+                return null;
+            });
+    }
+
+    function updateFixtureDrawerStatus(statusElement, message, variant) {
+        if (!statusElement) {
+            return;
+        }
+
+        statusElement.className = 'wsb-booking-client-fixture-status';
+        if (variant) {
+            statusElement.classList.add('wsb-booking-client-fixture-status--' + variant);
+        }
+        statusElement.textContent = message;
+    }
+
+    function openFixtureDrawer(drawer, toggle, statusElement) {
+        if (!drawer) {
+            return;
+        }
+
+        drawer.classList.remove('wsb-booking-client-hidden');
+        if (toggle) {
+            toggle.setAttribute('aria-expanded', 'true');
+        }
+        updateFixtureDrawerStatus(statusElement, (CONFIG.strings && CONFIG.strings.fixtureDrawerOpen) ? CONFIG.strings.fixtureDrawerOpen : 'Fixture drawer opened.', 'info');
+    }
+
+    function closeFixtureDrawer(drawer, toggle, statusElement) {
+        if (!drawer) {
+            return;
+        }
+
+        drawer.classList.add('wsb-booking-client-hidden');
+        if (toggle) {
+            toggle.setAttribute('aria-expanded', 'false');
+        }
+        updateFixtureDrawerStatus(statusElement, (CONFIG.strings && CONFIG.strings.fixtureDrawerClosed) ? CONFIG.strings.fixtureDrawerClosed : 'Fixture drawer closed.', 'muted');
+    }
+
+    function applyFixtureToForm(form, root, fixture, state) {
+        var payload = fixture && fixture.payload ? fixture.payload : {};
+        var currentState = state || {};
+        var outboundLeg = payload.legs && payload.legs.length ? payload.legs[0] : {};
+        var returnLeg = null;
+
+        if (payload.trip_type === 'return' && payload.legs && payload.legs.length > 1) {
+            returnLeg = payload.legs[1];
+        }
+
+        currentState.fixtureId = trimValue(fixture.id || '');
+        currentState.fixtureExpected = payload ? (fixture.expected_ok ? 'valid' : 'invalid') : '';
+        currentState.serviceType = trimValue(payload.service_type || currentState.serviceType || 'city_transfer');
+        currentState.serviceGroup = trimValue(payload.service_group || inferServiceGroup(currentState.serviceType));
+
+        if (root) {
+            root.dataset.wsbServiceType = currentState.serviceType;
+            root.dataset.wsbServiceGroup = currentState.serviceGroup;
+        }
+
+        setRadioValue(form, 'trip_type', payload.trip_type || 'one_way');
+        setInputValue(form, 'passengers', payload.passengers != null ? payload.passengers : 1);
+        setInputValue(form, 'baby_seats', payload.baby_seats != null ? payload.baby_seats : 0);
+        setInputValue(form, 'check_in_bags', payload.check_in_bags != null ? payload.check_in_bags : 0);
+        setInputValue(form, 'carry_on_bags', payload.carry_on_bags != null ? payload.carry_on_bags : 0);
+        setCheckboxValue(form, 'trailer', Boolean(payload.add_ons && payload.add_ons.trailer));
+        setCheckboxValue(form, 'oversize_luggage', Boolean(payload.add_ons && payload.add_ons.oversize_luggage));
+
+        setInputValue(form, 'outbound_from', outboundLeg.from && outboundLeg.from.label ? outboundLeg.from.label : '');
+        setInputValue(form, 'outbound_to', outboundLeg.to && outboundLeg.to.label ? outboundLeg.to.label : '');
+        setInputValue(form, 'outbound_pickup_date', outboundLeg.pickup_date || '');
+        setInputValue(form, 'outbound_pickup_time', outboundLeg.pickup_time || '');
+
+        if (returnLeg) {
+            setInputValue(form, 'return_from', returnLeg.from && returnLeg.from.label ? returnLeg.from.label : '');
+            setInputValue(form, 'return_to', returnLeg.to && returnLeg.to.label ? returnLeg.to.label : '');
+            setInputValue(form, 'return_pickup_date', returnLeg.pickup_date || '');
+            setInputValue(form, 'return_pickup_time', returnLeg.pickup_time || '');
+        } else {
+            setInputValue(form, 'return_from', '');
+            setInputValue(form, 'return_to', '');
+            setInputValue(form, 'return_pickup_date', '');
+            setInputValue(form, 'return_pickup_time', '');
+        }
+
+        var stop = outboundLeg.stops && outboundLeg.stops.length ? outboundLeg.stops[0] : null;
+        var additionalStopEnabled = Boolean(stop && stop.location && stop.location.label);
+        setCheckboxValue(form, 'additional_stop_enabled', additionalStopEnabled);
+        setInputValue(form, 'additional_stop', additionalStopEnabled ? stop.location.label : '');
+        setFieldGroupDisabled(form, '[data-wsb-additional-stop-section]', !additionalStopEnabled);
+
+        updateReturnVisibility(root.querySelector('[data-wsb-return-section]'), form.querySelectorAll('input[name="trip_type"]'));
+        updateAdditionalStop(form.querySelector('[data-wsb-additional-stop-toggle]'), root.querySelector('[data-wsb-additional-stop-section]'));
+    }
+
+    function runFixturePreviewChecks(payload, fixture, validationElement, messageElement, statusElement, state) {
+        var expectedOk = Boolean(fixture && fixture.expected_ok);
+        var fixtureId = trimValue(fixture && fixture.id ? fixture.id : 'fixture');
+        var fixtureLabel = fixtureId + ' — Expected: ' + (expectedOk ? 'valid' : 'invalid');
+        var strings = CONFIG.strings || {};
+
+        updateFixtureDrawerStatus(statusElement, (strings.fixtureDrawerLoaded || 'Loaded fixture:') + ' ' + fixtureLabel, 'info');
+
+        return postPayloadPreview(payload, validationElement, messageElement).then(function (serverData) {
+            var serverOk = Boolean(serverData && serverData.validation && serverData.validation.valid);
+            var serverMatched = serverOk === expectedOk;
+            var serverMessage = strings.fixtureDrawerServerMatched || 'Server validation matched expected result.';
+            if (!serverMatched) {
+                serverMessage = strings.fixtureDrawerServerMismatch || 'Server validation did not match expected result.';
+            }
+
+            var followUp = [fixtureLabel, serverMessage];
+            updateFixtureDrawerStatus(statusElement, followUp.join(' · '), serverMatched ? 'success' : 'warning');
+
+            return postHandoverPreview(payload, messageElement).then(function (handoverData) {
+                var handoverOk = Boolean(handoverData && handoverData.ok);
+                var handoverMatched = handoverOk === expectedOk;
+                var handoverMessage = strings.fixtureDrawerHandoverMatched || 'Handover preview matched expected result.';
+                if (!handoverMatched) {
+                    handoverMessage = strings.fixtureDrawerHandoverMismatch || 'Handover preview did not match expected result.';
+                }
+
+                updateFixtureDrawerStatus(
+                    statusElement,
+                    [fixtureLabel, serverMessage, handoverMessage].join(' · '),
+                    serverMatched && handoverMatched ? 'success' : 'warning'
+                );
+
+                return {
+                    server: serverData,
+                    handover: handoverData
+                };
+            });
+        });
     }
 
     function updateReturnVisibility(returnSection, tripTypeInputs) {
@@ -347,6 +608,18 @@
         var validationElement = root.querySelector('[data-wsb-validation-output]');
         var statusElement = root.querySelector('[data-wsb-preview-status]');
         var messageElement = root.querySelector('[data-wsb-submit-message]');
+        var fixtureToggle = root.querySelector('[data-wsb-fixture-toggle]');
+        var fixtureDrawer = root.querySelector('[data-wsb-fixture-drawer]');
+        var fixtureClose = root.querySelector('[data-wsb-fixture-close]');
+        var fixtureList = root.querySelector('[data-wsb-fixture-list]');
+        var fixtureStatus = root.querySelector('[data-wsb-fixture-status]');
+        var fixtures = readFixtureCollection(root);
+        var state = {
+            serviceGroup: trimValue(root.dataset.wsbServiceGroup || 'transfer') || 'transfer',
+            serviceType: trimValue(root.dataset.wsbServiceType || 'city_transfer') || 'city_transfer',
+            fixtureId: '',
+            fixtureExpected: ''
+        };
 
         if (!form) {
             if (DEBUG) {
@@ -363,13 +636,13 @@
         }
 
         function refreshPreview(message) {
-            var payload = buildPayload(form);
-            renderPayload(previewElement, statusElement, messageElement, payload, message);
+            var payload = buildPayload(form, state);
+            renderPayload(previewElement, statusElement, messageElement, payload, message, state);
             return payload;
         }
 
         function refreshServerPreview(message) {
-            var payload = buildPayload(form);
+            var payload = buildPayload(form, state);
             postPayloadPreview(payload, validationElement, messageElement);
             return payload;
         }
@@ -393,6 +666,39 @@
             });
         }
 
+        if (fixtureToggle && fixtureDrawer && fixtureList && fixtures.length) {
+            fixtureToggle.addEventListener('click', function () {
+                var isOpen = !fixtureDrawer.classList.contains('wsb-booking-client-hidden');
+                if (isOpen) {
+                    closeFixtureDrawer(fixtureDrawer, fixtureToggle, fixtureStatus);
+                } else {
+                    openFixtureDrawer(fixtureDrawer, fixtureToggle, fixtureStatus);
+                }
+            });
+        }
+
+        if (fixtureClose && fixtureDrawer && fixtureToggle) {
+            fixtureClose.addEventListener('click', function () {
+                closeFixtureDrawer(fixtureDrawer, fixtureToggle, fixtureStatus);
+            });
+        }
+
+        if (fixtureList && fixtures.length) {
+            forEachNode(fixtureList.querySelectorAll('[data-wsb-fixture-chip]'), function (chip) {
+                chip.addEventListener('click', function () {
+                    var fixture = findFixtureById(fixtures, chip.getAttribute('data-wsb-fixture-id'));
+                    if (!fixture) {
+                        updateFixtureDrawerStatus(fixtureStatus, 'Fixture not found: ' + trimValue(chip.getAttribute('data-wsb-fixture-id')), 'error');
+                        return;
+                    }
+
+                    applyFixtureToForm(form, root, fixture, state);
+                    var payload = refreshPreview((CONFIG.strings && CONFIG.strings.fixtureDrawerLoaded ? CONFIG.strings.fixtureDrawerLoaded : 'Loaded fixture:') + ' ' + fixture.id + ' — Expected: ' + (fixture.expected_ok ? 'valid' : 'invalid'));
+                    runFixturePreviewChecks(payload, fixture, validationElement, messageElement, fixtureStatus, state);
+                });
+            });
+        }
+
         form.addEventListener('input', debouncedRefresh);
         form.addEventListener('change', function () {
             refreshPreview('');
@@ -409,6 +715,13 @@
         updateReturnVisibility(returnSection, tripTypeInputs);
         updateAdditionalStop(additionalStopToggle, additionalStopField);
         refreshPreview('Live payload preview initialised');
+        if (fixtureStatus && fixtures.length) {
+            updateFixtureDrawerStatus(
+                fixtureStatus,
+                (CONFIG.strings && CONFIG.strings.fixtureDrawerDefault) ? CONFIG.strings.fixtureDrawerDefault : 'Choose a fixture to load sample payload data.',
+                'muted'
+            );
+        }
     }
 
     document.addEventListener('DOMContentLoaded', function () {

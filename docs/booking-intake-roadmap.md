@@ -64,7 +64,7 @@ Milestones:
 - Google autocomplete is still pending.
 - Legacy Bricks/Fluent form untouched.
 
-### Phase 2H status (in progress)
+### Phase 2H status (completed)
 
 - V2 handover envelope service added (`WSB_Client_Booking_Payload_V2_Handover_Service`).
 - Deterministic canonical signing helper implemented: recursively sorts associative keys, encodes with `json_encode(JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES)`, then `hash_hmac('sha256', ...)`.
@@ -83,6 +83,15 @@ Milestones:
 - Itinerary table is still pending.
 - Google autocomplete is still pending.
 - Legacy Bricks/Fluent form untouched.
+
+### Phase 2I status (completed)
+
+- Added a debug-only developer fixture drawer / payload test lab behind `?debug=1`.
+- The drawer loads fixture payloads from `tests/fixtures/booking-payload-v2-fixtures.json`.
+- Clicking a fixture populates the Booking Builder form and runs the existing preview checks.
+- The drawer compares the live browser result against the expected fixture outcome without enabling real booking submission.
+- The normal `/booking-builder/` page stays clean and the legacy Bricks/Fluent flow remains untouched.
+- The payload fixture runner and handover preview runner still pass after the drawer changes.
 
 ## Phase 3 — Booking-site v2 intake
 

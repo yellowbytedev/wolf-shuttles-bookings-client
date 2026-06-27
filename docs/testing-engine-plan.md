@@ -136,6 +136,26 @@ The runner:
 - Uses the local fallback signing secret (`local_v2_handover_preview_secret`) so signatures are generated without configuring a real production secret.
 - Invalid fixtures (`expected_ok=false`) are reported as skipped, not processed.
 
+## Developer fixture drawer (Phase 2I)
+
+A browser-facing fixture drawer was added to the Booking Builder shortcode.
+
+Where to use it:
+
+```text
+/booking-builder/?debug=1
+```
+
+The drawer:
+
+1. Loads the same `tests/fixtures/booking-payload-v2-fixtures.json` corpus used by the terminal runners.
+2. Exposes a fixed `Test payloads` button and a chip list of fixtures.
+3. Populates the live form when a fixture is selected.
+4. Re-runs the existing payload preview and dry-run handover preview checks.
+5. Shows local success/failure status without enabling real booking submission.
+
+The normal `/booking-builder/` page remains unchanged.
+
 ## Important rule
 
 Do not make pricing snapshots authoritative until the booking-site pricing engine has a stable test harness. For now, fixture prices from logs can be used as references, not as hard assertions.

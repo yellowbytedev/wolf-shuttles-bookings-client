@@ -49,18 +49,20 @@ The roadmap lives in `docs/booking-intake-roadmap.md` and the phase log lives in
 - Phase 2E complete: realtime local payload preview.
 - Phase 2F complete: server-side payload preview validation.
 - Phase 2G complete: payload fixture runner.
-- Phase 2H current: v2 handover foundation, dry-run only.
-- Phase 2I next: developer fixture drawer / payload test lab.
+- Phase 2H complete: v2 handover foundation, dry-run only.
+- Phase 2I complete: developer fixture drawer / payload test lab.
 
 If roadmap or phase status changes, update this file at the same time.
 
 ## 5. What Currently Works
 
 - The `/booking-builder/` page renders the Booking Builder shortcode shell and smoke-tested at HTTP 200.
+- The `/booking-builder/?debug=1` page renders the developer fixture drawer and smoke-tested at HTTP 200.
 - Realtime BookingPayload v2 preview works in the browser.
 - The server-side preview endpoint works at `POST /wp-json/ws-bookings-client/v1/payload-preview`.
 - The payload fixture runner passes.
 - The dry-run v2 handover foundation exists at `POST /wp-json/ws-bookings-client/v1/handover-preview` and was smoke-tested with valid and invalid requests at HTTP 200.
+- The developer fixture drawer loads fixtures from `tests/fixtures/booking-payload-v2-fixtures.json`, populates the form, and re-runs preview checks.
 - Legacy Bricks/Fluent booking flow is still untouched.
 - No real booking submission is enabled yet.
 
@@ -133,14 +135,12 @@ Requirements:
 
 ## 11. Next Recommended Tasks
 
-1. Finish or re-verify Phase 2H if any gaps remain.
-2. Expand the developer fixture drawer into a proper payload test lab.
-3. Add more payload fixtures, especially edge cases for return legs and stops.
-4. Prepare the booking-site v2 receiver plan in `ws-bookings`.
-5. Design the itinerary parent table and trip linkage for Phase 4.
-6. Prepare the booking token flow for the future v2 handover path.
-7. Wire a real v2 receiver in the booking plugin when that repo is ready.
-8. Revisit Google autocomplete and route / toll / distance integration later.
+1. Add more payload fixtures, especially edge cases for return legs and stops.
+2. Prepare the booking-site v2 receiver plan in `ws-bookings`.
+3. Design the itinerary parent table and trip linkage for Phase 4.
+4. Prepare the booking token flow for the future v2 handover path.
+5. Wire a real v2 receiver in the booking plugin when that repo is ready.
+6. Revisit Google autocomplete and route / toll / distance integration later.
 
 ## 12. Standard Agent Completion Report
 

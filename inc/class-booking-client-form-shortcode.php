@@ -22,9 +22,19 @@ class BookingClientFormShortcode {
             'title' => $title,
         ], $atts, 'ws_booking_client_form');
 
+        $show_dev_drawer = self::should_show_dev_drawer();
+        $fixtures = $show_dev_drawer ? self::get_dev_fixtures() : array();
+        $fixtures_json = $show_dev_drawer ? (string) wp_json_encode($fixtures) : '[]';
+
         ob_start();
         ?>
-        <div class="wsb-booking-client-shell" data-wsb-booking-builder>
+        <div
+            class="wsb-booking-client-shell"
+            data-wsb-booking-builder
+            data-wsb-service-group="transfer"
+            data-wsb-service-type="city_transfer"
+            <?php echo $show_dev_drawer && $fixtures_json ? 'data-wsb-fixtures="' . esc_attr($fixtures_json) . '"' : ''; ?>
+        >
             <div class="wsb-booking-client-header">
                 <h2><?php echo esc_html($atts['title']); ?></h2>
                 <p><?php echo esc_html__('Build a new booking request. No real booking submission is enabled yet.', 'wsb'); ?></p>
@@ -144,6 +154,54 @@ class BookingClientFormShortcode {
                     </aside>
                 </div>
             </form>
+            <?php if ($show_dev_drawer && !empty($fixtures)): ?>
+                <button
+                    type="button"
+                    class="wsb-booking-client-fixture-toggle"
+                    data-wsb-fixture-toggle
+                    aria-expanded="false"
+                    aria-controls="wsb-booking-client-fixture-drawer"
+                >
+                    <?php echo esc_html__('Test payloads', 'wsb'); ?>
+                </button>
+                <aside
+                    class="wsb-booking-client-fixture-drawer wsb-booking-client-hidden"
+                    data-wsb-fixture-drawer
+                    id="wsb-booking-client-fixture-drawer"
+                >
+                    <div class="wsb-booking-client-fixture-drawer-inner">
+                        <div class="wsb-booking-client-fixture-header">
+                            <div>
+                                <strong><?php echo esc_html__('Developer Fixture Drawer', 'wsb'); ?></strong>
+                                <p><?php echo esc_html__('Click a fixture to populate the form and run preview checks locally.', 'wsb'); ?></p>
+                            </div>
+                            <button type="button" class="wsb-booking-client-fixture-close" data-wsb-fixture-close>
+                                <?php echo esc_html__('Close', 'wsb'); ?>
+                            </button>
+                        </div>
+                        <div class="wsb-booking-client-fixture-status" data-wsb-fixture-status aria-live="polite">
+                            <?php echo esc_html__('Choose a fixture to load sample payload data.', 'wsb'); ?>
+                        </div>
+                        <div class="wsb-booking-client-fixture-list" data-wsb-fixture-list>
+                            <?php foreach ($fixtures as $fixture): ?>
+                                <button
+                                    type="button"
+                                    class="wsb-booking-client-fixture-chip"
+                                    data-wsb-fixture-chip
+                                    data-wsb-fixture-id="<?php echo esc_attr($fixture['id']); ?>"
+                                    data-wsb-fixture-expected="<?php echo esc_attr(!empty($fixture['expected_ok']) ? 'valid' : 'invalid'); ?>"
+                                >
+                                    <span class="wsb-booking-client-fixture-chip-id"><?php echo esc_html($fixture['id']); ?></span>
+                                    <span class="wsb-booking-client-fixture-chip-desc"><?php echo esc_html($fixture['description']); ?></span>
+                                    <span class="wsb-booking-client-fixture-chip-badge wsb-booking-client-fixture-chip-badge--<?php echo esc_attr(!empty($fixture['expected_ok']) ? 'valid' : 'invalid'); ?>">
+                                        <?php echo esc_html(!empty($fixture['expected_ok']) ? 'valid' : 'invalid'); ?>
+                                    </span>
+                                </button>
+                            <?php endforeach; ?>
+                        </div>
+                    </div>
+                </aside>
+            <?php endif; ?>
         </div>
         <?php
 
@@ -210,6 +268,7 @@ class BookingClientFormShortcode {
     public static function register_assets(): void {
         $css_path = plugin_dir_path(__DIR__) . 'assets/css/booking-client-form.css';
         $js_path = plugin_dir_path(__DIR__) . 'assets/js/booking-client-form.js';
+        $handover_preview_url = rest_url('ws-bookings-client/v1/handover-preview');
 
         wp_register_style(
             'wsb-booking-client-form-style',
@@ -229,8 +288,10 @@ class BookingClientFormShortcode {
         $preview_url = rest_url('ws-bookings-client/v1/payload-preview');
         $config = array(
             'previewUrl' => esc_url_raw($preview_url),
+            'handoverPreviewUrl' => esc_url_raw($handover_preview_url),
             'nonce' => wp_create_nonce('wp_rest'),
             'debug' => (bool) current_user_can('manage_options'),
+            'fixtureDrawerEnabled' => (bool) ( isset($_GET['debug']) && '1' === (string) $_GET['debug'] ),
             'strings' => array(
                 'serverValidationPending' => __('Validating payload on server...', 'wsb'),
                 'serverValidationSuccess' => __('Server validation passed.', 'wsb'),
@@ -238,6 +299,16 @@ class BookingClientFormShortcode {
                 'serverValidationFailed' => __('Server validation failed.', 'wsb'),
                 'serverPreviewUnavailable' => __('Server-side preview endpoint is unavailable.', 'wsb'),
                 'serverPreviewError' => __('Server preview could not be completed.', 'wsb'),
+                'fixtureDrawerDefault' => __('Choose a fixture to load sample payload data.', 'wsb'),
+                'fixtureDrawerLoaded' => __('Loaded fixture:', 'wsb'),
+                'fixtureDrawerExpected' => __('Expected:', 'wsb'),
+                'fixtureDrawerServerMatched' => __('Server validation matched expected result.', 'wsb'),
+                'fixtureDrawerServerMismatch' => __('Server validation did not match expected result.', 'wsb'),
+                'fixtureDrawerHandoverMatched' => __('Handover preview matched expected result.', 'wsb'),
+                'fixtureDrawerHandoverMismatch' => __('Handover preview did not match expected result.', 'wsb'),
+                'fixtureDrawerHandoverUnavailable' => __('Handover preview endpoint unavailable.', 'wsb'),
+                'fixtureDrawerOpen' => __('Fixture drawer opened.', 'wsb'),
+                'fixtureDrawerClosed' => __('Fixture drawer closed.', 'wsb'),
             ),
         );
 
@@ -248,6 +319,46 @@ class BookingClientFormShortcode {
         self::register_assets();
         wp_enqueue_style('wsb-booking-client-form-style');
         wp_enqueue_script('wsb-booking-client-form-script');
+    }
+
+    private static function should_show_dev_drawer(): bool {
+        return isset($_GET['debug']) && '1' === (string) $_GET['debug'];
+    }
+
+    /**
+     * @return array<int,array<string,mixed>>
+     */
+    private static function get_dev_fixtures(): array {
+        $fixture_file = plugin_dir_path(__DIR__) . 'tests/fixtures/booking-payload-v2-fixtures.json';
+        if (!file_exists($fixture_file)) {
+            return array();
+        }
+
+        $fixtures_json = file_get_contents($fixture_file);
+        if (false === $fixtures_json) {
+            return array();
+        }
+
+        $fixtures = json_decode($fixtures_json, true);
+        if (!is_array($fixtures)) {
+            return array();
+        }
+
+        $safe = array();
+        foreach ($fixtures as $fixture) {
+            $safe[] = array(
+                'id' => sanitize_key($fixture['id'] ?? ''),
+                'description' => sanitize_text_field($fixture['description'] ?? ''),
+                'expected_ok' => !empty($fixture['expected_ok']),
+                'payload' => is_array($fixture['payload'] ?? null) ? $fixture['payload'] : array(),
+            );
+        }
+
+        return $safe;
+    }
+
+    private static function get_dev_fixtures_json(): string {
+        return (string) wp_json_encode(self::get_dev_fixtures());
     }
 
     private static function get_screen_with_shortcode() {

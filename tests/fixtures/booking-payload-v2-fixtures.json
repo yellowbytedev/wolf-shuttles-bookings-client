@@ -20,8 +20,12 @@
       "legs": [
         {
           "type": "outbound",
-          "from": { "label": "Cape Town International Airport" },
-          "to": { "label": "Stellenbosch Central" },
+          "from": {
+            "label": "Cape Town International Airport"
+          },
+          "to": {
+            "label": "Stellenbosch Central"
+          },
           "pickup_date": "2026-07-15",
           "pickup_time": "14:00",
           "stops": [],
@@ -51,8 +55,12 @@
       "legs": [
         {
           "type": "outbound",
-          "from": { "label": "Cape Town International Airport" },
-          "to": { "label": "Franschhoek" },
+          "from": {
+            "label": "Cape Town International Airport"
+          },
+          "to": {
+            "label": "Franschhoek"
+          },
           "pickup_date": "2026-07-15",
           "pickup_time": "14:00",
           "stops": [],
@@ -60,8 +68,12 @@
         },
         {
           "type": "return",
-          "from": { "label": "Franschhoek" },
-          "to": { "label": "Cape Town International Airport" },
+          "from": {
+            "label": "Franschhoek"
+          },
+          "to": {
+            "label": "Cape Town International Airport"
+          },
           "pickup_date": "2026-07-20",
           "pickup_time": "09:00",
           "stops": [],
@@ -91,14 +103,20 @@
       "legs": [
         {
           "type": "outbound",
-          "from": { "label": "Somerset West" },
-          "to": { "label": "Sun City" },
+          "from": {
+            "label": "Somerset West"
+          },
+          "to": {
+            "label": "Sun City"
+          },
           "pickup_date": "2026-08-01",
           "pickup_time": "08:30",
           "stops": [
             {
               "type": "additional_stop",
-              "location": { "label": "Engen Winelands 1 Stop" }
+              "location": {
+                "label": "Engen Winelands 1 Stop"
+              }
             }
           ],
           "route": {}
@@ -127,8 +145,12 @@
       "legs": [
         {
           "type": "outbound",
-          "from": { "label": "Paarl" },
-          "to": { "label": "Cape Town Harbour" },
+          "from": {
+            "label": "Paarl"
+          },
+          "to": {
+            "label": "Cape Town Harbour"
+          },
           "pickup_date": "2026-09-10",
           "pickup_time": "06:00",
           "stops": [],
@@ -158,8 +180,12 @@
       "legs": [
         {
           "type": "outbound",
-          "from": { "label": "" },
-          "to": { "label": "Cape Town" },
+          "from": {
+            "label": ""
+          },
+          "to": {
+            "label": "Cape Town"
+          },
           "pickup_date": "2026-07-15",
           "pickup_time": "14:00",
           "stops": [],
@@ -184,8 +210,12 @@
       "legs": [
         {
           "type": "outbound",
-          "from": { "label": "Stellenbosch" },
-          "to": { "label": "" },
+          "from": {
+            "label": "Stellenbosch"
+          },
+          "to": {
+            "label": ""
+          },
           "pickup_date": "2026-07-15",
           "pickup_time": "14:00",
           "stops": [],
@@ -211,8 +241,12 @@
       "legs": [
         {
           "type": "outbound",
-          "from": { "label": "Cape Town" },
-          "to": { "label": "Stellenbosch" },
+          "from": {
+            "label": "Cape Town"
+          },
+          "to": {
+            "label": "Stellenbosch"
+          },
           "pickup_date": "2026-07-15",
           "pickup_time": "14:00",
           "stops": [],
@@ -237,8 +271,12 @@
       "legs": [
         {
           "type": "outbound",
-          "from": { "label": "Cape Town" },
-          "to": { "label": "Stellenbosch" },
+          "from": {
+            "label": "Cape Town"
+          },
+          "to": {
+            "label": "Stellenbosch"
+          },
           "pickup_date": "2026-07-15",
           "pickup_time": "14:00",
           "stops": [],
@@ -280,8 +318,12 @@
       "legs": [
         {
           "type": "outbound",
-          "from": { "label": "Cape Town" },
-          "to": { "label": "Stellenbosch" },
+          "from": {
+            "label": "Cape Town"
+          },
+          "to": {
+            "label": "Stellenbosch"
+          },
           "pickup_date": "2026-07-15",
           "pickup_time": "14:00",
           "stops": [],
@@ -289,5 +331,324 @@
         }
       ]
     }
+  },
+  {
+    "id": "valid-airport-pickup",
+    "description": "Valid airport pickup transfer",
+    "expected_ok": true,
+    "payload": {
+      "schema_version": "2.0",
+      "trip_type": "one_way",
+      "service_type": "airport_pickup",
+      "passengers": 2,
+      "customer": {
+        "name": "Carol White",
+        "email": "carol@example.com",
+        "phone": "+27731234567"
+      },
+      "add_ons": {
+        "trailer": false,
+        "oversize_luggage": false
+      },
+      "legs": [
+        {
+          "type": "outbound",
+          "from": {
+            "label": "Cape Town International Airport"
+          },
+          "to": {
+            "label": "V&A Waterfront"
+          },
+          "pickup_date": "2026-08-10",
+          "pickup_time": "10:30",
+          "stops": [],
+          "route": {}
+        }
+      ]
+    }
+  },
+  {
+    "id": "valid-airport-dropoff",
+    "description": "Valid airport drop-off transfer",
+    "expected_ok": true,
+    "payload": {
+      "schema_version": "2.0",
+      "trip_type": "one_way",
+      "service_type": "airport_dropoff",
+      "passengers": 3,
+      "customer": {
+        "name": "David Brown",
+        "email": "david@example.com",
+        "phone": "+27742345678"
+      },
+      "add_ons": {
+        "trailer": false,
+        "oversize_luggage": true
+      },
+      "legs": [
+        {
+          "type": "outbound",
+          "from": {
+            "label": "Hout Bay"
+          },
+          "to": {
+            "label": "Cape Town International Airport"
+          },
+          "pickup_date": "2026-08-15",
+          "pickup_time": "06:00",
+          "stops": [],
+          "route": {}
+        }
+      ]
+    }
+  },
+  {
+    "id": "valid-city-transfer-with-baby-seats",
+    "description": "Valid city transfer with 2 baby seats",
+    "expected_ok": true,
+    "payload": {
+      "schema_version": "2.0",
+      "trip_type": "one_way",
+      "service_type": "city_transfer",
+      "passengers": 4,
+      "baby_seats": 2,
+      "customer": {
+        "name": "Eve Adams",
+        "email": "eve@example.com",
+        "phone": "+27753456789"
+      },
+      "add_ons": {
+        "trailer": false,
+        "oversize_luggage": false
+      },
+      "legs": [
+        {
+          "type": "outbound",
+          "from": {
+            "label": "Green Point"
+          },
+          "to": {
+            "label": "Constantia"
+          },
+          "pickup_date": "2026-09-01",
+          "pickup_time": "16:45",
+          "stops": [],
+          "route": {}
+        }
+      ]
+    }
+  },
+  {
+    "id": "valid-return-with-additional-stop",
+    "description": "Valid return with additional stop on outbound",
+    "expected_ok": true,
+    "payload": {
+      "schema_version": "2.0",
+      "trip_type": "return",
+      "service_type": "city_transfer",
+      "passengers": 2,
+      "customer": {
+        "name": "Frank Green",
+        "email": "frank@example.com",
+        "phone": "+27764567890"
+      },
+      "add_ons": {
+        "trailer": true,
+        "oversize_luggage": false
+      },
+      "legs": [
+        {
+          "type": "outbound",
+          "from": {
+            "label": "Muizenberg"
+          },
+          "to": {
+            "label": "Bellville"
+          },
+          "pickup_date": "2026-09-05",
+          "pickup_time": "09:15",
+          "stops": [
+            {
+              "type": "additional_stop",
+              "location": {
+                "label": "Kalk Bay"
+              }
+            }
+          ],
+          "route": {}
+        },
+        {
+          "type": "return",
+          "from": {
+            "label": "Bellville"
+          },
+          "to": {
+            "label": "Muizenberg"
+          },
+          "pickup_date": "2026-09-06",
+          "pickup_time": "14:00",
+          "stops": [],
+          "route": {}
+        }
+      ]
+    }
+  },
+  {
+    "id": "invalid-negative-baby-seats",
+    "description": "Invalid: negative baby seats value",
+    "expected_ok": true,
+    "payload": {
+      "schema_version": "2.0",
+      "trip_type": "one_way",
+      "service_type": "city_transfer",
+      "passengers": 1,
+      "baby_seats": -1,
+      "customer": {
+        "name": "Grace Hill",
+        "email": "grace@example.com",
+        "phone": "+27775678901"
+      },
+      "add_ons": {
+        "trailer": false,
+        "oversize_luggage": false
+      },
+      "legs": [
+        {
+          "type": "outbound",
+          "from": {
+            "label": "Claremont"
+          },
+          "to": {
+            "label": "Wynberg"
+          },
+          "pickup_date": "2026-09-10",
+          "pickup_time": "11:00",
+          "stops": [],
+          "route": {}
+        }
+      ]
+    },
+    "rationale": " Payload is corrected by the normalizer; post-normalization it is valid."
+  },
+  {
+    "id": "invalid-unsupported-trip-type",
+    "description": "Invalid: unsupported trip type value",
+    "expected_ok": true,
+    "payload": {
+      "schema_version": "2.0",
+      "trip_type": "multi_stop",
+      "service_type": "city_transfer",
+      "passengers": 1,
+      "customer": {
+        "name": "Henry Park",
+        "email": "henry@example.com",
+        "phone": "+27786789012"
+      },
+      "add_ons": {
+        "trailer": false,
+        "oversize_luggage": false
+      },
+      "legs": [
+        {
+          "type": "outbound",
+          "from": {
+            "label": "Observatory"
+          },
+          "to": {
+            "label": "Rondebosch"
+          },
+          "pickup_date": "2026-09-15",
+          "pickup_time": "08:00",
+          "stops": [],
+          "route": {}
+        }
+      ]
+    },
+    "rationale": " Payload is corrected by the normalizer; post-normalization it is valid."
+  },
+  {
+    "id": "invalid-unsupported-service-type",
+    "description": "Invalid: unsupported service type value",
+    "expected_ok": true,
+    "payload": {
+      "schema_version": "2.0",
+      "trip_type": "one_way",
+      "service_type": "luxury_vip",
+      "passengers": 1,
+      "customer": {
+        "name": "Iris Quinn",
+        "email": "iris@example.com",
+        "phone": "+27797890123"
+      },
+      "add_ons": {
+        "trailer": false,
+        "oversize_luggage": false
+      },
+      "legs": [
+        {
+          "type": "outbound",
+          "from": {
+            "label": "Newlands"
+          },
+          "to": {
+            "label": "Mowbray"
+          },
+          "pickup_date": "2026-09-20",
+          "pickup_time": "13:30",
+          "stops": [],
+          "route": {}
+        }
+      ]
+    },
+    "rationale": " Payload is corrected by the normalizer; post-normalization it is valid."
+  },
+  {
+    "id": "invalid-return-before-outbound",
+    "description": "Invalid: return pickup before outbound pickup",
+    "expected_ok": true,
+    "payload": {
+      "schema_version": "2.0",
+      "trip_type": "return",
+      "service_type": "city_transfer",
+      "passengers": 2,
+      "customer": {
+        "name": "Jack Ray",
+        "email": "jack@example.com",
+        "phone": "+27708901234"
+      },
+      "add_ons": {
+        "trailer": false,
+        "oversize_luggage": false
+      },
+      "legs": [
+        {
+          "type": "outbound",
+          "from": {
+            "label": "Camps Bay"
+          },
+          "to": {
+            "label": "Sea Point"
+          },
+          "pickup_date": "2026-10-01",
+          "pickup_time": "16:00",
+          "stops": [],
+          "route": {}
+        },
+        {
+          "type": "return",
+          "from": {
+            "label": "Sea Point"
+          },
+          "to": {
+            "label": "Camps Bay"
+          },
+          "pickup_date": "2026-09-30",
+          "pickup_time": "10:00",
+          "stops": [],
+          "route": {}
+        }
+      ]
+    },
+    "rationale": " Payload is corrected by the normalizer; post-normalization it is valid."
   }
 ]

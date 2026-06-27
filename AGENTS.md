@@ -76,6 +76,41 @@ Avoid the term `service_family`.
 - `docs/testing-engine-plan.md`
 - `docs/known-issues-debug-log.md`
 
+## Repository boundary and Git safety
+
+The only active Git repository for this project phase is `ws-bookings-client`.
+
+### Non-negotiable rules
+
+1. Do not run `git init` anywhere.
+2. Do not create `.git` folders anywhere.
+3. Do not commit, stash, reset, clean, checkout, or restore files in any other plugin folder.
+4. Do not edit `nextbricks`, `nextbricks/licensing`, `ws-bookings`, Bricks, Fluent Snippets, themes, or WordPress core.
+5. You may inspect/read other plugin files only if needed for context.
+6. Any write operation must stay inside `ws-bookings-client`.
+7. Any Git operation must be run from inside `ws-bookings-client`.
+8. If the current Git root is not `ws-bookings-client`, stop and report the issue.
+
+### Required preflight check for every task
+
+Before any task begins, run:
+
+```
+pwd
+git rev-parse --show-toplevel
+basename "$(git rev-parse --show-toplevel)"
+```
+
+The basename must be:
+
+```
+ws-bookings-client
+```
+
+### Cross-repository boundary rule
+
+If a task requires looking outside `ws-bookings-client`, the agent may only read files. It must not write, move, delete, stash, clean, reset, or initialise Git outside `ws-bookings-client`.
+
 ## First deliverable target
 
 Create a new shortcode-rendered booking builder form that can submit one-way and return transfer payloads in v2 format while leaving the existing Bricks form untouched.

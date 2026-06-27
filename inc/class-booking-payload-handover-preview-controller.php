@@ -24,18 +24,18 @@ if ( ! defined( 'ABSPATH' ) ) {
 if ( ! class_exists( 'WSB_Client_Booking_Payload_V2_Handover_Preview_Controller' ) ) {
     final class WSB_Client_Booking_Payload_V2_Handover_Preview_Controller {
 
-	private BookingPayloadV2Normalizer $normalizer;
-	private BookingPayloadV2Validator $validator;
+	private WSB_Client_Booking_Payload_V2_Normalizer $normalizer;
+	private WSB_Client_Booking_Payload_V2_Validator $validator;
 	private WSB_Client_Booking_Payload_V2_Handover_Service $handover_service;
 
 	/**
-	 * @param BookingPayloadV2Normalizer      $normalizer
-	 * @param BookingPayloadV2Validator       $validator
+	 * @param WSB_Client_Booking_Payload_V2_Normalizer      $normalizer
+	 * @param WSB_Client_Booking_Payload_V2_Validator       $validator
 	 * @param WSB_Client_Booking_Payload_V2_Handover_Service $handover_service
 	 */
 	public function __construct(
-		BookingPayloadV2Normalizer $normalizer,
-		BookingPayloadV2Validator $validator,
+		WSB_Client_Booking_Payload_V2_Normalizer $normalizer,
+		WSB_Client_Booking_Payload_V2_Validator $validator,
 		WSB_Client_Booking_Payload_V2_Handover_Service $handover_service
 	) {
 		$this->normalizer      = $normalizer;

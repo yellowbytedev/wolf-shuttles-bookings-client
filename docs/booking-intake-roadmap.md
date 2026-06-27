@@ -50,7 +50,7 @@ Milestones:
 - Booking-site handover is still pending.
 - Google autocomplete is still pending.
 
-### Phase 2G status (in progress / completed)
+### Phase 2G status (completed)
 
 - Repeatable BookingPayload v2 fixture runner added.
 - Fixture JSON (`tests/fixtures/booking-payload-v2-fixtures.json`) with 10 test cases:
@@ -60,7 +60,27 @@ Milestones:
 - Runner normalises each payload through `WSB_Client_Booking_Payload_V2_Normalizer`, validates through `WSB_Client_Booking_Payload_V2_Validator`, and compares `expected_ok` vs actual result.
 - Exit code 0 when all expectations match; exit code 1 on mismatch.
 - No database records, no bookings created, no external API calls.
-- Booking-site handover is still pending.
+- Booking-site v2 intake endpoint is still pending (Phase 3).
+- Google autocomplete is still pending.
+- Legacy Bricks/Fluent form untouched.
+
+### Phase 2H status (in progress)
+
+- V2 handover envelope service added (`WSB_Client_Booking_Payload_V2_Handover_Service`).
+- Deterministic canonical signing helper implemented: recursively sorts associative keys, encodes with `json_encode(JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES)`, then `hash_hmac('sha256', ...)`.
+- HMAC signing config helper `wsb_client_v2_handover_secret()` added.
+- Config placeholder `WSB_CLIENT_V2_HANDOVER_SECRET` added to `inc/booking-client-config.php`.
+- Dev-only local fallback secret `local_v2_handover_preview_secret` (documented, not for production).
+- Dry-run handover preview REST endpoint added: `POST /wp-json/ws-bookings-client/v1/handover-preview`.
+  - Requires `X-WP-Nonce` header (`wp_rest` action).
+  - Normalises, validates, then returns `handover_envelope` only for valid payloads.
+  - Never calls the booking site.
+  - Never creates a booking token.
+  - Never creates database records.
+- Handover preview fixture runner added: `php scripts/run-booking-handover-preview-fixtures.php`.
+- All Phase 2G fixtures still pass; handover runner covers valid fixtures only.
+- Booking-site receiver is still pending.
+- Itinerary table is still pending.
 - Google autocomplete is still pending.
 - Legacy Bricks/Fluent form untouched.
 

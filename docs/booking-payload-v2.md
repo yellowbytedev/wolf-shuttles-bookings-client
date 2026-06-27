@@ -232,5 +232,98 @@ The preview endpoint uses `X-WP-Nonce` protection and verifies a WP REST nonce w
 ### Current limitations
 
 - Preview is validation-only and does not submit a real booking.
-- Booking-site handover is pending.
+- Booking-site handover is pending (v2 handover envelope dry-run foundation added).
 - Google autocomplete is still pending.
+
+## V2 Handover Envelope
+
+The dry-run handover service wraps a validated BookingPayload v2 in a signed envelope.
+
+### Envelope shape
+
+```json
+{
+  "handover_version": "2.0",
+  "schema_version": "2.0",
+  "mode": "dry_run",
+  "action": "handover_preview",
+  "request_id": "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
+  "created_at": "2026-07-01T12:00:00+00:00",
+  "expires_at": "2026-07-01T13:00:00+00:00",
+  "source_site": "marketing",
+  "target_site": "booking",
+  "payload": { /* normalized BookingPayload v2 */ },
+  "integrity": {
+    "algorithm": "hash_hmac_sha256",
+    "signature": "<HMAC-SHA256 hex string or empty if no secret>",
+    "signed_fields": [
+      "handover_version",
+      "schema_version",
+      "action",
+      "request_id",
+      "created_at",
+      "expires_at",
+      "payload"
+    ]
+  },
+  "meta": {
+    "preview_only": true,
+    "real_handover_enabled": false
+  }
+}
+```
+
+### Key rules
+
+- `mode` is always `dry_run` during Phase 2H.
+- `payload` is always the normalised and validated BookingPayload v2.
+- `integrity.signature` is computed with `hash_hmac('sha256', ...)`.
+- The signing secret is resolved in this order: constructor parameter → `WSB_CLIENT_V2_HANDOVER_SECRET` constant → dev fallback string when `WP_DEBUG` is true → empty string.
+- An empty secret produces an empty `signature` — this is intentional for local fixture tests that run outside WordPress.
+- Envelope production is deterministic: the same normalised payload with the same `request_id`, `created_at`, and `expires_at` produces the same `signed_fields` subset and the same HMAC signature.
+
+### REST endpoint
+
+- Path: `/wp-json/ws-bookings-client/v1/handover-preview`
+- Method: `POST`
+- Headers: `Content-Type: application/json`, `X-WP-Nonce: <wp_rest nonce>`
+- Request body: a BookingPayload v2 JSON payload (flat form fields or full legs structure)
+
+Response (valid payload):
+```json
+{
+  "ok": true,
+  "payload": { /* normalised payload */ },
+  "normalised_payload": { /* same as payload */ },
+  "validation": { "valid": true, "errors": [], "warnings": [] },
+  "handover_envelope": { /* envelope as above */ },
+  "meta": {
+    "preview_only": true,
+    "real_handover_enabled": false,
+    "generated_at": "2026-07-01T12:00:00+00:00"
+  }
+}
+```
+
+Response (invalid payload):
+```json
+{
+  "ok": false,
+  "payload": { /* normalised payload */ },
+  "validation": { "valid": false, "errors": [...], "warnings": [...] },
+  "meta": {
+    "preview_only": true,
+    "real_handover_enabled": false,
+    "generated_at": "2026-07-01T12:00:00+00:00"
+  }
+}
+```
+
+### Security rules
+
+- The endpoint requires a valid `X-WP-Nonce` header (`wp_rest` action).
+- No booking is created.
+- No booking token is created.
+- No booking-site API call is made.
+- No database records are created.
+- Secrets are never exposed to JavaScript.

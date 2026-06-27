@@ -76,5 +76,24 @@
   - Exits 0 if all match, 1 if any fail
 - Runner is local/dev only — no database records, no bookings created, no external API calls.
 - Legacy Bricks/Fluent form unchanged.
-- Booking-site handover is still pending.
+- Booking-site handover has advanced to dry-run foundation (Phase 2H).
 - Google autocomplete is still pending.
+
+## Phase 2H — V2 Handover Foundation
+
+- V2 handover envelope service (`WSB_Client_Booking_Payload_V2_Handover_Service`) added.
+  - Accepts normalised + validated BookingPayload v2, returns signed envelope.
+  - Envelope: `handover_version=2.0`, `schema_version=2.0`, `mode=dry_run`, `source_site=marketing`, `target_site=booking`, `payload`, `integrity.signature`, `meta.preview_only=true`, `meta.real_handover_enabled=false`.
+  - HMAC signing via `hash_hmac('sha256', ...)`.
+  - Deterministic canonical signing: recursive key sort + stable JSON encode.
+  - Secret from `wsb_client_v2_handover_secret()` never exposed to JS.
+- HMAC signing support added.
+  - Secret resolved: constructor param → `WSB_CLIENT_V2_HANDOVER_SECRET` → `local_v2_handover_preview_secret` fallback (WP_DEBUG) → empty string.
+  - Empty secret intentionally produces empty `integrity.signature` for local/terminal tests.
+- Dry-run handover preview REST endpoint: `POST /wp-json/ws-bookings-client/v1/handover-preview`.
+  - Requires `X-WP-Nonce` (`wp_rest`).
+  - Validates payload, returns `handover_envelope` only on valid payloads.
+  - Never calls the booking site, never creates a token, never writes DB records.
+- Handover preview fixture runner: `php scripts/run-booking-handover-preview-fixtures.php`.
+  - Valid fixtures only, asserts envelope structure and signing fields.
+- All Phase 2G fixtures still pass; existing legacy flow unchanged.

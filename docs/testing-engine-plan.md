@@ -91,7 +91,50 @@ Add entries to `tests/fixtures/booking-payload-v2-fixtures.json`. Each fixture r
 - No bookings created.
 - No external API calls.
 - No Google/HERE keys required.
-- The runner does not test handover, only normalise + validate against `expected_ok`.
+- Runner includes WordPress polyfills for `sanitize_text_field`, `sanitize_key`, `sanitize_email`, `apply_filters`, `gmdate`, etc.
+
+## Handover preview fixture runner (Phase 2H)
+
+A second terminal fixture runner was added at:
+
+```text
+scripts/run-booking-handover-preview-fixtures.php
+```
+
+Usage:
+
+```bash
+php scripts/run-booking-handover-preview-fixtures.php
+```
+
+The runner:
+
+1. Loads the same fixture file: `tests/fixtures/booking-payload-v2-fixtures.json`.
+2. Runs only fixtures where `expected_ok` is `true`.
+3. Normalises each payload through `WSB_Client_Booking_Payload_V2_Normalizer::normalize()`.
+4. Validates each normalised payload through `WSB_Client_Booking_Payload_V2_Validator::validate()`.
+5. Calls `WSB_Client_Booking_Payload_V2_Handover_Service::build_envelope()` with the validated payload.
+6. Asserts the envelope contract:
+   - `handover_version === '2.0'`
+   - `schema_version === '2.0'`
+   - `mode === 'dry_run'`
+   - `source_site === 'marketing'`
+   - `target_site === 'booking'`
+   - `meta.preview_only === true`
+   - `meta.real_handover_enabled === false`
+   - `integrity.signature` is non-empty (with the local fallback secret this is always true)
+   - `integrity.algorithm === 'hash_hmac_sha256'`
+   - `integrity.signed_fields` contains all 7 required field names
+   - `payload` is non-empty
+7. Exits `0` if all assertions pass, `1` otherwise.
+
+### Handover runner constraints
+
+- No database records created.
+- No booking tokens created.
+- No booking-site API calls.
+- Uses the local fallback signing secret (`local_v2_handover_preview_secret`) so signatures are generated without configuring a real production secret.
+- Invalid fixtures (`expected_ok=false`) are reported as skipped, not processed.
 
 ## Important rule
 

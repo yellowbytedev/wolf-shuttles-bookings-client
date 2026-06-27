@@ -76,6 +76,10 @@ Avoid the term `service_family`.
 - `docs/testing-engine-plan.md`
 - `docs/known-issues-debug-log.md`
 
+Before starting substantial work, read `AGENT-HANDOFF.md` as well. It is the canonical current-state document for this repo.
+
+If roadmap or phase progress changes, update `AGENT-HANDOFF.md` in the same change so the handoff stays current.
+
 ## Repository boundary and Git safety
 
 The only active Git repository for this project phase is `ws-bookings-client`.

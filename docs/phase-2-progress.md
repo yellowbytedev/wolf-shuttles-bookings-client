@@ -61,3 +61,20 @@
   - Inspected fresh `debug.log` — no fatal from `ws-bookings-client`, `[ws_booking_client_form]` shortcode, or REST endpoint.
 - Previous shortcode fatal (`class-booking-client-form-shortcode.php` line 27) was confirmed as stale from the earlier render issue. Current line 27 is a plain HTML `<div>` tag inside the output buffer — no fatal-risk path.
 - Phase 2F verified complete.
+
+## Phase 2G — Repeatable BookingPayload v2 fixture runner
+
+- Created `tests/fixtures/booking-payload-v2-fixtures.json` with 10 fixtures:
+  - 4 valid (one-way, return, additional stop, trailer/oversize)
+  - 6 invalid (missing from, missing to, passengers=0, missing return leg, passengers=0+no legs, bad schema version)
+- Created `scripts/run-booking-payload-fixtures.php` — terminal fixture runner that:
+  - Bootstraps WordPress, loads the actual v2 normalizer and validator classes
+  - Normalises each fixture payload
+  - Validates each normalised payload
+  - Compares actual `valid` result to `expected_ok` from the fixture
+  - Prints per-fixture pass/fail with error details on mismatch
+  - Exits 0 if all match, 1 if any fail
+- Runner is local/dev only — no database records, no bookings created, no external API calls.
+- Legacy Bricks/Fluent form unchanged.
+- Booking-site handover is still pending.
+- Google autocomplete is still pending.

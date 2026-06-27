@@ -39,15 +39,30 @@ Milestones:
 9. Keep existing Bricks form untouched.
 10. Add a minimal fixture-driven test runner.
 
-### Phase 2F status
+### Phase 2F status (completed)
 
 - Server-side preview endpoint added.
 - Payload normalizer and validator wired.
 - Validation UI added to the shortcode preview panel.
 - REST endpoint tested with valid and invalid payloads.
+- Clean debug-log verification passed.
 - Preview remains local only; no real booking submission occurs.
 - Booking-site handover is still pending.
 - Google autocomplete is still pending.
+
+### Phase 2G status (in progress / completed)
+
+- Repeatable BookingPayload v2 fixture runner added.
+- Fixture JSON (`tests/fixtures/booking-payload-v2-fixtures.json`) with 10 test cases:
+  - 4 valid (one-way, return, additional stop, trailer/oversize)
+  - 6 invalid (missing from, missing to, passengers=0, missing return leg, passengers=0+no legs, bad schema version)
+- Terminal runner: `php scripts/run-booking-payload-fixtures.php`
+- Runner normalises each payload through `WSB_Client_Booking_Payload_V2_Normalizer`, validates through `WSB_Client_Booking_Payload_V2_Validator`, and compares `expected_ok` vs actual result.
+- Exit code 0 when all expectations match; exit code 1 on mismatch.
+- No database records, no bookings created, no external API calls.
+- Booking-site handover is still pending.
+- Google autocomplete is still pending.
+- Legacy Bricks/Fluent form untouched.
 
 ## Phase 3 — Booking-site v2 intake
 

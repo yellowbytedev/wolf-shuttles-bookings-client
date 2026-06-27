@@ -50,3 +50,14 @@
 - Checked `wp-content/debug.log` after smoke test; no new `ws-bookings-client` fatal occurred.
 - The form is still preview-only and does not submit real bookings yet.
 - Existing legacy Bricks/Fluent booking flow is unchanged.
+
+## Phase 2F verification (clean debug-log check)
+
+- Clean debug-log verification completed:
+  - Backed up pre-check log, cleared active `debug.log`.
+  - Re-ran `/booking-builder/` page smoke test — HTTP 200, all form markup markers present.
+  - Re-ran valid REST payload-preview test — `200 OK`, `ok: true`, empty validation errors, normalized payload returned.
+  - Re-ran invalid REST payload-preview test — `200 OK`, `ok: false`, useful validation errors, no PHP fatal.
+  - Inspected fresh `debug.log` — no fatal from `ws-bookings-client`, `[ws_booking_client_form]` shortcode, or REST endpoint.
+- Previous shortcode fatal (`class-booking-client-form-shortcode.php` line 27) was confirmed as stale from the earlier render issue. Current line 27 is a plain HTML `<div>` tag inside the output buffer — no fatal-risk path.
+- Phase 2F verified complete.

@@ -230,9 +230,15 @@
 
     function buildPayload(form, state) {
         var currentState = state || {};
-        var tripType = getFieldValue(form, 'input[name="trip_type"]:checked', 'one_way');
+        var tripTypeFromForm = getFieldValue(form, 'input[name="trip_type"]:checked', 'one_way');
+        var serviceGroup = trimValue(currentState.serviceGroup || (form.closest('[data-wsb-booking-builder]') ? form.closest('[data-wsb-booking-builder]').dataset.wsbServiceGroup : '')) || 'transfer';
         var serviceType = trimValue(currentState.serviceType || (form.closest('[data-wsb-booking-builder]') ? form.closest('[data-wsb-booking-builder]').dataset.wsbServiceType : '')) || 'city_transfer';
-        var serviceGroup = trimValue(currentState.serviceGroup || (form.closest('[data-wsb-booking-builder]') ? form.closest('[data-wsb-booking-builder]').dataset.wsbServiceGroup : '')) || inferServiceGroup(serviceType);
+
+        var tripType = serviceGroup === 'charter' ? 'charter' : tripTypeFromForm;
+        if (serviceGroup === 'charter') {
+            serviceType = 'charter_hire';
+        }
+
         var passengers = getNumberValue(form, 'input[name="passengers"]', 1);
         var legs = [];
 
@@ -800,6 +806,8 @@
                 if (serviceGroup === 'charter' || serviceGroup === 'transfer') {
                     state.serviceGroup = serviceGroup;
                     root.dataset.wsbServiceGroup = serviceGroup;
+                    state.serviceType = serviceGroup === 'charter' ? 'charter_hire' : 'city_transfer';
+                    root.dataset.wsbServiceType = state.serviceType;
                     updateServiceMode(root, serviceGroup);
                     refreshPreview('');
                 }

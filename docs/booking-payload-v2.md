@@ -32,9 +32,15 @@ return_pickup_date
 return_pickup_time
 return_additional_stop_enabled
 return_additional_stop
+charter_pickup_location
+charter_dropoff_location
+charter_pickup_time
+charter_dropoff_time
+charter_additional_stop_enabled
+charter_additional_stop
 ```
 
-Additional stops are leg-scoped. Each leg (outbound or return) may have its own `stops[]` array.
+Additional stops are leg-scoped. Each leg (outbound, return, or charter) may have its own `stops[]` array.
 
 ## Core structure
 The browser preview uses this shape:
@@ -73,19 +79,19 @@ The browser preview uses this shape:
     "days": []
   },
   "validation_flags": {},
+  "blockouts": {
+    "version": 2,
+    "authority": "booking_site",
+    "marketing_evaluates_vehicle_availability": false,
+    "vehicle_scoped_blockouts_supported": true,
+    "global_picker_blockouts_supported": true,
+    "config_hash": null,
+    "marketing_evaluated_at": null,
+    "notes": []
+  },
   "legs": [],
-"tracking": {},
-   "blockouts": {
-     "version": 2,
-     "authority": "booking_site",
-     "marketing_evaluates_vehicle_availability": false,
-     "vehicle_scoped_blockouts_supported": true,
-     "global_picker_blockouts_supported": true,
-     "config_hash": null,
-     "marketing_evaluated_at": null,
-     "notes": []
-   },
-   "meta": {
+  "tracking": {},
+  "meta": {
     "preview_only": true,
     "handover_mode": "preview",
     "created_at": ""
@@ -97,10 +103,7 @@ The browser preview uses this shape:
 A direct one-way trip has one leg:
 ```json
 {
-  "sequence": 1,
-  "leg_group": "outbound",
-  "leg_type": "direct",
-  "service_type": "city_transfer",
+  "type": "outbound",
   "from": {
     "label": "",
     "name": "",
@@ -133,7 +136,21 @@ A direct one-way trip has one leg:
 }
 ```
 
-A return trip adds a second leg with `leg_group: "return"` and `sequence: 2`. An additional stop is stored on the outbound leg:
+A charter leg includes `dropoff_time`:
+```json
+{
+  "type": "charter",
+  "from": { "label": "Pickup location" },
+  "to": { "label": "Drop-off location" },
+  "pickup_date": "2026-08-15",
+  "pickup_time": "09:00",
+  "dropoff_time": "17:00",
+  "stops": [],
+  "route": {}
+}
+```
+
+An additional stop is stored on any leg:
 ```json
 {
   "type": "additional_stop",
@@ -158,7 +175,8 @@ The live preview should update:
 - on input
 - on change
 - on blur
-- when the trip type toggles
+- when the service mode toggles (transfer ↔ charter)
+- when the trip type toggles (one-way ↔ return)
 - when the additional stop toggle changes
 - on submit
 Submit remains intercepted. The preview is local only. If `?debug=1` is present, the browser logs the generated payload to the console.
@@ -200,11 +218,10 @@ The endpoint returns JSON with:
 - Normalizes `customer` into `name`, `email`, and `phone`
 - Preserves `service_group` or infers it from `service_type`
 - Normalizes top-level `route` block with safe scaffold
-- Normalizes `charter` block with disabled-by-default scaffold
+- Normalizes `charter` block: builds from flat fields for charter trips, disabled-by-default otherwise
 - Preserves `validation_flags` or defaults to `{}`
 - Normalizes `blockouts` with diagnostic scaffold (authority: booking_site)
 - Sets `meta.preview_only` to `true` and `meta.handover_mode` to `preview`
-- The scaffolds are stretch goals — no Google API call, no route calculation, no charter UI yet
 
 ### Validation rules
 - `schema_version` must be `2.0`
@@ -217,6 +234,9 @@ The endpoint returns JSON with:
   - `to.label`
   - `pickup_date`
   - `pickup_time`
+- Charter legs additionally require:
+  - `dropoff_time`
+  - end time must be after start time on same day
 
 ### Security note
 The preview endpoint uses `X-WP-Nonce` protection and verifies a WP REST nonce with action `wp_rest`.
@@ -225,6 +245,8 @@ The preview endpoint uses `X-WP-Nonce` protection and verifies a WP REST nonce w
 - Preview is validation-only and does not submit a real booking
 - Booking-site handover is pending (v2 handover envelope dry-run foundation added)
 - Google autocomplete is still pending
+- Charter is preview-only; no real pricing yet
+- Multi-day charter drag/drop not implemented
 
 ## V2 Handover Envelope
 The dry-run handover service wraps a validated BookingPayload v2 in a signed envelope.
@@ -263,7 +285,7 @@ The dry-run handover service wraps a validated BookingPayload v2 in a signed env
 ```
 
 ### Key rules
-- `mode` is always `dry_run` during Phase 2H
+- `mode` is always `dry_run` during Phase 2
 - `payload` is always the normalised and validated BookingPayload v2
 - `integrity.signature` is computed with `hash_hmac('sha256', ...)`
 - The signing secret is resolved in this order: constructor parameter → `WSB_CLIENT_V2_HANDOVER_SECRET` constant → dev fallback string when `WP_DEBUG` is true → empty string

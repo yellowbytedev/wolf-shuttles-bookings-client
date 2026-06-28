@@ -62,8 +62,8 @@ If roadmap or phase status changes, update this file at the same time.
 - The `/booking-builder/?debug=1` page renders the developer fixture drawer and smoke-tested at HTTP 200.
 - Realtime BookingPayload v2 preview works in the browser.
 - The server-side preview endpoint works at `POST /wp-json/ws-bookings-client/v1/payload-preview`.
-- The payload fixture runner passes (20 fixtures: 17 original + 3 new charter).
-- The dry-run v2 handover foundation exists at `POST /wp-json/ws-bookings-client/v1/handover-preview` and was smoke-tested with valid and invalid requests at HTTP 200.
+- The payload fixture runner passes (20 fixtures).
+- The handover preview fixture runner passes (13 passed, 7 skipped as invalid).
 - The normalizer now preserves `service_group`, top-level `route`, `validation_flags`, and `charter` scaffolds.
 - Meta fields are aligned: both `meta.preview_only` and `meta.handover_mode` are set in JS and PHP.
 - The developer fixture drawer loads fixtures from `tests/fixtures/booking-payload-v2-fixtures.json`, populates the form, and re-runs preview checks.

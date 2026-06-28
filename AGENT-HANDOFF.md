@@ -53,6 +53,7 @@ The roadmap lives in `docs/booking-intake-roadmap.md` and the phase log lives in
 - Phase 2I complete: developer fixture drawer / payload test lab.
 - Phase 2J complete: schema extension scaffolds (route, validation_flags, charter, blockouts, leg-scoped stops).
 - Phase 2K complete: charter preview mode (Shuttle Hire tab enabled, canonical charter payload shape, trip_type: "charter" fix applied).
+- Phase 2L complete: legacy external services audit, adapter scaffold (`inc/class-booking-external-services.php`).
 
 If roadmap or phase status changes, update this file at the same time.
 
@@ -99,6 +100,7 @@ If roadmap or phase status changes, update this file at the same time.
 - `inc/class-booking-payload-handover-preview-controller.php` - dry-run handover preview REST endpoint.
 - `inc/class-booking-handover-v2-service.php` - scaffold for future `legacy_hash` / `v2_token` handover branching.
 - `inc/class-booking-intake-fixture-loader.php` - WP-CLI fixture loader stub.
+- `inc/class-booking-external-services.php` - no-op adapter scaffold for Google/HERE/route/toll integrations.
 - `assets/js/booking-client-form.js` - lightweight UI state, preview rendering, and REST preview submission.
 - `assets/css/booking-client-form.css` - Booking Builder styling.
 - `tests/fixtures/booking-payload-v2-fixtures.json` - canonical v2 fixture corpus (20 fixtures).

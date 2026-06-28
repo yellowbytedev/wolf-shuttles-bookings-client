@@ -17,6 +17,7 @@ require_once __DIR__ . '/class-booking-payload-handover-preview-controller.php';
 require_once __DIR__ . '/class-booking-field-registry.php';
 require_once __DIR__ . '/class-booking-client-form-shortcode.php';
 require_once __DIR__ . '/class-booking-intake-fixture-loader.php';
+require_once __DIR__ . '/class-booking-external-services.php';
 
 add_action('init', function (): void {
     \WSB_Booking_Client\BookingClientFormShortcode::init();

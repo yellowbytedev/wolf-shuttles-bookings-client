@@ -198,3 +198,25 @@
 - Added `uiInteractionsEnabled` to JS config via `inc/class-booking-client-form-shortcode.php`.
 - Created `docs/ui-interaction-scaffold.md` documenting future use cases and library decisions.
 - No third-party library loaded; no functional changes to existing UI; all tests pass.
+
+## Phase 2L — Legacy External Services Audit
+
+- Audited `inc/legacy-snippets/` for external service/API-style behavior.
+- Created `docs/legacy-external-services-audit.md` documenting:
+  - Google Maps/Places API integration (distance matrix, place details, autocomplete, geocode)
+  - HERE Maps Routing API (toll lookup via `calculate_tolls` function)
+  - Booking-site handover (HMAC-signed remote POST)
+  - CTIA distance logic (geo calculations for dispatch fees)
+  - WordPress REST endpoints (local tracking, not part of new flow)
+- Created `inc/class-booking-external-services.php` adapter scaffold with:
+  - `get_route_scaffold()` — returns null/empty route structure
+  - `get_toll_scaffold()` — returns false/empty toll structure
+  - `get_place_scaffold()` — returns null/empty place structure
+  - `get_handover_scaffold()` — returns dry_run handover structure
+  - `is_google_enabled()` — feature flag (default false)
+  - `is_here_enabled()` — feature flag (default false)
+  - `is_handover_live()` — feature flag (default false)
+- All methods are no-op, returning safe empty arrays compatible with BookingPayload v2.
+- No real API calls, no API keys exposed.
+- Wired adapter into `inc/booking-client.php` bootstrap.
+- Legacy Bricks/Fluent flow remains unchanged.

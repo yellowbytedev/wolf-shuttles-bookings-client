@@ -1,5 +1,16 @@
 # Phase 2 Progress
 
+## Current Status Summary
+
+- Fixture corpus at 17 fixtures.
+- Leg-scoped additional stops implemented (outbound and return legs each have their own stop controls).
+- Blockouts diagnostic scaffold added; marketing payload always includes scaffold with `authority: "booking_site"`.
+- Route scaffold preserved; charter is still scaffold-only.
+- Developer Fixture Drawer works at `/booking-builder/?debug=1`.
+- No real booking submission enabled.
+- Legacy Bricks/Fluent flow unchanged.
+- Latest smoke tests passed (curl HTTP 200, no critical errors, no plugin fatal).
+
 ## Added in this milestone
 
 - Added a new Phase 2 plugin intake scaffold under `inc/`.
@@ -134,25 +145,9 @@
    - `valid-with-validation-flags` — validation_flags populated
    - `valid-with-charter-scaffold` — charter.enabled: false
    - `invalid-missing-legs` — flat field format with empty legs array
-- All 15 fixtures pass (11 original legs-based + 4 new scaffold + 1 invalid-missing-legs).
+- All 17 fixtures pass (11 original legs-based + 5 scaffold + 1 return-with-stop + 1 blockouts).
 - Handover runner passes: 10 valid pass, 5 invalid skipped.
 - Updated docs: `docs/booking-payload-v2.md`, `docs/booking-payload-v2-contract.md`, `docs/phase-2-progress.md`.
 - No Google API calls, no charter UI, no booking-site handover, no legacy form changes.
-
-## Leg-scoped additional stops
-
-- Moved additional stop UI from a global standalone section into per-leg controls.
-- Outbound leg now has its own `outbound_additional_stop_enabled` toggle and `outbound_additional_stop` field.
-- Return leg now has its own `return_additional_stop_enabled` toggle and `return_additional_stop` field.
-- Stops are stored in `legs[].stops[]` — each leg owns its stops independently.
-- Added `valid-return-with-return-stop` fixture testing return leg stop population.
-- Fixture corpus expanded from 15 to 16 fixtures.
-
-## Vehicle blockout diagnostic scaffold
-
-- Added `blockouts` scaffold to BookingPayload v2 for future vehicle-scoped blockout support.
-- Marketing payload always includes the scaffold with `authority: "booking_site"`.
-- No actual blockout lookup or picker disabling is performed in Phase 2.
-- Added `valid-with-blockouts-scaffold` fixture testing scaffold preservation.
-- Normalizer preserves incoming blockouts or adds safe defaults.
-- Fixture corpus expanded from 16 to 17 fixtures.
+- Leg-scoped additional stops implemented.
+- Vehicle blockout diagnostic scaffold implemented.

@@ -81,21 +81,13 @@ Milestones:
 
 ### Phase 2J status (completed)
 
+- Schema extension scaffolds:
+  - `route` scaffold (provider, selected_route_id, distance_meters, etc.)
+  - `validation_flags` preservation
+  - `charter` placeholder scaffold
+  - `blockouts` diagnostic scaffold for vehicle-scoped blockout support
 - Fixed BookingPayload v2 normaliser data loss by adding preservation of `service_group`, top-level `route`, `validation_flags`, and `charter`.
-- Added `valid-with-blockouts-scaffold` fixture.
-
-### Phase 2K status (completed)
-
-- Moved additional stop UI from a global standalone section into per-leg controls.
-- Outbound and return legs each have their own additional stop toggle and field.
-- Stops are stored in `legs[].stops[]`.
-
-### Phase 2L status (completed)
-
-- Added `blockouts` diagnostic scaffold for future vehicle-scoped blockout support.
-- Marketing payload always includes scaffold with `authority: "booking_site"`.
-- No actual blockout lookup performed; no picker changes.
-- Fixture corpus at 17 fixtures.
+- Leg-scoped additional stops implemented.
 
 ## Phase 3 — Booking-site v2 intake
 

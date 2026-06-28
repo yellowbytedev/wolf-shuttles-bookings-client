@@ -51,8 +51,7 @@ The roadmap lives in `docs/booking-intake-roadmap.md` and the phase log lives in
 - Phase 2G complete: payload fixture runner.
 - Phase 2H complete: v2 handover foundation, dry-run only.
 - Phase 2I complete: developer fixture drawer / payload test lab.
-- Phase 2J complete: schema extension scaffold alignment.
-- Phase 2K complete: leg-scoped additional stops (per-leg controls, return leg stop support).
+- Phase 2J complete: schema extension scaffolds (route, validation_flags, charter, blockouts, leg-scoped stops).
 
 If roadmap or phase status changes, update this file at the same time.
 
@@ -62,7 +61,7 @@ If roadmap or phase status changes, update this file at the same time.
 - The `/booking-builder/?debug=1` page renders the developer fixture drawer and smoke-tested at HTTP 200.
 - Realtime BookingPayload v2 preview works in the browser.
 - The server-side preview endpoint works at `POST /wp-json/ws-bookings-client/v1/payload-preview`.
-- The payload fixture runner passes (15 fixtures: 11 legs-based + 4 scaffold + 1 invalid legs-flat).
+- The payload fixture runner passes (17 fixtures: 11 legs-based + 5 scaffold + 1 invalid legs-flat + 1 return-with-stop + 1 blockouts).
 - The dry-run v2 handover foundation exists at `POST /wp-json/ws-bookings-client/v1/handover-preview` and was smoke-tested with valid and invalid requests at HTTP 200.
 - The normalizer now preserves `service_group`, top-level `route`, `validation_flags`, and `charter` scaffolds.
 - Meta fields are aligned: both `meta.preview_only` and `meta.handover_mode` are set in JS and PHP.
@@ -141,7 +140,7 @@ Requirements:
 
 ## 11. Next Recommended Tasks
 
-1. Add more payload fixtures, especially edge cases for return legs and stops.
+1. Basic charter scaffold/UI planning (Phase 2K+).
 2. Prepare the booking-site v2 receiver plan in `ws-bookings`.
 3. Design the itinerary parent table and trip linkage for Phase 4.
 4. Prepare the booking token flow for the future v2 handover path.

@@ -319,24 +319,24 @@
 }
 
 .wsb-booking-client-fixture-toggle {
-  position: fixed;
-  right: var(--space-l);
-  bottom: var(--space-l);
-  z-index: 1000;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  padding: var(--space-s) var(--space-l);
-  border: 1px solid var(--secondary);
-  border-radius: var(--radius-full);
-  background: var(--secondary);
-  color: var(--white);
-  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.18);
-  cursor: pointer;
-  font-weight: 700;
-  letter-spacing: 0.01em;
-  transition: transform 120ms ease, box-shadow 120ms ease, opacity 120ms ease;
-}
+   position: fixed;
+   left: var(--space-l);
+   bottom: var(--space-l);
+   z-index: 1000;
+   display: inline-flex;
+   align-items: center;
+   justify-content: center;
+   padding: var(--space-s) var(--space-l);
+   border: 1px solid var(--secondary);
+   border-radius: var(--radius-full);
+   background: var(--secondary);
+   color: var(--white);
+   box-shadow: 0 18px 40px rgba(0, 0, 0, 0.18);
+   cursor: pointer;
+   font-weight: 700;
+   letter-spacing: 0.01em;
+   transition: transform 120ms ease, box-shadow 120ms ease, opacity 120ms ease;
+ }
 
 .wsb-booking-client-fixture-toggle:hover,
 .wsb-booking-client-fixture-toggle:focus-visible {
@@ -352,14 +352,14 @@
 }
 
 .wsb-booking-client-fixture-drawer {
-  position: fixed;
-  right: var(--space-l);
-  bottom: calc(var(--space-l) + 4.5rem);
-  z-index: 999;
-  width: min(460px, calc(100vw - 2rem));
-  max-height: min(76vh, 780px);
-  pointer-events: auto;
-}
+   position: fixed;
+   left: var(--space-l);
+   bottom: calc(var(--space-l) + 4.5rem);
+   z-index: 999;
+   width: min(460px, calc(100vw - 2rem));
+   max-height: min(76vh, 780px);
+   pointer-events: auto;
+ }
 
 .wsb-booking-client-fixture-drawer-inner {
   display: grid;

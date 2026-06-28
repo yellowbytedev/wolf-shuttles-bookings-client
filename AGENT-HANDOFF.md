@@ -124,6 +124,8 @@ Requirements:
 - Inspect `wp-content/debug.log` after the smoke test.
 - Do not mark the task complete if the page returns a critical error or if a fresh plugin fatal appears in the log.
 
+**Note:** For UI changes (shortcode markup, CSS, frontend JS, fixture drawer, additional stop UI, preview panels, form layout), see `AGENTS.md` for browser/Playwright MCP visual QA requirements.
+
 ## 9. Debug Log Policy
 
 - Agents may read `wp-content/debug.log`.

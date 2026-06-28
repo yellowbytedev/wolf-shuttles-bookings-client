@@ -41,6 +41,29 @@ Any task that changes shortcode rendering, frontend form output, WooCommerce hoo
 Every phase task must update `docs/booking-intake-roadmap.md` and `docs/phase-2-progress.md` when roadmap state changes.
 Any UI/shortcode task must run the page smoke-test workflow before completion.
 
+## Browser MCP visual QA for UI changes
+
+Any task that changes shortcode markup, Booking Builder UI, CSS, frontend JS, fixture drawer UI, charter UI, additional stop UI, preview panels, or form layout must run browser/Playwright MCP visual QA when available.
+
+When browser/Playwright MCP is available, the agent must:
+- Open `https://wolfshuttles.local/booking-builder/` in the browser
+- Open `https://wolfshuttles.local/booking-builder/?debug=1` in the browser
+- Inspect the rendered page visually, not only the HTML response
+- Check browser console errors
+- Interact with the changed UI (click buttons, toggle controls, submit forms)
+- Check for visual regressions such as:
+  - overlapping fixed buttons
+  - hidden controls
+  - duplicate sections
+  - broken drawers
+  - unreachable fields
+  - confusing layout
+
+If browser/Playwright MCP is unavailable, the agent must:
+- Explicitly report that visual QA could not be run
+- Still run curl smoke tests plus debug-log checks
+- Not report a UI task complete if the page is visually broken or the changed UI cannot be used
+
 ## Architecture direction
 
 The desired direction is:

@@ -1,125 +1,95 @@
 # BookingPayload v2 Contract
 
-This file is the short-form contract summary for the Booking Builder.
+## Purpose
+BookingPayload v2 is the canonical marketing-site booking intake shape for the Booking Builder.
 
-The browser preview now renders the canonical BookingPayload v2 shape in real time and keeps the payload aligned with the current shortcode form.
+## Naming decisions
+Use these terms:
+```text
+schema_version: "2.0"
+service_group: transfer | charter
+service_type: airport_pickup | airport_dropoff | city_transfer | charter_hire
+trip_type: one_way | return | charter
+```
+Avoid `service_family`.
 
-## Canonical fields
-
-- `schema_version: "2.0"`
-- `source` (flat string, e.g. marketing_booking_builder)
-- `service_group`
-- `service_type`
-- `trip_type`
-- `customer`
-- `passengers`
-- `baby_seats`
-- `luggage.check_in_bags`
-- `luggage.carry_on_bags`
-- `add_ons.baby_seats`
-- `add_ons.trailer`
-- `add_ons.oversize_luggage`
-- `legs`
-- `route`
-- `tracking`
-- `validation_flags`
-- `meta`
-- `charter`
-
-## Legs
-
-- One-way uses one outbound leg.
-- Return uses outbound plus return legs.
-- Additional stops are stored on the outbound leg in `stops[]`.
-- Each leg includes `pickup_datetime` for convenience in the preview and downstream validation.
-
-## Preview behavior
-
-The preview updates on:
-
-- page load
-- input
-- change
-- blur
-- trip type toggle
-- additional stop toggle
-- submit
-
-Submit remains intercepted, and `?debug=1` logs the generated payload to the console.
-
-## Server-side preview endpoint
-
-- POST `/wp-json/ws-bookings-client/v1/payload-preview`
-- Requires `Content-Type: application/json`
-- Requires `X-WP-Nonce` header using a WP REST nonce
-- Returns:
-  - `ok`
-  - `payload`
-  - `normalized_payload`
-  - `validation`
-  - `meta`
-
-## Current normalisation
-
-- Converts nested `luggage` and flat `check_in_bags` / `carry_on_bags` inputs
-- Normalizes inbound `legs[]` payloads and flat marketing form fields
-- Ensures `customer` always has `name`, `email`, and `phone`
-- Preserves `service_group` or infers from `service_type`
-- Normalizes top-level `route` block with safe scaffold (provider, selected_route_id, distance_meters, duration_seconds, polyline, route_options)
-- Normalizes `charter` block with disabled-by-default scaffold (enabled: false, type: null, days: [])
-- Preserves `validation_flags` or defaults to empty object
-- Sets `meta.preview_only` to `true` and `meta.handover_mode` to `preview`
-- Normalizes `meta.handover_mode` to `preview`
-
-## Current validation
-
-- `schema_version` must equal `2.0`
-- `trip_type` must be one of `one_way`, `return`, or `charter`
-- `passengers` must be at least `1`
-- `legs` must be a non-empty array
-- `from.label`, `to.label`, `pickup_date`, and `pickup_time` are required on each leg
-
-## Limitations
-
-- This endpoint is preview-only and does not create bookings.
-- Booking-site handover has entered dry-run foundation: a v2 handover envelope service and `/handover-preview` REST endpoint exist, but no real booking submission occurs yet.
-- Google autocomplete remains pending.
-
-## V2 Handover Envelope (Phase 2H)
-
-### Envelope shape
-
+## Core payload shape
 ```json
 {
-  "handover_version": "2.0",
   "schema_version": "2.0",
-  "mode": "dry_run",
-  "action": "handover_preview",
-  "request_id": "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
-  "created_at": "ISO-8601",
-  "expires_at": "ISO-8601 (created_at + 1 hour)",
-  "source_site": "marketing",
-  "target_site": "booking",
-  "payload": { /* normalised BookingPayload v2 */ },
-  "integrity": {
-    "algorithm": "hash_hmac_sha256",
-    "signature": "hex string or empty string (no secret configured)",
-    "signed_fields": [
-      "handover_version", "schema_version", "action",
-      "request_id", "created_at", "expires_at", "payload"
-    ]
+  "source": "marketing_booking_builder",
+  "service_group": "transfer",
+  "service_type": "city_transfer",
+  "trip_type": "one_way",
+  "customer": {
+    "name": "",
+    "email": "",
+    "phone": ""
   },
+  "passengers": 1,
+  "baby_seats": 0,
+  "check_in_bags": 0,
+  "carry_on_bags": 0,
+  "add_ons": {
+    "trailer": false,
+    "oversize_luggage": false
+  },
+  "route": {
+    "provider": null,
+    "selected_route_id": null,
+    "selected_route_label": null,
+    "distance_meters": null,
+    "duration_seconds": null,
+    "polyline": null,
+    "route_options": []
+  },
+  "charter": {
+    "enabled": false,
+    "type": null,
+    "days": []
+  },
+  "validation_flags": {},
+  "legs": [],
+  "tracking": {},
   "meta": {
     "preview_only": true,
-    "real_handover_enabled": false
+    "handover_mode": "preview",
+    "created_at": ""
   }
 }
 ```
 
-### Key rules
+## Field rules
+- `schema_version` — must be `"2.0"`
+- `service_group` — optional (defaults to `"transfer"`); inferred from `service_type` if not provided
+- `service_type` — canonical: `airport_pickup`, `airport_dropoff`, `city_transfer`, `charter_hire`
+- `trip_type` — canonical: `one_way`, `return`, `charter`
+- `route` — optional; scaffold-only; no Google call yet. Fields: `provider`, `selected_route_id`, `selected_route_label`, `distance_meters`, `duration_seconds`, `polyline`, `route_options`
+- `charter` — optional; scaffold-only; no charter UI yet. Fields: `enabled` (bool), `type` (string|null), `days` (array)
+- `validation_flags` — optional; freeform object (defaults to `{}`)
+- `meta.preview_only` — always `true` in preview mode
+- `meta.handover_mode` — `"preview"` for dry-run, `"live"` for real handover
+- All other fields — as documented in `docs/booking-payload-v2.md`
 
-- Always `dry_run` during Phase 2H.
-- Signed with `hash_hmac('sha256', ...)`.
-- Secret resolved: constructor parameter → `WSB_CLIENT_V2_HANDOVER_SECRET` → `WP_DEBUG` local fallback → empty string.
-- Empty secret yields empty signature (allowed in local/dev runner only).
-- Deterministic: same payload / timestamps → same signature.
+## Normalizer behaviour
+The normalizer (`WSB_Client_Booking_Payload_V2_Normalizer`) now:
+- Preserves `service_group` or infers from `service_type`
+- Preserves top-level `route` with safe empty scaffold when missing
+- Preserves `charter` with disabled-by-default scaffold when missing
+- Preserves `validation_flags` or defaults to `{}`
+- Aligns meta: sets both `preview_only` and `handover_mode`
+
+## Validator behaviour
+The validator (`WSB_Client_Booking_Payload_V2_Validator`) accepts these scaffolds without error:
+- `route` metadata is optional (no route validation)
+- `charter` scaffold is optional (no charter validation)
+- `validation_flags` is optional
+- `service_group` is optional (defaults safely)
+
+## Fixtures
+The fixture corpus in `tests/fixtures/booking-payload-v2-fixtures.json` includes:
+- `valid-with-route-scaffold` — empty top-level `route`
+- `valid-with-route-options` — `route.route_options[]` populated
+- `valid-with-validation-flags` — `validation_flags` populated
+- `valid-with-charter-scaffold` — `charter.enabled: false`
+- `invalid-missing-legs` — zero legs

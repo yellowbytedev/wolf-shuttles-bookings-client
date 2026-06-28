@@ -1,7 +1,7 @@
 [
   {
-    "id": "valid-one-way-with-route",
-    "description": "One-way transfer with route scaffolding and validation_flags",
+    "id": "valid-with-route-scaffold",
+    "description": "Valid one-way with empty top-level route scaffold",
     "expected_ok": true,
     "payload": {
       "service_group": "transfer",
@@ -13,23 +13,76 @@
       "outbound_pickup_date": "2026-07-15",
       "outbound_pickup_time": "14:00",
       "route": {
-        "provider": "google",
+        "provider": null,
         "selected_route_id": null,
         "selected_route_label": null,
         "distance_meters": null,
         "duration_seconds": null,
         "polyline": null,
         "route_options": []
-      },
-      "validation_flags": {
-        "route_verified": true,
-        "price_quoted": false
       }
     }
   },
   {
-    "id": "valid-charter",
-    "description": "Charter booking with charter block and validation_flags",
+    "id": "valid-with-route-options",
+    "description": "Valid one-way with populated route_options",
+    "expected_ok": true,
+    "payload": {
+      "service_group": "transfer",
+      "trip_type": "one_way",
+      "service_type": "city_transfer",
+      "passengers": 2,
+      "outbound_from": "Airport",
+      "outbound_to": "Hotel",
+      "outbound_pickup_date": "2026-07-20",
+      "outbound_pickup_time": "12:00",
+      "route": {
+        "provider": "google",
+        "selected_route_id": "route_abc123",
+        "selected_route_label": "Fastest via N2",
+        "distance_meters": 35000,
+        "duration_seconds": 1800,
+        "polyline": "abc123polyline",
+        "route_options": [
+          {
+            "id": "opt1",
+            "label": "Avoid tolls",
+            "distance_meters": 38000,
+            "duration_seconds": 2100
+          },
+          {
+            "id": "opt2",
+            "label": "Scenic route",
+            "distance_meters": 42000,
+            "duration_seconds": 2400
+          }
+        ]
+      }
+    }
+  },
+  {
+    "id": "valid-with-validation-flags",
+    "description": "Valid one-way with validation_flags populated",
+    "expected_ok": true,
+    "payload": {
+      "service_group": "transfer",
+      "trip_type": "one_way",
+      "service_type": "city_transfer",
+      "passengers": 3,
+      "outbound_from": "Somerset West",
+      "outbound_to": "Sun City",
+      "outbound_pickup_date": "2026-08-01",
+      "outbound_pickup_time": "08:30",
+      "validation_flags": {
+        "route_verified": true,
+        "price_quoted": true,
+        "google_routes_success": false
+      }
+    }
+  },
+  {
+    "id": "valid-with-charter-scaffold",
+    "description": "Valid charter with charter.enabled: false scaffold",
     "expected_ok": true,
     "payload": {
       "service_group": "charter",
@@ -41,12 +94,12 @@
       "outbound_pickup_date": "2026-07-01",
       "outbound_pickup_time": "09:00",
       "charter": {
-        "enabled": true,
-        "type": "daily_hire",
-        "days": ["2026-07-01", "2026-07-02"]
+        "enabled": false,
+        "type": null,
+        "days": []
       },
       "validation_flags": {
-        "charter_availability_confirmed": true
+        "charter_availability_confirmed": false
       }
     }
   },

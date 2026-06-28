@@ -52,6 +52,7 @@ The roadmap lives in `docs/booking-intake-roadmap.md` and the phase log lives in
 - Phase 2H complete: v2 handover foundation, dry-run only.
 - Phase 2I complete: developer fixture drawer / payload test lab.
 - Phase 2J complete: schema extension scaffolds (route, validation_flags, charter, blockouts, leg-scoped stops).
+- Phase 2K complete: charter preview mode (Shuttle Hire tab enabled, canonical charter payload shape).
 
 If roadmap or phase status changes, update this file at the same time.
 
@@ -61,13 +62,14 @@ If roadmap or phase status changes, update this file at the same time.
 - The `/booking-builder/?debug=1` page renders the developer fixture drawer and smoke-tested at HTTP 200.
 - Realtime BookingPayload v2 preview works in the browser.
 - The server-side preview endpoint works at `POST /wp-json/ws-bookings-client/v1/payload-preview`.
-- The payload fixture runner passes (17 fixtures: 11 legs-based + 5 scaffold + 1 invalid legs-flat + 1 return-with-stop + 1 blockouts).
+- The payload fixture runner passes (20 fixtures: 17 original + 3 new charter).
 - The dry-run v2 handover foundation exists at `POST /wp-json/ws-bookings-client/v1/handover-preview` and was smoke-tested with valid and invalid requests at HTTP 200.
 - The normalizer now preserves `service_group`, top-level `route`, `validation_flags`, and `charter` scaffolds.
 - Meta fields are aligned: both `meta.preview_only` and `meta.handover_mode` are set in JS and PHP.
 - The developer fixture drawer loads fixtures from `tests/fixtures/booking-payload-v2-fixtures.json`, populates the form, and re-runs preview checks.
 - Each leg (outbound/return) has its own additional stop toggle and field; stops are stored in `legs[].stops[]`.
 - `blockouts` diagnostic scaffold added for future vehicle-scoped blockout support.
+- **Charter preview mode**: Shuttle Hire tab enabled, charter leg type supported, `dropoff_time` preserved in legs, `charter` block populated.
 - Legacy Bricks/Fluent booking flow is still untouched.
 - No real booking submission is enabled yet.
 
@@ -81,6 +83,8 @@ If roadmap or phase status changes, update this file at the same time.
 - No itinerary database table yet.
 - No multi-trip cart yet.
 - No production UI polish yet.
+- Charter pricing not implemented.
+- Multi-day charter drag/drop not implemented.
 
 ## 7. Key Files and Responsibilities
 
@@ -97,7 +101,7 @@ If roadmap or phase status changes, update this file at the same time.
 - `inc/class-booking-intake-fixture-loader.php` - WP-CLI fixture loader stub.
 - `assets/js/booking-client-form.js` - lightweight UI state, preview rendering, and REST preview submission.
 - `assets/css/booking-client-form.css` - Booking Builder styling.
-- `tests/fixtures/booking-payload-v2-fixtures.json` - canonical v2 fixture corpus.
+- `tests/fixtures/booking-payload-v2-fixtures.json` - canonical v2 fixture corpus (20 fixtures).
 - `tests/fixtures/booking-intake-fixtures.v2.seed.json` - legacy seed fixture reference.
 - `scripts/run-booking-payload-fixtures.php` - terminal v2 payload fixture runner.
 - `scripts/run-booking-handover-preview-fixtures.php` - terminal dry-run handover fixture runner.
@@ -142,12 +146,12 @@ Requirements:
 
 ## 11. Next Recommended Tasks
 
-1. Basic charter scaffold/UI planning (Phase 2K+).
-2. Prepare the booking-site v2 receiver plan in `ws-bookings`.
-3. Design the itinerary parent table and trip linkage for Phase 4.
-4. Prepare the booking token flow for the future v2 handover path.
-5. Wire a real v2 receiver in the booking plugin when that repo is ready.
-6. Revisit Google autocomplete and route / toll / distance integration later.
+1. Prepare the booking-site v2 receiver plan in `ws-bookings`.
+2. Design the itinerary parent table and trip linkage for Phase 4.
+3. Prepare the booking token flow for the future v2 handover path.
+4. Wire a real v2 receiver in the booking plugin when that repo is ready.
+5. Revisit Google autocomplete and route / toll / distance integration later.
+6. Consider charter pricing integration once booking-site v2 endpoint is ready.
 
 ## 12. Standard Agent Completion Report
 

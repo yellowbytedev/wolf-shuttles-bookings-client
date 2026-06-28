@@ -46,7 +46,7 @@ if ( ! class_exists( 'WSB_Client_Booking_Payload_V2_Validator' ) ) {
                 $prefix = 'legs.' . $index;
                 $type = (string) ( $leg['type'] ?? '' );
 
-                if ( ! in_array( $type, array( 'outbound', 'return' ), true ) ) {
+                if ( ! in_array( $type, array( 'outbound', 'return', 'charter' ), true ) ) {
                     $errors[] = $this->error( $prefix . '.type', 'invalid_leg_type', 'Leg type is invalid.' );
                 }
 
@@ -58,12 +58,30 @@ if ( ! class_exists( 'WSB_Client_Booking_Payload_V2_Validator' ) ) {
                     $errors[] = $this->error( $prefix . '.to', 'required', 'Destination is required.' );
                 }
 
-                if ( empty( $leg['pickup_date'] ?? '' ) ) {
-                    $errors[] = $this->error( $prefix . '.pickup_date', 'required', 'Pickup date is required.' );
-                }
+                if ( $type === 'charter' ) {
+                    if ( empty( $leg['pickup_date'] ?? '' ) ) {
+                        $errors[] = $this->error( $prefix . '.pickup_date', 'required', 'Charter date is required.' );
+                    }
+                    if ( empty( $leg['pickup_time'] ?? '' ) ) {
+                        $errors[] = $this->error( $prefix . '.pickup_time', 'required', 'Charter start time is required.' );
+                    }
+                    if ( empty( $leg['dropoff_time'] ?? '' ) ) {
+                        $errors[] = $this->error( $prefix . '.dropoff_time', 'required', 'Charter end time is required.' );
+                    } else {
+                        $pickup_time = $leg['pickup_time'] ?? '';
+                        $dropoff_time = $leg['dropoff_time'] ?? '';
+                        if ( $pickup_time && $dropoff_time && $dropoff_time <= $pickup_time ) {
+                            $errors[] = $this->error( $prefix . '.dropoff_time', 'invalid_time_order', 'Charter end time must be after start time.' );
+                        }
+                    }
+                } else {
+                    if ( empty( $leg['pickup_date'] ?? '' ) ) {
+                        $errors[] = $this->error( $prefix . '.pickup_date', 'required', 'Pickup date is required.' );
+                    }
 
-                if ( empty( $leg['pickup_time'] ?? '' ) ) {
-                    $errors[] = $this->error( $prefix . '.pickup_time', 'required', 'Pickup time is required.' );
+                    if ( empty( $leg['pickup_time'] ?? '' ) ) {
+                        $errors[] = $this->error( $prefix . '.pickup_time', 'required', 'Pickup time is required.' );
+                    }
                 }
             }
 
@@ -73,6 +91,13 @@ if ( ! class_exists( 'WSB_Client_Booking_Payload_V2_Validator' ) ) {
 
             if ( 'one_way' === $trip_type && count( $legs ) > 1 ) {
                 $warnings[] = $this->warning( 'legs', 'extra_legs_ignored', 'One-way trips should only have one leg.' );
+            }
+
+            if ( 'charter' === $trip_type ) {
+                $charter = $payload['charter'] ?? array();
+                if ( ! is_array( $charter ) || empty( $charter['enabled'] ) ) {
+                    $warnings[] = $this->warning( 'charter', 'disabled', 'Charter payload has charter.enabled as false or missing.' );
+                }
             }
 
             /**

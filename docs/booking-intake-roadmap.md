@@ -89,6 +89,27 @@ Milestones:
 - Fixed BookingPayload v2 normaliser data loss by adding preservation of `service_group`, top-level `route`, `validation_flags`, and `charter`.
 - Leg-scoped additional stops implemented.
 
+### Phase 2K status (completed)
+
+- Basic Shuttle Hire / Charter preview mode added to Booking Builder.
+- Charter tab enabled (labelled "Shuttle Hire (preview)").
+- Charter form fields added: passengers, baby_seats, check_in_bags, carry_on_bags, trailer, oversize_luggage, charter_pickup_location, charter_dropoff_location, charter_pickup_time, charter_dropoff_time, charter_additional_stop.
+- Service mode toggle: transfer-only fields hidden when charter active; return leg hidden when charter active.
+- Canonical charter payload shape implemented:
+  - `trip_type: "charter"`
+  - `service_group: "charter"`
+  - `service_type: "charter_hire"`
+  - `legs[0].type: "charter"` with `dropoff_time`
+  - `charter.enabled: true`
+  - `charter.type: "same_day"`
+  - `charter.days[]` with day_index, date, times, locations, stops
+- Normalizer updated for charter leg type and flat field support.
+- Validator updated for charter-specific validation (dropoff_time required, time order check).
+- Four new charter fixtures added (4 valid, 0 invalid — updated existing charter scaffold + 3 new).
+- All 20 payload fixtures pass.
+- All 13 valid handover fixtures pass (7 invalid skipped as expected).
+- Dry-run handover preserves charter payloads.
+
 ## Phase 3 — Booking-site v2 intake
 
 Add booking-system support for v2 payloads.

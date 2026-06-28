@@ -179,112 +179,161 @@
         return 'transfer';
     }
 
-function buildLeg(form, type) {
-         var prefix = type === 'return' ? 'return_' : 'outbound_';
-         var leg = {
-             type: type,
-             from: textLocation(getFieldValue(form, 'input[name="' + prefix + 'from"]', '')),
-             to: textLocation(getFieldValue(form, 'input[name="' + prefix + 'to"]', '')),
-             pickup_date: getFieldValue(form, 'input[name="' + prefix + 'pickup_date"]', ''),
-             pickup_time: getFieldValue(form, 'input[name="' + prefix + 'pickup_time"]', ''),
-             pickup_datetime: trimValue(getFieldValue(form, 'input[name="' + prefix + 'pickup_date"]', '') + ' ' + getFieldValue(form, 'input[name="' + prefix + 'pickup_time"]', '')),
-             stops: [],
-             route: {}
-         };
+    function buildLeg(form, type) {
+        var prefix = type === 'return' ? 'return_' : 'outbound_';
+        var leg = {
+            type: type,
+            from: textLocation(getFieldValue(form, 'input[name="' + prefix + 'from"]', '')),
+            to: textLocation(getFieldValue(form, 'input[name="' + prefix + 'to"]', '')),
+            pickup_date: getFieldValue(form, 'input[name="' + prefix + 'pickup_date"]', ''),
+            pickup_time: getFieldValue(form, 'input[name="' + prefix + 'pickup_time"]', ''),
+            pickup_datetime: trimValue(getFieldValue(form, 'input[name="' + prefix + 'pickup_date"]', '') + ' ' + getFieldValue(form, 'input[name="' + prefix + 'pickup_time"]', '')),
+            stops: [],
+            route: {}
+        };
 
-         var additionalStopEnabled = getBooleanValue(form, 'input[name="' + prefix + 'additional_stop_enabled"]');
-         var additionalStop = trimValue(getFieldValue(form, 'input[name="' + prefix + 'additional_stop"]', ''));
-         if (additionalStopEnabled && additionalStop) {
-             leg.stops.push({
-                 type: 'additional_stop',
-                 location: textLocation(additionalStop)
-             });
-         }
+        var additionalStopEnabled = getBooleanValue(form, 'input[name="' + prefix + 'additional_stop_enabled"]');
+        var additionalStop = trimValue(getFieldValue(form, 'input[name="' + prefix + 'additional_stop"]', ''));
+        if (additionalStopEnabled && additionalStop) {
+            leg.stops.push({
+                type: 'additional_stop',
+                location: textLocation(additionalStop)
+            });
+        }
 
-         return leg;
-     }
-
-function buildPayload(form, state) {
-         var currentState = state || {};
-         var tripType = getFieldValue(form, 'input[name="trip_type"]:checked', 'one_way');
-         var outboundLeg = buildLeg(form, 'outbound');
-         var legs = [outboundLeg];
-         var passengers = getNumberValue(form, 'input[name="passengers"]', 1);
-         var serviceType = trimValue(currentState.serviceType || (form.closest('[data-wsb-booking-builder]') ? form.closest('[data-wsb-booking-builder]').dataset.wsbServiceType : '')) || 'city_transfer';
-         var serviceGroup = trimValue(currentState.serviceGroup || (form.closest('[data-wsb-booking-builder]') ? form.closest('[data-wsb-booking-builder]').dataset.wsbServiceGroup : '')) || inferServiceGroup(serviceType);
-
-         if (passengers < 1) {
-             passengers = 1;
-         }
-
-         if (tripType === 'return') {
-             legs.push(buildLeg(form, 'return'));
-         }
-
-return {
-             schema_version: '2.0',
-             source: 'marketing_booking_builder',
-             service_group: serviceGroup,
-             service_type: serviceType,
-             trip_type: tripType,
-             customer: {
-                 name: '',
-                 email: '',
-                 phone: ''
-             },
-             passengers: passengers,
-             baby_seats: getNumberValue(form, 'input[name="baby_seats"]', 0),
-             check_in_bags: getNumberValue(form, 'input[name="check_in_bags"]', 0),
-             carry_on_bags: getNumberValue(form, 'input[name="carry_on_bags"]', 0),
-             add_ons: {
-                 trailer: getBooleanValue(form, 'input[name="trailer"]'),
-                 oversize_luggage: getBooleanValue(form, 'input[name="oversize_luggage"]')
-             },
-             legs: legs,
-             blockouts: {
-                 version: 2,
-                 authority: 'booking_site',
-                 marketing_evaluates_vehicle_availability: false,
-                 vehicle_scoped_blockouts_supported: true,
-                 global_picker_blockouts_supported: true,
-                 config_hash: null,
-                 marketing_evaluated_at: null,
-                 notes: []
-             },
-             tracking: {},
-             validation_flags: {},
-             meta: {
-                 preview_only: true,
-                 handover_mode: 'preview',
-                 created_at: new Date().toISOString()
-             }
-         };
+        return leg;
     }
 
-function renderPreviewSummary(statusElement, payload, state) {
-         if (!statusElement) {
-             return;
-         }
+    function buildCharterLeg(form, state) {
+        var leg = {
+            type: 'charter',
+            from: textLocation(getFieldValue(form, 'input[name="charter_pickup_location"]', '')),
+            to: textLocation(getFieldValue(form, 'input[name="charter_dropoff_location"]', '')),
+            pickup_date: getFieldValue(form, 'input[name="outbound_pickup_date"]', ''),
+            pickup_time: getFieldValue(form, 'input[name="charter_pickup_time"]', ''),
+            dropoff_time: getFieldValue(form, 'input[name="charter_dropoff_time"]', ''),
+            stops: [],
+            route: {}
+        };
 
-         var legCount = payload.legs ? payload.legs.length : 0;
-         var outboundStops = payload.legs && payload.legs[0] && payload.legs[0].stops && payload.legs[0].stops.length > 0;
-         var returnStops = payload.legs && payload.legs[1] && payload.legs[1].stops && payload.legs[1].stops.length > 0;
-         var stopLabel = outboundStops ? 'outbound stop: enabled' : (returnStops ? 'return stop: enabled' : 'stops: disabled');
-         var summary = [
-             'Live payload preview active',
-             'service: ' + payload.service_type,
-             'trip: ' + payload.trip_type,
-             legCount + ' leg' + (legCount === 1 ? '' : 's'),
-             stopLabel,
-             'updated: ' + new Date().toLocaleTimeString()
-         ];
+        var additionalStopEnabled = getBooleanValue(form, 'input[name="charter_additional_stop_enabled"]');
+        var additionalStop = trimValue(getFieldValue(form, 'input[name="charter_additional_stop"]', ''));
+        if (additionalStopEnabled && additionalStop) {
+            leg.stops.push({
+                type: 'additional_stop',
+                location: textLocation(additionalStop)
+            });
+        }
 
-         if (state && state.fixtureId) {
-             summary.splice(2, 0, 'fixture: ' + state.fixtureId);
-         }
+        return leg;
+    }
 
-         statusElement.textContent = summary.join(' · ');
-     }
+    function buildPayload(form, state) {
+        var currentState = state || {};
+        var tripType = getFieldValue(form, 'input[name="trip_type"]:checked', 'one_way');
+        var serviceType = trimValue(currentState.serviceType || (form.closest('[data-wsb-booking-builder]') ? form.closest('[data-wsb-booking-builder]').dataset.wsbServiceType : '')) || 'city_transfer';
+        var serviceGroup = trimValue(currentState.serviceGroup || (form.closest('[data-wsb-booking-builder]') ? form.closest('[data-wsb-booking-builder]').dataset.wsbServiceGroup : '')) || inferServiceGroup(serviceType);
+        var passengers = getNumberValue(form, 'input[name="passengers"]', 1);
+        var legs = [];
+
+        if (passengers < 1) {
+            passengers = 1;
+        }
+
+        if (serviceGroup === 'charter') {
+            legs.push(buildCharterLeg(form, state));
+        } else {
+            legs.push(buildLeg(form, 'outbound'));
+            if (tripType === 'return') {
+                legs.push(buildLeg(form, 'return'));
+            }
+        }
+
+        var charterBlock = serviceGroup === 'charter' ? {
+            enabled: true,
+            type: 'same_day',
+            days: [
+                {
+                    day_index: 0,
+                    date: legs[0].pickup_date,
+                    start_time: legs[0].pickup_time,
+                    end_time: legs[0].dropoff_time,
+                    pickup_location: legs[0].from,
+                    dropoff_location: legs[0].to,
+                    stops: legs[0].stops
+                }
+            ]
+        } : {
+            enabled: false,
+            type: null,
+            days: []
+        };
+
+        return {
+            schema_version: '2.0',
+            source: 'marketing_booking_builder',
+            service_group: serviceGroup,
+            service_type: serviceType,
+            trip_type: tripType,
+            customer: {
+                name: '',
+                email: '',
+                phone: ''
+            },
+            passengers: passengers,
+            baby_seats: getNumberValue(form, 'input[name="baby_seats"]', 0),
+            check_in_bags: getNumberValue(form, 'input[name="check_in_bags"]', 0),
+            carry_on_bags: getNumberValue(form, 'input[name="carry_on_bags"]', 0),
+            add_ons: {
+                trailer: getBooleanValue(form, 'input[name="trailer"]'),
+                oversize_luggage: getBooleanValue(form, 'input[name="oversize_luggage"]')
+            },
+            legs: legs,
+            charter: charterBlock,
+            blockouts: {
+                version: 2,
+                authority: 'booking_site',
+                marketing_evaluates_vehicle_availability: false,
+                vehicle_scoped_blockouts_supported: true,
+                global_picker_blockouts_supported: true,
+                config_hash: null,
+                marketing_evaluated_at: null,
+                notes: []
+            },
+            tracking: {},
+            validation_flags: {},
+            meta: {
+                preview_only: true,
+                handover_mode: 'preview',
+                created_at: new Date().toISOString()
+            }
+        };
+    }
+
+    function renderPreviewSummary(statusElement, payload, state) {
+        if (!statusElement) {
+            return;
+        }
+
+        var legCount = payload.legs ? payload.legs.length : 0;
+        var outboundStops = payload.legs && payload.legs[0] && payload.legs[0].stops && payload.legs[0].stops.length > 0;
+        var returnStops = payload.legs && payload.legs[1] && payload.legs[1].stops && payload.legs[1].stops.length > 0;
+        var stopLabel = outboundStops ? 'outbound stop: enabled' : (returnStops ? 'return stop: enabled' : 'stops: disabled');
+        var summary = [
+            'Live payload preview active',
+            'service: ' + payload.service_type,
+            'trip: ' + payload.trip_type,
+            legCount + ' leg' + (legCount === 1 ? '' : 's'),
+            stopLabel,
+            'updated: ' + new Date().toLocaleTimeString()
+        ];
+
+        if (state && state.fixtureId) {
+            summary.splice(2, 0, 'fixture: ' + state.fixtureId);
+        }
+
+        statusElement.textContent = summary.join(' · ');
+    }
 
     function renderValidationOutput(outputElement, validation) {
         if (!outputElement) {
@@ -478,70 +527,127 @@ function renderPreviewSummary(statusElement, payload, state) {
         updateFixtureDrawerStatus(statusElement, (CONFIG.strings && CONFIG.strings.fixtureDrawerClosed) ? CONFIG.strings.fixtureDrawerClosed : 'Fixture drawer closed.', 'muted');
     }
 
-function applyFixtureToForm(form, root, fixture, state) {
-         var payload = fixture && fixture.payload ? fixture.payload : {};
-         var currentState = state || {};
-         var outboundLeg = payload.legs && payload.legs.length ? payload.legs[0] : {};
-         var returnLeg = null;
+    function updateServiceMode(root, serviceGroup) {
+        var transferFields = root.querySelector('[data-wsb-transfer-fields]');
+        var charterSection = root.querySelector('[data-wsb-charter-section]');
+        var outboundSection = root.querySelector('[data-wsb-outbound-section]');
+        var returnSection = root.querySelector('[data-wsb-return-section]');
+        var serviceTabs = root.querySelectorAll('[data-wsb-service-tab]');
 
-         if (payload.trip_type === 'return' && payload.legs && payload.legs.length > 1) {
-             returnLeg = payload.legs[1];
-         }
+        forEachNode(serviceTabs, function (tab) {
+            tab.classList.remove('wsb-booking-client-service-tab--active');
+        });
 
-         currentState.fixtureId = trimValue(fixture.id || '');
-         currentState.fixtureExpected = payload ? (fixture.expected_ok ? 'valid' : 'invalid') : '';
-         currentState.serviceType = trimValue(payload.service_type || currentState.serviceType || 'city_transfer');
-         currentState.serviceGroup = trimValue(payload.service_group || inferServiceGroup(currentState.serviceType));
+        var activeTab = root.querySelector('[data-wsb-service-tab="' + serviceGroup + '"]');
+        if (activeTab) {
+            activeTab.classList.add('wsb-booking-client-service-tab--active');
+        }
 
-         if (root) {
-             root.dataset.wsbServiceType = currentState.serviceType;
-             root.dataset.wsbServiceGroup = currentState.serviceGroup;
-         }
+        if (serviceGroup === 'charter') {
+            if (transferFields) {
+                transferFields.classList.add('wsb-booking-client-hidden');
+            }
+            if (charterSection) {
+                charterSection.classList.remove('wsb-booking-client-hidden');
+            }
+            if (outboundSection) {
+                outboundSection.classList.add('wsb-booking-client-hidden');
+            }
+            if (returnSection) {
+                returnSection.classList.add('wsb-booking-client-hidden');
+            }
+        } else {
+            if (transferFields) {
+                transferFields.classList.remove('wsb-booking-client-hidden');
+            }
+            if (charterSection) {
+                charterSection.classList.add('wsb-booking-client-hidden');
+            }
+            if (outboundSection) {
+                outboundSection.classList.remove('wsb-booking-client-hidden');
+            }
+        }
+    }
 
-         setRadioValue(form, 'trip_type', payload.trip_type || 'one_way');
-         setInputValue(form, 'passengers', payload.passengers != null ? payload.passengers : 1);
-         setInputValue(form, 'baby_seats', payload.baby_seats != null ? payload.baby_seats : 0);
-         setInputValue(form, 'check_in_bags', payload.check_in_bags != null ? payload.check_in_bags : 0);
-         setInputValue(form, 'carry_on_bags', payload.carry_on_bags != null ? payload.carry_on_bags : 0);
-         setCheckboxValue(form, 'trailer', Boolean(payload.add_ons && payload.add_ons.trailer));
-         setCheckboxValue(form, 'oversize_luggage', Boolean(payload.add_ons && payload.add_ons.oversize_luggage));
+    function applyFixtureToForm(form, root, fixture, state) {
+        var payload = fixture && fixture.payload ? fixture.payload : {};
+        var currentState = state || {};
+        var outboundLeg = payload.legs && payload.legs.length ? payload.legs[0] : {};
+        var returnLeg = null;
 
-         setInputValue(form, 'outbound_from', outboundLeg.from && outboundLeg.from.label ? outboundLeg.from.label : '');
-         setInputValue(form, 'outbound_to', outboundLeg.to && outboundLeg.to.label ? outboundLeg.to.label : '');
-         setInputValue(form, 'outbound_pickup_date', outboundLeg.pickup_date || '');
-         setInputValue(form, 'outbound_pickup_time', outboundLeg.pickup_time || '');
+        if (payload.trip_type === 'return' && payload.legs && payload.legs.length > 1) {
+            returnLeg = payload.legs[1];
+        }
 
-         var outboundStop = outboundLeg.stops && outboundLeg.stops.length ? outboundLeg.stops[0] : null;
-         var outboundStopEnabled = Boolean(outboundStop && outboundStop.location && outboundStop.location.label);
-         setCheckboxValue(form, 'outbound_additional_stop_enabled', outboundStopEnabled);
-         setInputValue(form, 'outbound_additional_stop', outboundStopEnabled ? outboundStop.location.label : '');
-         setFieldGroupDisabled(form, '[data-wsb-outbound-additional-stop-section]', !outboundStopEnabled);
+        currentState.fixtureId = trimValue(fixture.id || '');
+        currentState.fixtureExpected = payload ? (fixture.expected_ok ? 'valid' : 'invalid') : '';
+        currentState.serviceType = trimValue(payload.service_type || currentState.serviceType || 'city_transfer');
+        currentState.serviceGroup = trimValue(payload.service_group || inferServiceGroup(currentState.serviceType));
 
-         if (returnLeg) {
-             setInputValue(form, 'return_from', returnLeg.from && returnLeg.from.label ? returnLeg.from.label : '');
-             setInputValue(form, 'return_to', returnLeg.to && returnLeg.to.label ? returnLeg.to.label : '');
-             setInputValue(form, 'return_pickup_date', returnLeg.pickup_date || '');
-             setInputValue(form, 'return_pickup_time', returnLeg.pickup_time || '');
+        if (root) {
+            root.dataset.wsbServiceType = currentState.serviceType;
+            root.dataset.wsbServiceGroup = currentState.serviceGroup;
+        }
 
-             var returnStop = returnLeg.stops && returnLeg.stops.length ? returnLeg.stops[0] : null;
-             var returnStopEnabled = Boolean(returnStop && returnStop.location && returnStop.location.label);
-             setCheckboxValue(form, 'return_additional_stop_enabled', returnStopEnabled);
-             setInputValue(form, 'return_additional_stop', returnStopEnabled ? returnStop.location.label : '');
-             setFieldGroupDisabled(form, '[data-wsb-return-additional-stop-section]', !returnStopEnabled);
-         } else {
-             setInputValue(form, 'return_from', '');
-             setInputValue(form, 'return_to', '');
-             setInputValue(form, 'return_pickup_date', '');
-             setInputValue(form, 'return_pickup_time', '');
-             setCheckboxValue(form, 'return_additional_stop_enabled', false);
-             setInputValue(form, 'return_additional_stop', '');
-             setFieldGroupDisabled(form, '[data-wsb-return-additional-stop-section]', true);
-         }
+        updateServiceMode(root, currentState.serviceGroup);
 
-         updateReturnVisibility(root.querySelector('[data-wsb-return-section]'), form.querySelectorAll('input[name="trip_type"]'));
-         updateAdditionalStop(form.querySelector('[data-wsb-outbound-additional-stop-toggle]'), root.querySelector('[data-wsb-outbound-additional-stop-section]'));
-         updateAdditionalStop(form.querySelector('[data-wsb-return-additional-stop-toggle]'), root.querySelector('[data-wsb-return-additional-stop-section]'));
-     }
+        setRadioValue(form, 'trip_type', payload.trip_type || 'one_way');
+        setInputValue(form, 'passengers', payload.passengers != null ? payload.passengers : 1);
+        setInputValue(form, 'baby_seats', payload.baby_seats != null ? payload.baby_seats : 0);
+        setInputValue(form, 'check_in_bags', payload.check_in_bags != null ? payload.check_in_bags : 0);
+        setInputValue(form, 'carry_on_bags', payload.carry_on_bags != null ? payload.carry_on_bags : 0);
+        setCheckboxValue(form, 'trailer', Boolean(payload.add_ons && payload.add_ons.trailer));
+        setCheckboxValue(form, 'oversize_luggage', Boolean(payload.add_ons && payload.add_ons.oversize_luggage));
+
+        if (currentState.serviceGroup === 'charter') {
+            setInputValue(form, 'charter_pickup_location', outboundLeg.from && outboundLeg.from.label ? outboundLeg.from.label : '');
+            setInputValue(form, 'charter_dropoff_location', outboundLeg.to && outboundLeg.to.label ? outboundLeg.to.label : '');
+            setInputValue(form, 'outbound_pickup_date', outboundLeg.pickup_date || payload.charter && payload.charter.days && payload.charter.days[0] && payload.charter.days[0].date ? payload.charter.days[0].date : '');
+            setInputValue(form, 'charter_pickup_time', outboundLeg.pickup_time || payload.charter && payload.charter.days && payload.charter.days[0] && payload.charter.days[0].start_time ? payload.charter.days[0].start_time : '');
+            setInputValue(form, 'charter_dropoff_time', outboundLeg.dropoff_time || payload.charter && payload.charter.days && payload.charter.days[0] && payload.charter.days[0].end_time ? payload.charter.days[0].end_time : '');
+
+            var charterStop = outboundLeg.stops && outboundLeg.stops.length ? outboundLeg.stops[0] : (payload.charter && payload.charter.days && payload.charter.days[0] && payload.charter.days[0].stops && payload.charter.days[0].stops.length ? payload.charter.days[0].stops[0] : null);
+            var charterStopEnabled = Boolean(charterStop && charterStop.location && charterStop.location.label);
+            setCheckboxValue(form, 'charter_additional_stop_enabled', charterStopEnabled);
+            setInputValue(form, 'charter_additional_stop', charterStopEnabled ? charterStop.location.label : '');
+            setFieldGroupDisabled(form, '[data-wsb-charter-additional-stop-section]', !charterStopEnabled);
+            updateAdditionalStop(form.querySelector('[data-wsb-charter-additional-stop-toggle]'), root.querySelector('[data-wsb-charter-additional-stop-section]'));
+        } else {
+            setInputValue(form, 'outbound_from', outboundLeg.from && outboundLeg.from.label ? outboundLeg.from.label : '');
+            setInputValue(form, 'outbound_to', outboundLeg.to && outboundLeg.to.label ? outboundLeg.to.label : '');
+            setInputValue(form, 'outbound_pickup_date', outboundLeg.pickup_date || '');
+            setInputValue(form, 'outbound_pickup_time', outboundLeg.pickup_time || '');
+
+            var outboundStop = outboundLeg.stops && outboundLeg.stops.length ? outboundLeg.stops[0] : null;
+            var outboundStopEnabled = Boolean(outboundStop && outboundStop.location && outboundStop.location.label);
+            setCheckboxValue(form, 'outbound_additional_stop_enabled', outboundStopEnabled);
+            setInputValue(form, 'outbound_additional_stop', outboundStopEnabled ? outboundStop.location.label : '');
+            setFieldGroupDisabled(form, '[data-wsb-outbound-additional-stop-section]', !outboundStopEnabled);
+
+            if (returnLeg) {
+                setInputValue(form, 'return_from', returnLeg.from && returnLeg.from.label ? returnLeg.from.label : '');
+                setInputValue(form, 'return_to', returnLeg.to && returnLeg.to.label ? returnLeg.to.label : '');
+                setInputValue(form, 'return_pickup_date', returnLeg.pickup_date || '');
+                setInputValue(form, 'return_pickup_time', returnLeg.pickup_time || '');
+
+                var returnStop = returnLeg.stops && returnLeg.stops.length ? returnLeg.stops[0] : null;
+                var returnStopEnabled = Boolean(returnStop && returnStop.location && returnStop.location.label);
+                setCheckboxValue(form, 'return_additional_stop_enabled', returnStopEnabled);
+                setInputValue(form, 'return_additional_stop', returnStopEnabled ? returnStop.location.label : '');
+                setFieldGroupDisabled(form, '[data-wsb-return-additional-stop-section]', !returnStopEnabled);
+            } else {
+                setInputValue(form, 'return_from', '');
+                setInputValue(form, 'return_to', '');
+                setInputValue(form, 'return_pickup_date', '');
+                setInputValue(form, 'return_pickup_time', '');
+                setCheckboxValue(form, 'return_additional_stop_enabled', false);
+                setInputValue(form, 'return_additional_stop', '');
+                setFieldGroupDisabled(form, '[data-wsb-return-additional-stop-section]', true);
+            }
+        }
+
+        return null;
+    }
 
     function runFixturePreviewChecks(payload, fixture, validationElement, messageElement, statusElement, state) {
         var expectedOk = Boolean(fixture && fixture.expected_ok);
@@ -623,140 +729,164 @@ function applyFixtureToForm(form, root, fixture, state) {
         }
     }
 
-function initBookingBuilder(root) {
-         var form = root.querySelector('[data-wsb-booking-form]');
-         var returnSection = root.querySelector('[data-wsb-return-section]');
-         var outboundAdditionalStopToggle = root.querySelector('[data-wsb-outbound-additional-stop-toggle]');
-         var outboundAdditionalStopField = root.querySelector('[data-wsb-outbound-additional-stop-section]');
-         var returnAdditionalStopToggle = root.querySelector('[data-wsb-return-additional-stop-toggle]');
-         var returnAdditionalStopField = root.querySelector('[data-wsb-return-additional-stop-section]');
-         var previewElement = root.querySelector('[data-wsb-payload-preview]');
-         var validationElement = root.querySelector('[data-wsb-validation-output]');
-         var statusElement = root.querySelector('[data-wsb-preview-status]');
-         var messageElement = root.querySelector('[data-wsb-submit-message]');
-         var fixtureToggle = root.querySelector('[data-wsb-fixture-toggle]');
-         var fixtureDrawer = root.querySelector('[data-wsb-fixture-drawer]');
-         var fixtureClose = root.querySelector('[data-wsb-fixture-close]');
-         var fixtureList = root.querySelector('[data-wsb-fixture-list]');
-         var fixtureStatus = root.querySelector('[data-wsb-fixture-status]');
-         var fixtures = readFixtureCollection(root);
-         var state = {
-             serviceGroup: trimValue(root.dataset.wsbServiceGroup || 'transfer') || 'transfer',
-             serviceType: trimValue(root.dataset.wsbServiceType || 'city_transfer') || 'city_transfer',
-             fixtureId: '',
-             fixtureExpected: ''
-         };
+    function initBookingBuilder(root) {
+        var form = root.querySelector('[data-wsb-booking-form]');
+        var returnSection = root.querySelector('[data-wsb-return-section]');
+        var outboundAdditionalStopToggle = root.querySelector('[data-wsb-outbound-additional-stop-toggle]');
+        var outboundAdditionalStopField = root.querySelector('[data-wsb-outbound-additional-stop-section]');
+        var returnAdditionalStopToggle = root.querySelector('[data-wsb-return-additional-stop-toggle]');
+        var returnAdditionalStopField = root.querySelector('[data-wsb-return-additional-stop-section]');
+        var charterAdditionalStopToggle = root.querySelector('[data-wsb-charter-additional-stop-toggle]');
+        var charterAdditionalStopField = root.querySelector('[data-wsb-charter-additional-stop-section]');
+        var previewElement = root.querySelector('[data-wsb-payload-preview]');
+        var validationElement = root.querySelector('[data-wsb-validation-output]');
+        var statusElement = root.querySelector('[data-wsb-preview-status]');
+        var messageElement = root.querySelector('[data-wsb-submit-message]');
+        var fixtureToggle = root.querySelector('[data-wsb-fixture-toggle]');
+        var fixtureDrawer = root.querySelector('[data-wsb-fixture-drawer]');
+        var fixtureClose = root.querySelector('[data-wsb-fixture-close]');
+        var fixtureList = root.querySelector('[data-wsb-fixture-list]');
+        var fixtureStatus = root.querySelector('[data-wsb-fixture-status]');
+        var fixtures = readFixtureCollection(root);
+        var state = {
+            serviceGroup: trimValue(root.dataset.wsbServiceGroup || 'transfer') || 'transfer',
+            serviceType: trimValue(root.dataset.wsbServiceType || 'city_transfer') || 'city_transfer',
+            fixtureId: '',
+            fixtureExpected: ''
+        };
 
-         if (!form) {
-             if (DEBUG) {
-                 logDebug('Missing booking form in wrapper', root);
-             }
-             return;
-         }
+        if (!form) {
+            if (DEBUG) {
+                logDebug('Missing booking form in wrapper', root);
+            }
+            return;
+        }
 
-         if (!previewElement) {
-             if (DEBUG) {
-                 logDebug('Missing payload preview element in booking builder', root);
-             }
-             return;
-         }
+        if (!previewElement) {
+            if (DEBUG) {
+                logDebug('Missing payload preview element in booking builder', root);
+            }
+            return;
+        }
 
-         function refreshPreview(message) {
-             var payload = buildPayload(form, state);
-             renderPayload(previewElement, statusElement, messageElement, payload, message, state);
-             return payload;
-         }
+        function refreshPreview(message) {
+            var payload = buildPayload(form, state);
+            renderPayload(previewElement, statusElement, messageElement, payload, message, state);
+            return payload;
+        }
 
-         function refreshServerPreview(message) {
-             var payload = buildPayload(form, state);
-             postPayloadPreview(payload, validationElement, messageElement);
-             return payload;
-         }
+        function refreshServerPreview(message) {
+            var payload = buildPayload(form, state);
+            postPayloadPreview(payload, validationElement, messageElement);
+            return payload;
+        }
 
-         var debouncedRefresh = debounce(function () {
-             refreshPreview('');
-         }, 150);
+        var debouncedRefresh = debounce(function () {
+            refreshPreview('');
+        }, 150);
 
-         var tripTypeInputs = form.querySelectorAll('input[name="trip_type"]');
-         forEachNode(tripTypeInputs, function (radio) {
-             radio.addEventListener('change', function () {
-                 updateReturnVisibility(returnSection, tripTypeInputs);
-                 refreshPreview('');
-             });
-         });
+        var tripTypeInputs = form.querySelectorAll('input[name="trip_type"]');
+        forEachNode(tripTypeInputs, function (radio) {
+            radio.addEventListener('change', function () {
+                updateReturnVisibility(returnSection, tripTypeInputs);
+                refreshPreview('');
+            });
+        });
 
-         if (outboundAdditionalStopToggle) {
-             outboundAdditionalStopToggle.addEventListener('change', function () {
-                 updateAdditionalStop(outboundAdditionalStopToggle, outboundAdditionalStopField);
-                 refreshPreview('');
-             });
-         }
+        var serviceTabs = root.querySelectorAll('[data-wsb-service-tab]');
+        forEachNode(serviceTabs, function (tab) {
+            tab.addEventListener('click', function () {
+                var serviceGroup = trimValue(tab.getAttribute('data-service'));
+                if (serviceGroup === 'charter' || serviceGroup === 'transfer') {
+                    state.serviceGroup = serviceGroup;
+                    root.dataset.wsbServiceGroup = serviceGroup;
+                    updateServiceMode(root, serviceGroup);
+                    refreshPreview('');
+                }
+            });
+        });
 
-         if (returnAdditionalStopToggle) {
-             returnAdditionalStopToggle.addEventListener('change', function () {
-                 updateAdditionalStop(returnAdditionalStopToggle, returnAdditionalStopField);
-                 refreshPreview('');
-             });
-         }
+        if (outboundAdditionalStopToggle) {
+            outboundAdditionalStopToggle.addEventListener('change', function () {
+                updateAdditionalStop(outboundAdditionalStopToggle, outboundAdditionalStopField);
+                refreshPreview('');
+            });
+        }
 
-         if (fixtureToggle && fixtureDrawer && fixtureList && fixtures.length) {
-             fixtureToggle.addEventListener('click', function () {
-                 var isOpen = !fixtureDrawer.classList.contains('wsb-booking-client-hidden');
-                 if (isOpen) {
-                     closeFixtureDrawer(fixtureDrawer, fixtureToggle, fixtureStatus);
-                 } else {
-                     openFixtureDrawer(fixtureDrawer, fixtureToggle, fixtureStatus);
-                 }
-             });
-         }
+        if (returnAdditionalStopToggle) {
+            returnAdditionalStopToggle.addEventListener('change', function () {
+                updateAdditionalStop(returnAdditionalStopToggle, returnAdditionalStopField);
+                refreshPreview('');
+            });
+        }
 
-         if (fixtureClose && fixtureDrawer && fixtureToggle) {
-             fixtureClose.addEventListener('click', function () {
-                 closeFixtureDrawer(fixtureDrawer, fixtureToggle, fixtureStatus);
-             });
-         }
+        if (charterAdditionalStopToggle) {
+            charterAdditionalStopToggle.addEventListener('change', function () {
+                updateAdditionalStop(charterAdditionalStopToggle, charterAdditionalStopField);
+                refreshPreview('');
+            });
+        }
 
-         if (fixtureList && fixtures.length) {
-             forEachNode(fixtureList.querySelectorAll('[data-wsb-fixture-chip]'), function (chip) {
-                 chip.addEventListener('click', function () {
-                     var fixture = findFixtureById(fixtures, chip.getAttribute('data-wsb-fixture-id'));
-                     if (!fixture) {
-                         updateFixtureDrawerStatus(fixtureStatus, 'Fixture not found: ' + trimValue(chip.getAttribute('data-wsb-fixture-id')), 'error');
-                         return;
-                     }
+        if (fixtureToggle && fixtureDrawer && fixtureList && fixtures.length) {
+            fixtureToggle.addEventListener('click', function () {
+                var isOpen = !fixtureDrawer.classList.contains('wsb-booking-client-hidden');
+                if (isOpen) {
+                    closeFixtureDrawer(fixtureDrawer, fixtureToggle, fixtureStatus);
+                } else {
+                    openFixtureDrawer(fixtureDrawer, fixtureToggle, fixtureStatus);
+                }
+            });
+        }
 
-                     applyFixtureToForm(form, root, fixture, state);
-                     var payload = refreshPreview((CONFIG.strings && CONFIG.strings.fixtureDrawerLoaded ? CONFIG.strings.fixtureDrawerLoaded : 'Loaded fixture:') + ' ' + fixture.id + ' — Expected: ' + (fixture.expected_ok ? 'valid' : 'invalid'));
-                     runFixturePreviewChecks(payload, fixture, validationElement, messageElement, fixtureStatus, state);
-                 });
-             });
-         }
+        if (fixtureClose && fixtureDrawer && fixtureToggle) {
+            fixtureClose.addEventListener('click', function () {
+                closeFixtureDrawer(fixtureDrawer, fixtureToggle, fixtureStatus);
+            });
+        }
 
-         form.addEventListener('input', debouncedRefresh);
-         form.addEventListener('change', function () {
-             refreshPreview('');
-         });
-         form.addEventListener('blur', function () {
-             refreshPreview('');
-         }, true);
-         form.addEventListener('submit', function (event) {
-             event.preventDefault();
-             refreshPreview('Preview updated. Real booking submission is not enabled yet.');
-             refreshServerPreview();
-         });
+        if (fixtureList && fixtures.length) {
+            forEachNode(fixtureList.querySelectorAll('[data-wsb-fixture-chip]'), function (chip) {
+                chip.addEventListener('click', function () {
+                    var fixture = findFixtureById(fixtures, chip.getAttribute('data-wsb-fixture-id'));
+                    if (!fixture) {
+                        updateFixtureDrawerStatus(fixtureStatus, 'Fixture not found: ' + trimValue(chip.getAttribute('data-wsb-fixture-id')), 'error');
+                        return;
+                    }
 
-         updateReturnVisibility(returnSection, tripTypeInputs);
-         updateAdditionalStop(outboundAdditionalStopToggle, outboundAdditionalStopField);
-         updateAdditionalStop(returnAdditionalStopToggle, returnAdditionalStopField);
-         refreshPreview('Live payload preview initialised');
-         if (fixtureStatus && fixtures.length) {
-             updateFixtureDrawerStatus(
-                 fixtureStatus,
-                 (CONFIG.strings && CONFIG.strings.fixtureDrawerDefault) ? CONFIG.strings.fixtureDrawerDefault : 'Choose a fixture to load sample payload data.',
-                 'muted'
-             );
-         }
-     }
+                    applyFixtureToForm(form, root, fixture, state);
+                    var payload = refreshPreview((CONFIG.strings && CONFIG.strings.fixtureDrawerLoaded ? CONFIG.strings.fixtureDrawerLoaded : 'Loaded fixture:') + ' ' + fixture.id + ' — Expected: ' + (fixture.expected_ok ? 'valid' : 'invalid'));
+                    runFixturePreviewChecks(payload, fixture, validationElement, messageElement, fixtureStatus, state);
+                });
+            });
+        }
+
+        form.addEventListener('input', debouncedRefresh);
+        form.addEventListener('change', function () {
+            refreshPreview('');
+        });
+        form.addEventListener('blur', function () {
+            refreshPreview('');
+        }, true);
+        form.addEventListener('submit', function (event) {
+            event.preventDefault();
+            refreshPreview('Preview updated. Real booking submission is not enabled yet.');
+            refreshServerPreview();
+        });
+
+        updateServiceMode(root, state.serviceGroup);
+        updateReturnVisibility(returnSection, tripTypeInputs);
+        updateAdditionalStop(outboundAdditionalStopToggle, outboundAdditionalStopField);
+        updateAdditionalStop(returnAdditionalStopToggle, returnAdditionalStopField);
+        updateAdditionalStop(charterAdditionalStopToggle, charterAdditionalStopField);
+        refreshPreview('Live payload preview initialised');
+        if (fixtureStatus && fixtures.length) {
+            updateFixtureDrawerStatus(
+                fixtureStatus,
+                (CONFIG.strings && CONFIG.strings.fixtureDrawerDefault) ? CONFIG.strings.fixtureDrawerDefault : 'Choose a fixture to load sample payload data.',
+                'muted'
+            );
+        }
+    }
 
     document.addEventListener('DOMContentLoaded', function () {
         var wrappers = document.querySelectorAll('[data-wsb-booking-builder]');

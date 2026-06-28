@@ -2,10 +2,10 @@
 
 ## Current Status Summary
 
-- Fixture corpus at 17 fixtures.
+- Fixture corpus at 20 fixtures.
 - Leg-scoped additional stops implemented (outbound and return legs each have their own stop controls).
 - Blockouts diagnostic scaffold added; marketing payload always includes scaffold with `authority: "booking_site"`.
-- Route scaffold preserved; charter is still scaffold-only.
+- Route scaffold preserved; charter preview mode added.
 - Developer Fixture Drawer works at `/booking-builder/?debug=1`.
 - No real booking submission enabled.
 - Legacy Bricks/Fluent flow unchanged.
@@ -151,3 +151,37 @@
 - No Google API calls, no charter UI, no booking-site handover, no legacy form changes.
 - Leg-scoped additional stops implemented.
 - Vehicle blockout diagnostic scaffold implemented.
+
+## Phase 2K — Charter preview mode
+
+- Enabled Shuttle Hire / Charter tab in Booking Builder (labelled "Shuttle Hire (preview)").
+- Added charter-specific form fields:
+  - `charter_pickup_location`, `charter_dropoff_location`
+  - `charter_pickup_time`, `charter_dropoff_time`
+  - `charter_additional_stop` with toggle
+- Service mode switching: transfer-only fields (trip-type pills, return leg) hidden when charter active.
+- Added `updateServiceMode()` JS function to handle tab switching and UI visibility.
+- Built canonical charter payload in JS:
+  - `legs[0].type = "charter"`
+  - `legs[0].dropoff_time` included
+  - `charter.enabled = true`
+  - `charter.type = "same_day"`
+  - `charter.days[0]` with full day data
+- Normalizer updated:
+  - `service_type: "charter_hire"` now accepted
+  - `normalize_charter_leg_from_flat_fields()` added for charter flat fields
+  - `normalize_legs_from_payload()` accepts `charter` leg type and preserves `dropoff_time`
+- Validator updated:
+  - Accepts `charter` leg type in validation
+  - Requires `dropoff_time` for charter legs
+  - Validates end time > start time for same-day charters
+- Added 4 charter fixtures:
+  - `valid-same-day-charter` — valid charter with all required fields
+  - `valid-same-day-charter-with-stop` — valid charter with additional stop
+  - `invalid-charter-missing-dropoff` — missing dropoff_time
+  - `invalid-charter-end-time-before-start` — end time before start time
+- All 20 payload fixtures pass (19 passed, 1 updated from scaffold state).
+- All 13 valid handover fixtures pass (7 invalid skipped as expected).
+- Smoke tests: `/booking-builder/` HTTP 200, `/booking-builder/?debug=1` HTTP 200.
+- Debug log: no new `ws-bookings-client` fatal errors.
+- Browser/Playwright MCP visual QA: not available, so only curl/debug-log checks were run.

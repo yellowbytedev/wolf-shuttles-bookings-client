@@ -605,14 +605,15 @@
         setCheckboxValue(form, 'trailer', Boolean(payload.add_ons && payload.add_ons.trailer));
         setCheckboxValue(form, 'oversize_luggage', Boolean(payload.add_ons && payload.add_ons.oversize_luggage));
 
-        if (currentState.serviceGroup === 'charter') {
-            setInputValue(form, 'charter_pickup_location', outboundLeg.from && outboundLeg.from.label ? outboundLeg.from.label : '');
-            setInputValue(form, 'charter_dropoff_location', outboundLeg.to && outboundLeg.to.label ? outboundLeg.to.label : '');
-            setInputValue(form, 'outbound_pickup_date', outboundLeg.pickup_date || payload.charter && payload.charter.days && payload.charter.days[0] && payload.charter.days[0].date ? payload.charter.days[0].date : '');
-            setInputValue(form, 'charter_pickup_time', outboundLeg.pickup_time || payload.charter && payload.charter.days && payload.charter.days[0] && payload.charter.days[0].start_time ? payload.charter.days[0].start_time : '');
-            setInputValue(form, 'charter_dropoff_time', outboundLeg.dropoff_time || payload.charter && payload.charter.days && payload.charter.days[0] && payload.charter.days[0].end_time ? payload.charter.days[0].end_time : '');
+if (currentState.serviceGroup === 'charter') {
+             setInputValue(form, 'charter_pickup_location', outboundLeg.from && outboundLeg.from.label ? outboundLeg.from.label : '');
+             setInputValue(form, 'charter_dropoff_location', outboundLeg.to && outboundLeg.to.label ? outboundLeg.to.label : '');
+             var charterDay = payload.charter && payload.charter.days && payload.charter.days.length ? payload.charter.days[0] : null;
+             setInputValue(form, 'outbound_pickup_date', outboundLeg.pickup_date || (charterDay ? charterDay.date : ''));
+             setInputValue(form, 'charter_pickup_time', outboundLeg.pickup_time || (charterDay ? charterDay.start_time : ''));
+             setInputValue(form, 'charter_dropoff_time', outboundLeg.dropoff_time || (charterDay ? charterDay.end_time : ''));
 
-            var charterStop = outboundLeg.stops && outboundLeg.stops.length ? outboundLeg.stops[0] : (payload.charter && payload.charter.days && payload.charter.days[0] && payload.charter.days[0].stops && payload.charter.days[0].stops.length ? payload.charter.days[0].stops[0] : null);
+            var charterStop = outboundLeg.stops && outboundLeg.stops.length ? outboundLeg.stops[0] : (charterDay && charterDay.stops && charterDay.stops.length ? charterDay.stops[0] : null);
             var charterStopEnabled = Boolean(charterStop && charterStop.location && charterStop.location.label);
             setCheckboxValue(form, 'charter_additional_stop_enabled', charterStopEnabled);
             setInputValue(form, 'charter_additional_stop', charterStopEnabled ? charterStop.location.label : '');

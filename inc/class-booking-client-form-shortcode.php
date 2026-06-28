@@ -32,6 +32,7 @@ class BookingClientFormShortcode {
             data-wsb-booking-builder
             data-wsb-service-group="transfer"
             data-wsb-service-type="city_transfer"
+            data-wsb-fixtures='<?php echo esc_attr(json_encode($fixtures)); ?>'
         >
             <div class="wsb-booking-client-header">
                 <h2><?php echo esc_html($atts['title']); ?></h2>

@@ -352,14 +352,14 @@
 }
 
 .wsb-booking-client-fixture-drawer {
-   position: fixed;
-   left: var(--space-l);
-   bottom: calc(var(--space-l) + 4.5rem);
-   z-index: 999;
-   width: min(460px, calc(100vw - 2rem));
-   max-height: min(76vh, 780px);
-   pointer-events: auto;
- }
+    position: fixed;
+    left: var(--space-l);
+    bottom: calc(var(--space-l) + 4.5rem);
+    z-index: 10001;
+    width: min(460px, calc(100vw - 2rem));
+    max-height: min(76vh, 780px);
+    pointer-events: auto;
+  }
 
 .wsb-booking-client-fixture-drawer-inner {
   display: grid;
@@ -514,5 +514,6 @@
     right: var(--space-m);
     bottom: calc(var(--space-m) + 4.8rem);
     width: auto;
+    z-index: 10001;
   }
 }

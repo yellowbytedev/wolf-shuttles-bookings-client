@@ -52,6 +52,7 @@ The roadmap lives in `docs/booking-intake-roadmap.md` and the phase log lives in
 - Phase 2H complete: v2 handover foundation, dry-run only.
 - Phase 2I complete: developer fixture drawer / payload test lab.
 - Phase 2J complete: schema extension scaffold alignment.
+- Phase 2K complete: leg-scoped additional stops (per-leg controls, return leg stop support).
 
 If roadmap or phase status changes, update this file at the same time.
 
@@ -66,6 +67,7 @@ If roadmap or phase status changes, update this file at the same time.
 - The normalizer now preserves `service_group`, top-level `route`, `validation_flags`, and `charter` scaffolds.
 - Meta fields are aligned: both `meta.preview_only` and `meta.handover_mode` are set in JS and PHP.
 - The developer fixture drawer loads fixtures from `tests/fixtures/booking-payload-v2-fixtures.json`, populates the form, and re-runs preview checks.
+- Each leg (outbound/return) has its own additional stop toggle and field; stops are stored in `legs[].stops[]`.
 - Legacy Bricks/Fluent booking flow is still untouched.
 - No real booking submission is enabled yet.
 

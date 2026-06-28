@@ -24,13 +24,17 @@ outbound_from
 outbound_to
 outbound_pickup_date
 outbound_pickup_time
+outbound_additional_stop_enabled
+outbound_additional_stop
 return_from
 return_to
 return_pickup_date
 return_pickup_time
-additional_stop_enabled
-additional_stop
+return_additional_stop_enabled
+return_additional_stop
 ```
+
+Additional stops are leg-scoped. Each leg (outbound or return) may have its own `stops[]` array.
 
 ## Core structure
 The browser preview uses this shape:

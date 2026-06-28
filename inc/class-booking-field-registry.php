@@ -158,6 +158,24 @@ class BookingFieldRegistry {
                 'applies_to' => ['transfer'],
                 'admin_editable' => true,
             ],
+            'outbound_additional_stop' => [
+                'key' => 'outbound_additional_stop',
+                'label' => __('Additional stop', 'wsb'),
+                'placeholder' => __('Add an optional stop', 'wsb'),
+                'type' => 'text',
+                'required' => false,
+                'applies_to' => ['transfer'],
+                'admin_editable' => true,
+            ],
+            'return_additional_stop' => [
+                'key' => 'return_additional_stop',
+                'label' => __('Additional stop', 'wsb'),
+                'placeholder' => __('Add an optional stop', 'wsb'),
+                'type' => 'text',
+                'required' => false,
+                'applies_to' => ['transfer'],
+                'admin_editable' => true,
+            ],
         ];
 
         return (array) apply_filters('wsb_booking_field_registry', $fields);

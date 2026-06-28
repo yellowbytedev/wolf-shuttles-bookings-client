@@ -405,5 +405,50 @@
       "passengers": 1,
       "legs": []
     }
+  },
+  {
+    "id": "valid-return-with-return-stop",
+    "description": "Valid return trip with additional stop on return leg only",
+    "expected_ok": true,
+    "payload": {
+      "schema_version": "2.0",
+      "trip_type": "return",
+      "service_type": "city_transfer",
+      "passengers": 2,
+      "customer": {
+        "name": "Jane Return",
+        "email": "return@example.com",
+        "phone": "+27741234567"
+      },
+      "add_ons": {
+        "trailer": false,
+        "oversize_luggage": false
+      },
+      "legs": [
+        {
+          "type": "outbound",
+          "from": { "label": "Stellenbosch" },
+          "to": { "label": "Cape Town International Airport" },
+          "pickup_date": "2026-07-15",
+          "pickup_time": "10:00",
+          "stops": [],
+          "route": {}
+        },
+        {
+          "type": "return",
+          "from": { "label": "Cape Town International Airport" },
+          "to": { "label": "Stellenbosch" },
+          "pickup_date": "2026-07-20",
+          "pickup_time": "16:00",
+          "stops": [
+            {
+              "type": "additional_stop",
+              "location": { "label": "V&A Waterfront Stop" }
+            }
+          ],
+          "route": {}
+        }
+      ]
+    }
   }
 ]

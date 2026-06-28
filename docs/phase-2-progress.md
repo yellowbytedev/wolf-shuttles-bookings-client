@@ -138,3 +138,12 @@
 - Handover runner passes: 10 valid pass, 5 invalid skipped.
 - Updated docs: `docs/booking-payload-v2.md`, `docs/booking-payload-v2-contract.md`, `docs/phase-2-progress.md`.
 - No Google API calls, no charter UI, no booking-site handover, no legacy form changes.
+
+## Leg-scoped additional stops
+
+- Moved additional stop UI from a global standalone section into per-leg controls.
+- Outbound leg now has its own `outbound_additional_stop_enabled` toggle and `outbound_additional_stop` field.
+- Return leg now has its own `return_additional_stop_enabled` toggle and `return_additional_stop` field.
+- Stops are stored in `legs[].stops[]` — each leg owns its stops independently.
+- Added `valid-return-with-return-stop` fixture testing return leg stop population.
+- Fixture corpus expanded from 15 to 16 fixtures.

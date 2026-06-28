@@ -129,10 +129,12 @@
 - `validation_flags` is preserved or defaulted to `{}`.
 - Aligned meta naming: both `meta.preview_only` (true) and `meta.handover_mode` ("preview") are now set in JS and PHP normalizer.
 - Added 4 new fixtures proving the scaffolds survive normalisation and handover:
-  - `valid-with-route-scaffold` — empty top-level route
-  - `valid-with-route-options` — route with route_options[] populated
-  - `valid-with-validation-flags` — validation_flags populated
-  - `valid-with-charter-scaffold` — charter.enabled: false
-- All 22 fixtures pass (18 original + 4 new). Handover runner passes: 18 valid pass, 4 invalid skipped.
+   - `valid-with-route-scaffold` — empty top-level route
+   - `valid-with-route-options` — route with route_options[] populated
+   - `valid-with-validation-flags` — validation_flags populated
+   - `valid-with-charter-scaffold` — charter.enabled: false
+   - `invalid-missing-legs` — flat field format with empty legs array
+- All 15 fixtures pass (11 original legs-based + 4 new scaffold + 1 invalid-missing-legs).
+- Handover runner passes: 10 valid pass, 5 invalid skipped.
 - Updated docs: `docs/booking-payload-v2.md`, `docs/booking-payload-v2-contract.md`, `docs/phase-2-progress.md`.
 - No Google API calls, no charter UI, no booking-site handover, no legacy form changes.

@@ -1,7 +1,298 @@
 [
   {
+    "id": "valid-one-way-city-transfer",
+    "description": "Valid one-way city transfer with standard luggage",
+    "expected_ok": true,
+    "payload": {
+      "schema_version": "2.0",
+      "trip_type": "one_way",
+      "service_type": "city_transfer",
+      "passengers": 2,
+      "customer": {
+        "name": "Jane Doe",
+        "email": "jane@example.com",
+        "phone": "+27712345678"
+      },
+      "add_ons": {
+        "trailer": false,
+        "oversize_luggage": false
+      },
+      "legs": [
+        {
+          "type": "outbound",
+          "from": { "label": "Cape Town International Airport" },
+          "to": { "label": "Stellenbosch Central" },
+          "pickup_date": "2026-07-15",
+          "pickup_time": "14:00",
+          "stops": [],
+          "route": {}
+        }
+      ]
+    }
+  },
+  {
+    "id": "valid-return-city-transfer",
+    "description": "Valid return city transfer with outbound and return legs",
+    "expected_ok": true,
+    "payload": {
+      "schema_version": "2.0",
+      "trip_type": "return",
+      "service_type": "city_transfer",
+      "passengers": 4,
+      "customer": {
+        "name": "John Smith",
+        "email": "john@example.com",
+        "phone": "+27729876543"
+      },
+      "add_ons": {
+        "trailer": false,
+        "oversize_luggage": false
+      },
+      "legs": [
+        {
+          "type": "outbound",
+          "from": { "label": "Cape Town International Airport" },
+          "to": { "label": "Franschhoek" },
+          "pickup_date": "2026-07-15",
+          "pickup_time": "14:00",
+          "stops": [],
+          "route": {}
+        },
+        {
+          "type": "return",
+          "from": { "label": "Franschhoek" },
+          "to": { "label": "Cape Town International Airport" },
+          "pickup_date": "2026-07-20",
+          "pickup_time": "09:00",
+          "stops": [],
+          "route": {}
+        }
+      ]
+    }
+  },
+  {
+    "id": "valid-one-way-additional-stop",
+    "description": "Valid one-way transfer with additional stop",
+    "expected_ok": true,
+    "payload": {
+      "schema_version": "2.0",
+      "trip_type": "one_way",
+      "service_type": "city_transfer",
+      "passengers": 3,
+      "customer": {
+        "name": "Alice M",
+        "email": "alice@example.com",
+        "phone": "+27731234567"
+      },
+      "add_ons": {
+        "trailer": false,
+        "oversize_luggage": false
+      },
+      "legs": [
+        {
+          "type": "outbound",
+          "from": { "label": "Somerset West" },
+          "to": { "label": "Sun City" },
+          "pickup_date": "2026-08-01",
+          "pickup_time": "08:30",
+          "stops": [
+            {
+              "type": "additional_stop",
+              "location": { "label": "Engen Winelands 1 Stop" }
+            }
+          ],
+          "route": {}
+        }
+      ]
+    }
+  },
+  {
+    "id": "valid-with-trailer-oversize",
+    "description": "Valid transfer with trailer and oversize luggage enabled",
+    "expected_ok": true,
+    "payload": {
+      "schema_version": "2.0",
+      "trip_type": "one_way",
+      "service_type": "city_transfer",
+      "passengers": 1,
+      "customer": {
+        "name": "Bob K",
+        "email": "bob@example.com",
+        "phone": "+27739876543"
+      },
+      "add_ons": {
+        "trailer": true,
+        "oversize_luggage": true
+      },
+      "legs": [
+        {
+          "type": "outbound",
+          "from": { "label": "Paarl" },
+          "to": { "label": "Cape Town Harbour" },
+          "pickup_date": "2026-09-10",
+          "pickup_time": "06:00",
+          "stops": [],
+          "route": {}
+        }
+      ]
+    }
+  },
+  {
+    "id": "invalid-missing-outbound-from",
+    "description": "Invalid: outbound leg missing origin label",
+    "expected_ok": false,
+    "payload": {
+      "schema_version": "2.0",
+      "trip_type": "one_way",
+      "service_type": "city_transfer",
+      "passengers": 1,
+      "customer": {
+        "name": "Test",
+        "email": "test@example.com",
+        "phone": "+27730000000"
+      },
+      "add_ons": {
+        "trailer": false,
+        "oversize_luggage": false
+      },
+      "legs": [
+        {
+          "type": "outbound",
+          "from": { "label": "" },
+          "to": { "label": "Cape Town" },
+          "pickup_date": "2026-07-15",
+          "pickup_time": "14:00",
+          "stops": [],
+          "route": {}
+        }
+      ]
+    }
+  },
+  {
+    "id": "invalid-missing-outbound-to",
+    "description": "Invalid: outbound leg missing destination label",
+    "expected_ok": false,
+    "payload": {
+      "schema_version": "2.0",
+      "trip_type": "one_way",
+      "service_type": "city_transfer",
+      "passengers": 1,
+      "add_ons": {
+        "trailer": false,
+        "oversize_luggage": false
+      },
+      "legs": [
+        {
+          "type": "outbound",
+          "from": { "label": "Stellenbosch" },
+          "to": { "label": "" },
+          "pickup_date": "2026-07-15",
+          "pickup_time": "14:00",
+          "stops": [],
+          "route": {}
+        }
+      ]
+    }
+  },
+  {
+    "id": "invalid-passengers-zero",
+    "description": "Normalizer corrects passengers=0 to fallback 1, so post-normalization this is valid. Tested as expected behaviour.",
+    "expected_ok": true,
+    "rationale": "The normalizer's positive_int() silently upgrades 0 to the fallback (1). The validator sees the corrected value and passes.",
+    "payload": {
+      "schema_version": "2.0",
+      "trip_type": "one_way",
+      "service_type": "city_transfer",
+      "passengers": 0,
+      "add_ons": {
+        "trailer": false,
+        "oversize_luggage": false
+      },
+      "legs": [
+        {
+          "type": "outbound",
+          "from": { "label": "Cape Town" },
+          "to": { "label": "Stellenbosch" },
+          "pickup_date": "2026-07-15",
+          "pickup_time": "14:00",
+          "stops": [],
+          "route": {}
+        }
+      ]
+    }
+  },
+  {
+    "id": "invalid-return-missing-return-leg",
+    "description": "Invalid: trip_type is return but only one leg provided",
+    "expected_ok": false,
+    "payload": {
+      "schema_version": "2.0",
+      "trip_type": "return",
+      "service_type": "city_transfer",
+      "passengers": 1,
+      "add_ons": {
+        "trailer": false,
+        "oversize_luggage": false
+      },
+      "legs": [
+        {
+          "type": "outbound",
+          "from": { "label": "Cape Town" },
+          "to": { "label": "Stellenbosch" },
+          "pickup_date": "2026-07-15",
+          "pickup_time": "14:00",
+          "stops": [],
+          "route": {}
+        }
+      ]
+    }
+  },
+  {
+    "id": "invalid-passengers-zero-no-legs",
+    "description": "Invalid: passengers=0 and empty legs array",
+    "expected_ok": false,
+    "payload": {
+      "schema_version": "2.0",
+      "trip_type": "one_way",
+      "service_type": "city_transfer",
+      "passengers": 0,
+      "add_ons": {
+        "trailer": false,
+        "oversize_luggage": false
+      },
+      "legs": []
+    }
+  },
+  {
+    "id": "invalid-bad-schema-version",
+    "description": "Normalizer always sets schema_version: 2.0 in output, so post-normalization this passes. Schema version enforcement requires pre-normalizer validation.",
+    "expected_ok": true,
+    "rationale": "The normalizer hardcodes schema_version: 2.0 during normalization. The raw input's schema_version is overwritten. Pre-normalization validation would be a separate layer.",
+    "payload": {
+      "schema_version": "1.5",
+      "trip_type": "one_way",
+      "service_type": "city_transfer",
+      "passengers": 1,
+      "add_ons": {
+        "trailer": false,
+        "oversize_luggage": false
+      },
+      "legs": [
+        {
+          "type": "outbound",
+          "from": { "label": "Cape Town" },
+          "to": { "label": "Stellenbosch" },
+          "pickup_date": "2026-07-15",
+          "pickup_time": "14:00",
+          "stops": [],
+          "route": {}
+        }
+      ]
+    }
+  },
+  {
     "id": "valid-with-route-scaffold",
-    "description": "Valid one-way with empty top-level route scaffold",
+    "description": "Valid one-way with empty top-level route scaffold (flat field format)",
     "expected_ok": true,
     "payload": {
       "service_group": "transfer",
@@ -25,7 +316,7 @@
   },
   {
     "id": "valid-with-route-options",
-    "description": "Valid one-way with populated route_options",
+    "description": "Valid one-way with populated route_options (flat field format)",
     "expected_ok": true,
     "payload": {
       "service_group": "transfer",
@@ -62,7 +353,7 @@
   },
   {
     "id": "valid-with-validation-flags",
-    "description": "Valid one-way with validation_flags populated",
+    "description": "Valid one-way with validation_flags populated (flat field format)",
     "expected_ok": true,
     "payload": {
       "service_group": "transfer",
@@ -82,7 +373,7 @@
   },
   {
     "id": "valid-with-charter-scaffold",
-    "description": "Valid charter with charter.enabled: false scaffold",
+    "description": "Valid charter with charter.enabled: false scaffold (flat field format)",
     "expected_ok": true,
     "payload": {
       "service_group": "charter",
@@ -105,7 +396,7 @@
   },
   {
     "id": "invalid-missing-legs",
-    "description": "Invalid: no legs provided",
+    "description": "Invalid: no legs provided (flat field format with empty legs)",
     "expected_ok": false,
     "payload": {
       "service_group": "transfer",

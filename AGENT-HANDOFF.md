@@ -52,7 +52,7 @@ The roadmap lives in `docs/booking-intake-roadmap.md` and the phase log lives in
 - Phase 2H complete: v2 handover foundation, dry-run only.
 - Phase 2I complete: developer fixture drawer / payload test lab.
 - Phase 2J complete: schema extension scaffolds (route, validation_flags, charter, blockouts, leg-scoped stops).
-- Phase 2K complete: charter preview mode (Shuttle Hire tab enabled, canonical charter payload shape).
+- Phase 2K complete: charter preview mode (Shuttle Hire tab enabled, canonical charter payload shape, trip_type: "charter" fix applied).
 
 If roadmap or phase status changes, update this file at the same time.
 
@@ -69,7 +69,7 @@ If roadmap or phase status changes, update this file at the same time.
 - The developer fixture drawer loads fixtures from `tests/fixtures/booking-payload-v2-fixtures.json`, populates the form, and re-runs preview checks.
 - Each leg (outbound/return) has its own additional stop toggle and field; stops are stored in `legs[].stops[]`.
 - `blockouts` diagnostic scaffold added for future vehicle-scoped blockout support.
-- **Charter preview mode**: Shuttle Hire tab enabled, charter leg type supported, `dropoff_time` preserved in legs, `charter` block populated.
+- **Charter preview mode**: Shuttle Hire tab enabled, charter leg type supported, `dropoff_time` preserved in legs, `charter` block populated, `trip_type: "charter"` when charter active.
 - Legacy Bricks/Fluent booking flow is still untouched.
 - No real booking submission is enabled yet.
 

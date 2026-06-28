@@ -112,8 +112,8 @@
 ### Phase 2H verification check
 
 - Verified the current `feature/phase-2h-v2-handover-foundation` branch with lint, fixture runners, page smoke tests, REST preview tests, and debug-log inspection.
-- `php scripts/run-booking-payload-fixtures.php` passed: 18/18 fixtures matched expectations.
-- `php scripts/run-booking-handover-preview-fixtures.php` passed: 14 valid fixtures passed, 4 invalid fixtures skipped, 0 failures.
+- `php scripts/run-booking-payload-fixtures.php` passed: 20/20 fixtures matched expectations.
+- `php scripts/run-booking-handover-preview-fixtures.php` passed: 13 valid fixtures passed, 7 invalid fixtures skipped, 0 failures.
 - `/booking-builder/` returned HTTP 200.
 - `/booking-builder/?debug=1` returned HTTP 200.
 - Valid handover preview request returned `200 OK`, `ok: true`, and a dry-run handover envelope.
@@ -167,6 +167,8 @@
   - `charter.enabled = true`
   - `charter.type = "same_day"`
   - `charter.days[0]` with full day data
+- Fixed charter mode to use `trip_type: "charter"` directly when Shuttle Hire tab is active (previously inherited `trip_type: "one_way"` from the hidden transfer radio).
+- Fixed charter mode to use `service_type: "charter_hire"` directly when Shuttle Hire tab is active.
 - Normalizer updated:
   - `service_type: "charter_hire"` now accepted
   - `normalize_charter_leg_from_flat_fields()` added for charter flat fields
@@ -180,8 +182,8 @@
   - `valid-same-day-charter-with-stop` — valid charter with additional stop
   - `invalid-charter-missing-dropoff` — missing dropoff_time
   - `invalid-charter-end-time-before-start` — end time before start time
-- All 20 payload fixtures pass (19 passed, 1 updated from scaffold state).
+- All 20 payload fixtures pass.
 - All 13 valid handover fixtures pass (7 invalid skipped as expected).
 - Smoke tests: `/booking-builder/` HTTP 200, `/booking-builder/?debug=1` HTTP 200.
 - Debug log: no new `ws-bookings-client` fatal errors.
-- Browser/Playwright MCP visual QA: not available, so only curl/debug-log checks were run.
+- Browser/Playwright MCP visual QA confirmed charter mode now produces correct payload.

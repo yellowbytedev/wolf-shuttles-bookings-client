@@ -147,3 +147,12 @@
 - Stops are stored in `legs[].stops[]` — each leg owns its stops independently.
 - Added `valid-return-with-return-stop` fixture testing return leg stop population.
 - Fixture corpus expanded from 15 to 16 fixtures.
+
+## Vehicle blockout diagnostic scaffold
+
+- Added `blockouts` scaffold to BookingPayload v2 for future vehicle-scoped blockout support.
+- Marketing payload always includes the scaffold with `authority: "booking_site"`.
+- No actual blockout lookup or picker disabling is performed in Phase 2.
+- Added `valid-with-blockouts-scaffold` fixture testing scaffold preservation.
+- Normalizer preserves incoming blockouts or adds safe defaults.
+- Fixture corpus expanded from 16 to 17 fixtures.

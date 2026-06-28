@@ -68,6 +68,7 @@ If roadmap or phase status changes, update this file at the same time.
 - Meta fields are aligned: both `meta.preview_only` and `meta.handover_mode` are set in JS and PHP.
 - The developer fixture drawer loads fixtures from `tests/fixtures/booking-payload-v2-fixtures.json`, populates the form, and re-runs preview checks.
 - Each leg (outbound/return) has its own additional stop toggle and field; stops are stored in `legs[].stops[]`.
+- `blockouts` diagnostic scaffold added for future vehicle-scoped blockout support.
 - Legacy Bricks/Fluent booking flow is still untouched.
 - No real booking submission is enabled yet.
 

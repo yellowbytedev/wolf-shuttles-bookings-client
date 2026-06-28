@@ -72,26 +72,30 @@ Milestones:
 - Config placeholder `WSB_CLIENT_V2_HANDOVER_SECRET` added to `inc/booking-client-config.php`.
 - Dev-only local fallback secret `local_v2_handover_preview_secret` (documented, not for production).
 - Dry-run handover preview REST endpoint added: `POST /wp-json/ws-bookings-client/v1/handover-preview`.
-  - Requires `X-WP-Nonce` header (`wp_rest` action).
-  - Normalises, validates, then returns `handover_envelope` only for valid payloads.
-  - Never calls the booking site.
-  - Never creates a booking token.
-  - Never creates database records.
-- Handover preview fixture runner added: `php scripts/run-booking-handover-preview-fixtures.php`.
+- Handover preview fixture runner added.
 - All Phase 2G fixtures still pass; handover runner covers valid fixtures only.
-- Booking-site receiver is still pending.
-- Itinerary table is still pending.
-- Google autocomplete is still pending.
-- Legacy Bricks/Fluent form untouched.
 
 ### Phase 2I status (completed)
 
 - Added a debug-only developer fixture drawer / payload test lab behind `?debug=1`.
-- The drawer loads fixture payloads from `tests/fixtures/booking-payload-v2-fixtures.json`.
-- Clicking a fixture populates the Booking Builder form and runs the existing preview checks.
-- The drawer compares the live browser result against the expected fixture outcome without enabling real booking submission.
-- The normal `/booking-builder/` page stays clean and the legacy Bricks/Fluent flow remains untouched.
-- The payload fixture runner and handover preview runner still pass after the drawer changes.
+
+### Phase 2J status (completed)
+
+- Fixed BookingPayload v2 normaliser data loss by adding preservation of `service_group`, top-level `route`, `validation_flags`, and `charter`.
+- Added `valid-with-blockouts-scaffold` fixture.
+
+### Phase 2K status (completed)
+
+- Moved additional stop UI from a global standalone section into per-leg controls.
+- Outbound and return legs each have their own additional stop toggle and field.
+- Stops are stored in `legs[].stops[]`.
+
+### Phase 2L status (completed)
+
+- Added `blockouts` diagnostic scaffold for future vehicle-scoped blockout support.
+- Marketing payload always includes scaffold with `authority: "booking_site"`.
+- No actual blockout lookup performed; no picker changes.
+- Fixture corpus at 17 fixtures.
 
 ## Phase 3 — Booking-site v2 intake
 

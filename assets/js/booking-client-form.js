@@ -221,34 +221,44 @@ function buildPayload(form, state) {
              legs.push(buildLeg(form, 'return'));
          }
 
-        return {
-            schema_version: '2.0',
-            source: 'marketing_booking_builder',
-            service_group: serviceGroup,
-            service_type: serviceType,
-            trip_type: tripType,
-            customer: {
-                name: '',
-                email: '',
-                phone: ''
-            },
-            passengers: passengers,
-            baby_seats: getNumberValue(form, 'input[name="baby_seats"]', 0),
-            check_in_bags: getNumberValue(form, 'input[name="check_in_bags"]', 0),
-            carry_on_bags: getNumberValue(form, 'input[name="carry_on_bags"]', 0),
-            add_ons: {
-                trailer: getBooleanValue(form, 'input[name="trailer"]'),
-                oversize_luggage: getBooleanValue(form, 'input[name="oversize_luggage"]')
-            },
-            legs: legs,
-            tracking: {},
-            validation_flags: {},
-            meta: {
-                preview_only: true,
-                handover_mode: 'preview',
-                created_at: new Date().toISOString()
-            }
-        };
+return {
+             schema_version: '2.0',
+             source: 'marketing_booking_builder',
+             service_group: serviceGroup,
+             service_type: serviceType,
+             trip_type: tripType,
+             customer: {
+                 name: '',
+                 email: '',
+                 phone: ''
+             },
+             passengers: passengers,
+             baby_seats: getNumberValue(form, 'input[name="baby_seats"]', 0),
+             check_in_bags: getNumberValue(form, 'input[name="check_in_bags"]', 0),
+             carry_on_bags: getNumberValue(form, 'input[name="carry_on_bags"]', 0),
+             add_ons: {
+                 trailer: getBooleanValue(form, 'input[name="trailer"]'),
+                 oversize_luggage: getBooleanValue(form, 'input[name="oversize_luggage"]')
+             },
+             legs: legs,
+             blockouts: {
+                 version: 2,
+                 authority: 'booking_site',
+                 marketing_evaluates_vehicle_availability: false,
+                 vehicle_scoped_blockouts_supported: true,
+                 global_picker_blockouts_supported: true,
+                 config_hash: null,
+                 marketing_evaluated_at: null,
+                 notes: []
+             },
+             tracking: {},
+             validation_flags: {},
+             meta: {
+                 preview_only: true,
+                 handover_mode: 'preview',
+                 created_at: new Date().toISOString()
+             }
+         };
     }
 
 function renderPreviewSummary(statusElement, payload, state) {

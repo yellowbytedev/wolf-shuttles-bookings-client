@@ -40,6 +40,7 @@ if ( ! class_exists( 'WSB_Client_Booking_Payload_V2_Normalizer' ) ) {
                 'charter'        => $this->normalize_charter( $raw['charter'] ?? array() ),
                 'validation_flags' => is_array( $raw['validation_flags'] ?? null ) ? $raw['validation_flags'] : array(),
                 'legs'           => $this->normalize_legs( $raw, $trip_type ),
+                'blockouts'      => $this->normalize_blockouts( $raw['blockouts'] ?? array() ),
                 'tracking'       => is_array( $raw['tracking'] ?? null ) ? $raw['tracking'] : array(),
                 'meta'           => array(
                     'preview_only'  => true,
@@ -170,6 +171,38 @@ if ( ! class_exists( 'WSB_Client_Booking_Payload_V2_Normalizer' ) ) {
         }
 
         /**
+         * Normalize blockouts block with safe diagnostic scaffold.
+         *
+         * @param mixed $blockouts
+         * @return array<string,mixed>
+         */
+        private function normalize_blockouts( $blockouts ) : array {
+            if ( ! is_array( $blockouts ) ) {
+                return array(
+                    'version'                          => 2,
+                    'authority'                        => 'booking_site',
+                    'marketing_evaluates_vehicle_availability' => false,
+                    'vehicle_scoped_blockouts_supported' => true,
+                    'global_picker_blockouts_supported'  => true,
+                    'config_hash'                      => null,
+                    'marketing_evaluated_at'           => null,
+                    'notes'                            => array(),
+                );
+            }
+
+            return array(
+                'version'                          => (int) ( $blockouts['version'] ?? 2 ),
+                'authority'                        => sanitize_text_field( $blockouts['authority'] ?? 'booking_site' ),
+                'marketing_evaluates_vehicle_availability' => $this->to_bool( $blockouts['marketing_evaluates_vehicle_availability'] ?? false ),
+                'vehicle_scoped_blockouts_supported' => $this->to_bool( $blockouts['vehicle_scoped_blockouts_supported'] ?? true ),
+                'global_picker_blockouts_supported'  => $this->to_bool( $blockouts['global_picker_blockouts_supported'] ?? true ),
+                'config_hash'                      => isset( $blockouts['config_hash'] ) && '' !== $blockouts['config_hash'] ? sanitize_text_field( $blockouts['config_hash'] ) : null,
+                'marketing_evaluated_at'           => isset( $blockouts['marketing_evaluated_at'] ) && '' !== $blockouts['marketing_evaluated_at'] ? sanitize_text_field( $blockouts['marketing_evaluated_at'] ) : null,
+                'notes'                            => is_array( $blockouts['notes'] ?? null ) ? $blockouts['notes'] : array(),
+            );
+        }
+
+        /**
          * @param array<string,mixed> $raw
          * @return array<int,array<string,mixed>>
          */
@@ -247,37 +280,36 @@ if ( ! class_exists( 'WSB_Client_Booking_Payload_V2_Normalizer' ) ) {
          * @param array<string,mixed> $raw
          * @return array<string,mixed>
          */
-        private function normalize_leg_from_flat_fields( string $type, array $raw ) : array {
-            $prefix = 'return' === $type ? 'return_' : 'outbound_';
+private function normalize_leg_from_flat_fields( string $type, array $raw ) : array {
+             $prefix = 'return' === $type ? 'return_' : 'outbound_';
 
-            $from = $this->normalize_location( $raw[ $prefix . 'from' ] ?? array() );
-            $to   = $this->normalize_location( $raw[ $prefix . 'to' ] ?? array() );
+             $from = $this->normalize_location( $raw[ $prefix . 'from' ] ?? array() );
+             $to   = $this->normalize_location( $raw[ $prefix . 'to' ] ?? array() );
 
-            $date = sanitize_text_field( $raw[ $prefix . 'pickup_date' ] ?? '' );
-            $time = sanitize_text_field( $raw[ $prefix . 'pickup_time' ] ?? '' );
+             $date = sanitize_text_field( $raw[ $prefix . 'pickup_date' ] ?? '' );
+             $time = sanitize_text_field( $raw[ $prefix . 'pickup_time' ] ?? '' );
 
-            $stops = array();
-            if ( 'outbound' === $type && $this->to_bool( $raw['additional_stop_enabled'] ?? false ) ) {
-                $stop = $this->normalize_location( $raw['additional_stop'] ?? array() );
-                if ( ! empty( $stop['label'] ) ) {
-                    $stops[] = array(
-                        'type'     => 'additional_stop',
-                        'location' => $stop,
-                    );
-                }
-            }
+             $stops = array();
+             $additionalStopEnabled = $this->to_bool( $raw[ $prefix . 'additional_stop_enabled' ] ?? false );
+             $additionalStop = $this->normalize_location( $raw[ $prefix . 'additional_stop' ] ?? array() );
+             if ( ! empty( $additionalStop['label'] ) ) {
+                 $stops[] = array(
+                     'type'     => 'additional_stop',
+                     'location' => $additionalStop,
+                 );
+             }
 
-            return array(
-                'type'            => $type,
-                'from'            => $from,
-                'to'              => $to,
-                'pickup_date'     => $date,
-                'pickup_time'     => $time,
-                'pickup_datetime' => trim( $date . ' ' . $time ),
-                'stops'           => $stops,
-                'route'           => array(),
-            );
-        }
+             return array(
+                 'type'            => $type,
+                 'from'            => $from,
+                 'to'              => $to,
+                 'pickup_date'     => $date,
+                 'pickup_time'     => $time,
+                 'pickup_datetime' => trim( $date . ' ' . $time ),
+                 'stops'           => $stops,
+                 'route'           => array(),
+             );
+         }
 
         /** @param mixed $location */
         private function normalize_location( $location ) : array {

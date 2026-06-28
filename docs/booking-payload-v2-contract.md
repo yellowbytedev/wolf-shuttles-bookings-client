@@ -49,6 +49,16 @@ Avoid `service_family`.
     "days": []
   },
   "validation_flags": {},
+  "blockouts": {
+    "version": 2,
+    "authority": "booking_site",
+    "marketing_evaluates_vehicle_availability": false,
+    "vehicle_scoped_blockouts_supported": true,
+    "global_picker_blockouts_supported": true,
+    "config_hash": null,
+    "marketing_evaluated_at": null,
+    "notes": []
+  },
   "legs": [],
   "tracking": {},
   "meta": {

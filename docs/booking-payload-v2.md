@@ -74,8 +74,18 @@ The browser preview uses this shape:
   },
   "validation_flags": {},
   "legs": [],
-  "tracking": {},
-  "meta": {
+"tracking": {},
+   "blockouts": {
+     "version": 2,
+     "authority": "booking_site",
+     "marketing_evaluates_vehicle_availability": false,
+     "vehicle_scoped_blockouts_supported": true,
+     "global_picker_blockouts_supported": true,
+     "config_hash": null,
+     "marketing_evaluated_at": null,
+     "notes": []
+   },
+   "meta": {
     "preview_only": true,
     "handover_mode": "preview",
     "created_at": ""
@@ -189,9 +199,10 @@ The endpoint returns JSON with:
 - Normalizes `legs[]` payloads, including `from`, `to`, `pickup_date`, `pickup_time`, `stops`, and `route`
 - Normalizes `customer` into `name`, `email`, and `phone`
 - Preserves `service_group` or infers it from `service_type`
-- Normalizes top-level `route` block with safe scaffold (provider, selected_route_id, distance_meters, duration_seconds, polyline, route_options)
-- Normalizes `charter` block with disabled-by-default scaffold (enabled: false, type: null, days: [])
-- Preserves `validation_flags` or defaults to empty object
+- Normalizes top-level `route` block with safe scaffold
+- Normalizes `charter` block with disabled-by-default scaffold
+- Preserves `validation_flags` or defaults to `{}`
+- Normalizes `blockouts` with diagnostic scaffold (authority: booking_site)
 - Sets `meta.preview_only` to `true` and `meta.handover_mode` to `preview`
 - The scaffolds are stretch goals — no Google API call, no route calculation, no charter UI yet
 

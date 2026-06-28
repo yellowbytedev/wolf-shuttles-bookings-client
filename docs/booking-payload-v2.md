@@ -47,12 +47,7 @@ The browser preview uses this shape:
 ```json
 {
   "schema_version": "2.0",
-  "source": {
-    "site": "marketing",
-    "channel": "shortcode_form",
-    "page_url": "https://wolfshuttles.local/booking-builder/",
-    "referrer": ""
-  },
+  "source": "marketing_booking_builder",
   "service_group": "transfer",
   "service_type": "city_transfer",
   "trip_type": "one_way",
@@ -63,28 +58,34 @@ The browser preview uses this shape:
   },
   "passengers": 1,
   "baby_seats": 0,
-  "luggage": {
-    "check_in_bags": 0,
-    "carry_on_bags": 0
-  },
+  "check_in_bags": 0,
+  "carry_on_bags": 0,
   "add_ons": {
-    "baby_seats": 0,
     "trailer": false,
     "oversize_luggage": false
   },
-  "legs": [],
   "route": {
-    "place_ids": [],
-    "toll_gates": [],
+    "provider": null,
+    "selected_route_id": null,
+    "selected_route_label": null,
+    "distance_meters": null,
+    "duration_seconds": null,
+    "polyline": null,
     "route_options": []
   },
-  "tracking": {},
-  "validation_flags": {},
-  "meta": {
-    "handover_mode": "preview_only",
-    "created_at": ""
+  "charter": {
+    "enabled": false,
+    "type": null,
+    "days": []
   },
-  "charter": null
+  "validation_flags": {},
+  "legs": [],
+  "tracking": {},
+  "meta": {
+    "preview_only": true,
+    "handover_mode": "preview",
+    "created_at": ""
+  }
 }
 ```
 
@@ -210,7 +211,12 @@ The endpoint returns JSON with:
 - Accepts nested `luggage` values or flat `check_in_bags` / `carry_on_bags` values.
 - Normalizes `legs[]` payloads, including `from`, `to`, `pickup_date`, `pickup_time`, `stops`, and `route`.
 - Normalizes `customer` into `name`, `email`, and `phone`.
-- Sets `meta.handover_mode` to `preview_only`.
+- Preserves `service_group` or infers it from `service_type`.
+- Normalizes top-level `route` block with safe scaffold (provider, selected_route_id, distance_meters, duration_seconds, polyline, route_options).
+- Normalizes `charter` block with disabled-by-default scaffold (enabled: false, type: null, days: []).
+- Preserves `validation_flags` or defaults to empty object.
+- Sets `meta.preview_only` to `true` and `meta.handover_mode` to `preview`.
+- The scaffolds are stretch goals — no Google API call, no route calculation, no charter UI yet.
 
 ### Validation rules
 

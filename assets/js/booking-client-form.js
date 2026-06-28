@@ -244,6 +244,7 @@
             validation_flags: {},
             meta: {
                 preview_only: true,
+                handover_mode: 'preview',
                 created_at: new Date().toISOString()
             }
         };

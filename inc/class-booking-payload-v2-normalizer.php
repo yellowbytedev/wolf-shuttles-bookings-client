@@ -24,6 +24,7 @@ if ( ! class_exists( 'WSB_Client_Booking_Payload_V2_Normalizer' ) ) {
             $payload = array(
                 'schema_version' => '2.0',
                 'source'         => sanitize_key( $raw['source'] ?? 'marketing_booking_builder' ),
+                'service_group'  => $this->normalize_service_group( $raw ),
                 'service_type'   => $service_type,
                 'trip_type'      => $trip_type,
                 'customer'       => $this->normalize_customer( $raw['customer'] ?? array() ),
@@ -35,10 +36,14 @@ if ( ! class_exists( 'WSB_Client_Booking_Payload_V2_Normalizer' ) ) {
                     'trailer'          => $this->to_bool( $raw['trailer'] ?? ( $raw['add_ons']['trailer'] ?? false ) ),
                     'oversize_luggage' => $this->to_bool( $raw['oversize_luggage'] ?? ( $raw['add_ons']['oversize_luggage'] ?? false ) ),
                 ),
+                'route'          => $this->normalize_route( $raw['route'] ?? array() ),
+                'charter'        => $this->normalize_charter( $raw['charter'] ?? array() ),
+                'validation_flags' => is_array( $raw['validation_flags'] ?? null ) ? $raw['validation_flags'] : array(),
                 'legs'           => $this->normalize_legs( $raw, $trip_type ),
                 'tracking'       => is_array( $raw['tracking'] ?? null ) ? $raw['tracking'] : array(),
                 'meta'           => array(
-                    'handover_mode' => sanitize_key( $raw['handover_mode'] ?? 'preview_only' ),
+                    'preview_only'  => true,
+                    'handover_mode' => sanitize_key( $raw['handover_mode'] ?? 'preview' ),
                     'created_at'    => gmdate( 'c' ),
                 ),
             );
@@ -95,6 +100,72 @@ if ( ! class_exists( 'WSB_Client_Booking_Payload_V2_Normalizer' ) ) {
                 'name'  => sanitize_text_field( $customer['name'] ?? '' ),
                 'email' => sanitize_email( $customer['email'] ?? '' ),
                 'phone' => sanitize_text_field( $customer['phone'] ?? '' ),
+            );
+        }
+
+        /**
+         * Normalize service_group from raw input or infer from service_type.
+         *
+         * @param array<string,mixed> $raw
+         * @return string
+         */
+        private function normalize_service_group( array $raw ) : string {
+            if ( ! empty( $raw['service_group'] ) ) {
+                $group = sanitize_key( $raw['service_group'] );
+                if ( in_array( $group, array( 'transfer', 'charter' ), true ) ) {
+                    return $group;
+                }
+            }
+
+            $type = $raw['service_type'] ?? '';
+            if ( 'charter_hire' === $type || 'charter' === $type ) {
+                return 'charter';
+            }
+
+            return 'transfer';
+        }
+
+        /**
+         * Normalize top-level route block with safe empty scaffold.
+         *
+         * @param mixed $route
+         * @return array<string,mixed>
+         */
+        private function normalize_route( $route ) : array {
+            if ( ! is_array( $route ) ) {
+                $route = array();
+            }
+
+            return array(
+                'provider'             => isset( $route['provider'] ) ? sanitize_text_field( $route['provider'] ) : null,
+                'selected_route_id'    => isset( $route['selected_route_id'] ) ? sanitize_text_field( $route['selected_route_id'] ) : null,
+                'selected_route_label' => isset( $route['selected_route_label'] ) ? sanitize_text_field( $route['selected_route_label'] ) : null,
+                'distance_meters'      => isset( $route['distance_meters'] ) && '' !== $route['distance_meters'] ? (float) $route['distance_meters'] : null,
+                'duration_seconds'     => isset( $route['duration_seconds'] ) && '' !== $route['duration_seconds'] ? (float) $route['duration_seconds'] : null,
+                'polyline'             => isset( $route['polyline'] ) ? sanitize_text_field( $route['polyline'] ) : null,
+                'route_options'        => is_array( $route['route_options'] ?? null ) ? $route['route_options'] : array(),
+            );
+        }
+
+        /**
+         * Normalize charter block with safe disabled-by-default scaffold.
+         *
+         * @param mixed $charter
+         * @return array<string,mixed>
+         */
+        private function normalize_charter( $charter ) : array {
+            if ( ! is_array( $charter ) ) {
+                return array(
+                    'enabled' => false,
+                    'type'    => null,
+                    'days'    => array(),
+                );
+            }
+
+            return array(
+                'enabled' => $this->to_bool( $charter['enabled'] ?? false ),
+                'type'    => ! empty( $charter['type'] ) ? sanitize_key( $charter['type'] ) : null,
+                'days'    => is_array( $charter['days'] ?? null ) ? $charter['days'] : array(),
             );
         }
 

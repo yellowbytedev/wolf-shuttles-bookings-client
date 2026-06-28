@@ -51,6 +51,7 @@ The roadmap lives in `docs/booking-intake-roadmap.md` and the phase log lives in
 - Phase 2G complete: payload fixture runner.
 - Phase 2H complete: v2 handover foundation, dry-run only.
 - Phase 2I complete: developer fixture drawer / payload test lab.
+- Phase 2J complete: schema extension scaffold alignment.
 
 If roadmap or phase status changes, update this file at the same time.
 
@@ -60,8 +61,10 @@ If roadmap or phase status changes, update this file at the same time.
 - The `/booking-builder/?debug=1` page renders the developer fixture drawer and smoke-tested at HTTP 200.
 - Realtime BookingPayload v2 preview works in the browser.
 - The server-side preview endpoint works at `POST /wp-json/ws-bookings-client/v1/payload-preview`.
-- The payload fixture runner passes.
+- The payload fixture runner passes (22 fixtures: 18 original + 4 schema-scaffold fixtures).
 - The dry-run v2 handover foundation exists at `POST /wp-json/ws-bookings-client/v1/handover-preview` and was smoke-tested with valid and invalid requests at HTTP 200.
+- The normalizer now preserves `service_group`, top-level `route`, `validation_flags`, and `charter` scaffolds.
+- Meta fields are aligned: both `meta.preview_only` and `meta.handover_mode` are set in JS and PHP.
 - The developer fixture drawer loads fixtures from `tests/fixtures/booking-payload-v2-fixtures.json`, populates the form, and re-runs preview checks.
 - Legacy Bricks/Fluent booking flow is still untouched.
 - No real booking submission is enabled yet.

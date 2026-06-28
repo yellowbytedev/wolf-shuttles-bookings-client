@@ -650,5 +650,206 @@
       ]
     },
     "rationale": " Payload is corrected by the normalizer; post-normalization it is valid."
+  },
+  {
+    "id": "valid-with-route-scaffold",
+    "description": "Valid payload with empty top-level route scaffold to prove survival through normalizer",
+    "expected_ok": true,
+    "payload": {
+      "schema_version": "2.0",
+      "trip_type": "one_way",
+      "service_type": "city_transfer",
+      "passengers": 1,
+      "customer": {
+        "name": "Route Scaffold Test",
+        "email": "route@example.com",
+        "phone": "+27710000001"
+      },
+      "add_ons": {
+        "trailer": false,
+        "oversize_luggage": false
+      },
+      "route": {
+        "provider": null,
+        "selected_route_id": null,
+        "selected_route_label": null,
+        "distance_meters": null,
+        "duration_seconds": null,
+        "polyline": null,
+        "route_options": []
+      },
+      "legs": [
+        {
+          "type": "outbound",
+          "from": {
+            "label": "Test Origin"
+          },
+          "to": {
+            "label": "Test Destination"
+          },
+          "pickup_date": "2026-07-01",
+          "pickup_time": "10:00",
+          "stops": [],
+          "route": {}
+        }
+      ]
+    },
+    "rationale": " Top-level route scaffold must survive normalization without error."
+  },
+  {
+    "id": "valid-with-route-options",
+    "description": "Valid payload with top-level route.route_options populated",
+    "expected_ok": true,
+    "payload": {
+      "schema_version": "2.0",
+      "trip_type": "one_way",
+      "service_type": "airport_pickup",
+      "passengers": 2,
+      "customer": {
+        "name": "Route Options Test",
+        "email": "options@example.com",
+        "phone": "+27710000002"
+      },
+      "add_ons": {
+        "trailer": false,
+        "oversize_luggage": false
+      },
+      "route": {
+        "provider": "google_routes",
+        "selected_route_id": "route_abc123",
+        "selected_route_label": "Via N2 (Toll)",
+        "distance_meters": 45200,
+        "duration_seconds": 1860,
+        "polyline": "mock_polyline_data",
+        "route_options": [
+          {
+            "id": "opt1",
+            "label": "Via N2 (Toll)",
+            "distance_meters": 45200,
+            "duration_seconds": 1860,
+            "has_tolls": true
+          },
+          {
+            "id": "opt2",
+            "label": "Via R44 (No Toll)",
+            "distance_meters": 52300,
+            "duration_seconds": 2400,
+            "has_tolls": false
+          }
+        ]
+      },
+      "legs": [
+        {
+          "type": "outbound",
+          "from": {
+            "label": "Cape Town Airport"
+          },
+          "to": {
+            "label": "Franschhoek"
+          },
+          "pickup_date": "2026-07-15",
+          "pickup_time": "08:00",
+          "stops": [],
+          "route": {}
+        }
+      ]
+    },
+    "rationale": " Route block with route_options must survive normalization without error."
+  },
+  {
+    "id": "valid-with-validation-flags",
+    "description": "Valid payload with validation_flags populated",
+    "expected_ok": true,
+    "payload": {
+      "schema_version": "2.0",
+      "trip_type": "return",
+      "service_type": "airport_dropoff",
+      "passengers": 3,
+      "customer": {
+        "name": "Validation Flags Test",
+        "email": "flags@example.com",
+        "phone": "+27710000003"
+      },
+      "add_ons": {
+        "trailer": false,
+        "oversize_luggage": false
+      },
+      "validation_flags": {
+        "within_zone_threshold": true,
+        "outside_max_radius": false,
+        "has_toll_route": true,
+        "min_lead_time_met": true
+      },
+      "legs": [
+        {
+          "type": "outbound",
+          "from": {
+            "label": "Stellenbosch"
+          },
+          "to": {
+            "label": "Cape Town Airport"
+          },
+          "pickup_date": "2026-08-01",
+          "pickup_time": "07:00",
+          "stops": [],
+          "route": {}
+        },
+        {
+          "type": "return",
+          "from": {
+            "label": "Cape Town Airport"
+          },
+          "to": {
+            "label": "Stellenbosch"
+          },
+          "pickup_date": "2026-08-05",
+          "pickup_time": "18:00",
+          "stops": [],
+          "route": {}
+        }
+      ]
+    },
+    "rationale": " validation_flags block must survive normalization without error."
+  },
+  {
+    "id": "valid-with-charter-scaffold",
+    "description": "Valid payload with charter scaffold (enabled: false) to prove survival through normalizer",
+    "expected_ok": true,
+    "payload": {
+      "schema_version": "2.0",
+      "trip_type": "one_way",
+      "service_type": "city_transfer",
+      "passengers": 1,
+      "customer": {
+        "name": "Charter Scaffold Test",
+        "email": "charter@example.com",
+        "phone": "+27710000004"
+      },
+      "add_ons": {
+        "trailer": false,
+        "oversize_luggage": false
+      },
+      "charter": {
+        "enabled": false,
+        "type": null,
+        "days": []
+      },
+      "legs": [
+        {
+          "type": "outbound",
+          "from": {
+            "label": "Test Location A"
+          },
+          "to": {
+            "label": "Test Location B"
+          },
+          "pickup_date": "2026-09-01",
+          "pickup_time": "12:00",
+          "stops": [],
+          "route": {}
+        }
+      ]
+    },
+    "rationale": " Charter scaffold block with enabled: false must survive normalization without error."
   }
 ]

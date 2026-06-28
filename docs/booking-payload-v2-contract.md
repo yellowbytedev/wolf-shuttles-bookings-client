@@ -7,10 +7,7 @@ The browser preview now renders the canonical BookingPayload v2 shape in real ti
 ## Canonical fields
 
 - `schema_version: "2.0"`
-- `source.site`
-- `source.channel`
-- `source.page_url`
-- `source.referrer`
+- `source` (flat string, e.g. marketing_booking_builder)
 - `service_group`
 - `service_type`
 - `trip_type`
@@ -67,7 +64,12 @@ Submit remains intercepted, and `?debug=1` logs the generated payload to the con
 - Converts nested `luggage` and flat `check_in_bags` / `carry_on_bags` inputs
 - Normalizes inbound `legs[]` payloads and flat marketing form fields
 - Ensures `customer` always has `name`, `email`, and `phone`
-- Normalizes `meta.handover_mode` to `preview_only`
+- Preserves `service_group` or infers from `service_type`
+- Normalizes top-level `route` block with safe scaffold (provider, selected_route_id, distance_meters, duration_seconds, polyline, route_options)
+- Normalizes `charter` block with disabled-by-default scaffold (enabled: false, type: null, days: [])
+- Preserves `validation_flags` or defaults to empty object
+- Sets `meta.preview_only` to `true` and `meta.handover_mode` to `preview`
+- Normalizes `meta.handover_mode` to `preview`
 
 ## Current validation
 

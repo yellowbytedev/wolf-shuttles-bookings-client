@@ -119,3 +119,20 @@
 - Clicking a fixture runs the existing server-side payload preview and the dry-run handover preview so the browser can compare expected vs actual results.
 - The payload fixture corpus was expanded to support the drawer workflow while keeping the existing fixture runner passing.
 - Phase 2I keeps the legacy Bricks/Fluent flow untouched and does not enable real booking submission.
+
+## Phase 2J — Schema extension scaffold alignment
+
+- Fixed BookingPayload v2 normaliser data loss by adding preservation of `service_group`, top-level `route`, `validation_flags`, and `charter`.
+- Added `normalize_service_group()`, `normalize_route()`, and `normalize_charter()` helper methods to the normalizer.
+- Route scaffold now includes: `provider`, `selected_route_id`, `selected_route_label`, `distance_meters`, `duration_seconds`, `polyline`, `route_options`.
+- Charter scaffold defaults to `{ enabled: false, type: null, days: [] }`.
+- `validation_flags` is preserved or defaulted to `{}`.
+- Aligned meta naming: both `meta.preview_only` (true) and `meta.handover_mode` ("preview") are now set in JS and PHP normalizer.
+- Added 4 new fixtures proving the scaffolds survive normalisation and handover:
+  - `valid-with-route-scaffold` — empty top-level route
+  - `valid-with-route-options` — route with route_options[] populated
+  - `valid-with-validation-flags` — validation_flags populated
+  - `valid-with-charter-scaffold` — charter.enabled: false
+- All 22 fixtures pass (18 original + 4 new). Handover runner passes: 18 valid pass, 4 invalid skipped.
+- Updated docs: `docs/booking-payload-v2.md`, `docs/booking-payload-v2-contract.md`, `docs/phase-2-progress.md`.
+- No Google API calls, no charter UI, no booking-site handover, no legacy form changes.

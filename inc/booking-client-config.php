@@ -63,3 +63,20 @@ function wsb_client_v2_handover_secret(): string {
 
     return '';
 }
+
+/**
+ * Return whether UI interaction features are enabled.
+ *
+ * This is currently disabled by default. When enabled, it allows
+ * sortable/draggable adapters for future features like ordered stops,
+ * charter day rows, and itinerary ordering.
+ *
+ * @return bool
+ */
+function wsb_client_ui_interactions_enabled(): bool {
+    if ( ! defined( 'WSB_CLIENT_UI_INTERACTIONS_ENABLED' ) ) {
+        return false;
+    }
+
+    return (bool) WSB_CLIENT_UI_INTERACTIONS_ENABLED;
+}

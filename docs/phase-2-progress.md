@@ -187,3 +187,14 @@
 - Smoke tests: `/booking-builder/` HTTP 200, `/booking-builder/?debug=1` HTTP 200.
 - Debug log: no new `ws-bookings-client` fatal errors.
 - Browser/Playwright MCP visual QA confirmed charter mode now produces correct payload.
+
+## Phase 2K+ — UI Interaction Scaffold (scaffold only)
+
+- Added no-op sortable adapter scaffold in `assets/js/booking-client-form.js`:
+  - `WSB_BOOKING_UI_INTERACTIONS.isSortableAvailable()` — false until library loaded
+  - `WSB_BOOKING_UI_INTERACTIONS.initSortableList(root)` — no-op placeholder
+  - `WSB_BOOKING_UI_INTERACTIONS.destroySortableList(root)` — no-op placeholder
+- Added PHP config flag `WSB_CLIENT_UI_INTERACTIONS_ENABLED` (default false).
+- Added `uiInteractionsEnabled` to JS config via `inc/class-booking-client-form-shortcode.php`.
+- Created `docs/ui-interaction-scaffold.md` documenting future use cases and library decisions.
+- No third-party library loaded; no functional changes to existing UI; all tests pass.

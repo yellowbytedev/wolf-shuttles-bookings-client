@@ -170,6 +170,16 @@ Remaining risks:
 
 If something was skipped, say why. If nothing outside the repo was touched, state that explicitly.
 
+## 13. UI Interaction Scaffold
+
+A no-op sortable adapter scaffold exists in `assets/js/booking-client-form.js`:
+
+- `WSB_BOOKING_UI_INTERACTIONS.isSortableAvailable()` — returns false until a sortable library is loaded
+- `WSB_BOOKING_UI_INTERACTIONS.initSortableList(root)` — no-op placeholder for future SortableJS integration
+- `WSB_BOOKING_UI_INTERACTIONS.destroySortableList(root)` — no-op placeholder for cleanup
+
+PHP flag `WSB_CLIENT_UI_INTERACTIONS_ENABLED` (default false) controls via config. No third-party library is loaded yet. See `docs/ui-interaction-scaffold.md` for full details.
+
 ## Keeping This Handoff Current
 
 `AGENT-HANDOFF.md` is the canonical current-state document for this repo.

@@ -333,6 +333,7 @@ class BookingClientFormShortcode {
             'nonce' => wp_create_nonce('wp_rest'),
             'debug' => (bool) current_user_can('manage_options'),
             'fixtureDrawerEnabled' => (bool) ( isset($_GET['debug']) && '1' === (string) $_GET['debug'] ),
+            'uiInteractionsEnabled' => wsb_client_ui_interactions_enabled(),
             'strings' => array(
                 'serverValidationPending' => __('Validating payload on server...', 'wsb'),
                 'serverValidationSuccess' => __('Server validation passed.', 'wsb'),

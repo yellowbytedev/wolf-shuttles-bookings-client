@@ -897,6 +897,78 @@ if (currentState.serviceGroup === 'charter') {
         }
     }
 
+    // UI Interaction Scaffold (sortable adapter)
+    // No-op fallback when no sortable library is present.
+    // Future: integrate SortableJS-style adapter for ordered stops/day rows.
+    var WSB_BOOKING_UI_INTERACTIONS = {
+        _sortableInstances: {},
+
+        /**
+         * Check if a sortable library is available.
+         * Currently returns false until a library is explicitly approved.
+         *
+         * @return bool
+         */
+        isSortableAvailable: function () {
+            return !!(typeof window.Sortable !== 'undefined' && window.Sortable);
+        },
+
+        /**
+         * Initialize a sortable list on the given root element.
+         * No-op if sortable library is not available or disabled.
+         *
+         * @param HTMLElement root - Container with data-wsb-sortable-list
+         * @param object options - Optional SortableJS options
+         * @return void
+         */
+        initSortableList: function (root, options) {
+            if (!this.isSortableAvailable()) {
+                if (DEBUG) {
+                    logDebug('Sortable not available, initSortableList is no-op');
+                }
+                return;
+            }
+
+            var list = root.querySelector('[data-wsb-sortable-list]');
+            if (!list) {
+                return;
+            }
+
+            try {
+                var instance = new window.Sortable(list, Object.assign({
+                    animation: 150,
+                    handle: '.wsb-drag-handle',
+                    ghostClass: 'wsb-sortable-placeholder',
+                    chosenClass: 'wsb-sortable-chosen'
+                }, options || {}));
+                this._sortableInstances[list.id] = instance;
+            } catch (e) {
+                if (DEBUG) {
+                    logDebug('Sortable init failed', e);
+                }
+            }
+        },
+
+        /**
+         * Destroy a sortable list instance.
+         * No-op if sortable library is not available.
+         *
+         * @param HTMLElement root - Container with data-wsb-sortable-list
+         * @return void
+         */
+        destroySortableList: function (root) {
+            if (!this.isSortableAvailable()) {
+                return;
+            }
+
+            var list = root.querySelector('[data-wsb-sortable-list]');
+            if (list && list.id && this._sortableInstances[list.id]) {
+                this._sortableInstances[list.id].destroy();
+                delete this._sortableInstances[list.id];
+            }
+        }
+    };
+
     document.addEventListener('DOMContentLoaded', function () {
         var wrappers = document.querySelectorAll('[data-wsb-booking-builder]');
 

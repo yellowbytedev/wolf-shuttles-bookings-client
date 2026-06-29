@@ -293,7 +293,7 @@ PRICING_RULES.thresholds = {
 | Direction classification | JS bearings | PHP scaffold | Real-time via Google |
 | Toll detection | HERE API via AJAX | Scaffold only | Full evaluation |
 | Charter codes | Hard-coded map | - | Full business logic |
-## 10. Date/Time Picker Parity (Phase 2S)
+## 10. Date/Time Picker Parity (Phase 2S / 2V)
 
 ### Date picker — what was ported
 
@@ -310,11 +310,11 @@ PRICING_RULES.thresholds = {
 
 | Legacy behavior | Plugin-owned implementation |
 |----------------|----------------------------|
-| jQuery ClockTimePicker `precision: 5` | Native `<input type="time" step="300">` |
-| Charter defaults 08:00 pickup / 17:00 dropoff | JS `setCharterTimeDefaults()` sets these values automatically |
+| jQuery ClockTimePicker `precision: 5` | Legacy `jquery-clock-timepicker.min.js` copied from theme into plugin `assets/js/`; enqueued as `wsb-clock-timepicker` |
+| Charter defaults 08:00 pickup / 17:00 dropoff | JS `setCharterTimeDefaults()` sets these values automatically; `initClockTimePicker` wires charter defaults |
 | AM/PM label injected as sibling | `.wsb-time-ampm-badge` span inserted next to time input |
 | `min` time enforcement on min date | `constrainTimeByDate()` sets `timeInput.min` when date equals config min |
-| Clock-style popover on click/focus | Browser-native `<input type="time">` picker opens on click/focus (exact jQuery plugin not vendored) |
+| Clock-style popover on click/focus | jQuery clockTimePicker shows clock popover with 5-minute precision on click/focus |
 
 ### What was deliberately not ported
 

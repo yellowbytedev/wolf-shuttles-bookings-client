@@ -1016,82 +1016,38 @@ var GOOGLE_PLACES = (CONFIG.googlePlaces || {
         };
     }
 
-    function formatAddressForDisplay(place) {
-      if (!place || typeof place !== 'object') {
+    function stripTrailingCountry(value) {
+      if (typeof value !== 'string') {
         return '';
       }
-
-      var components = [];
-      if (Array.isArray(place.address_components)) {
-        var typePriority = ['premise', 'establishment', 'route', 'sublocality_level_2', 'sublocality', 'neighborhood', 'locality', 'administrative_area_level_2', 'administrative_area_level_1'];
-        var seenTypes = new Set();
-
-        place.address_components.forEach(function (component) {
-          if (!component || !Array.isArray(component.types)) {
-            return;
-          }
-
-          var shortName = typeof component.short_name === 'string' ? component.short_name.trim() : '';
-          var longName = typeof component.long_name === 'string' ? component.long_name.trim() : '';
-
-          if (!longName) {
-            return;
-          }
-
-          if (shortName === 'ZA') {
-            return;
-          }
-
-          if (shortName === 'South Africa') {
-            return;
-          }
-
-          component.types.forEach(function (type) {
-            if (seenTypes.has(type)) {
-              return;
-            }
-            var index = typePriority.indexOf(type);
-            if (index === -1) {
-              return;
-            }
-            seenTypes.add(type);
-            if (shortName) {
-              components[index] = shortName;
-            } else if (longName) {
-              components[index] = longName;
-            }
-          });
-        });
-      }
-
-      var filtered = [];
-      for (var i = 0; i < components.length; i += 1) {
-        if (typeof components[i] === 'string' && components[i] && filtered.indexOf(components[i]) === -1) {
-          filtered.push(components[i]);
+      var trimmed = value.trim();
+      var suffixes = [', South Africa', ' South Africa', ', SA', ' SA'];
+      for (var i = 0; i < suffixes.length; i += 1) {
+        if (trimmed.length > suffixes[i].length && trimmed.slice(-suffixes[i].length) === suffixes[i]) {
+          trimmed = trimmed.slice(0, -suffixes[i].length).replace(/,\s*$/, '');
+          break;
         }
       }
-
-      if (filtered.length) {
-        return filtered.join(', ');
-      }
-
-      if (typeof place.formatted_address === 'string' && place.formatted_address.trim()) {
-        var addr = place.formatted_address.trim();
-        var trailingCountry = 'South Africa';
-        if (trailingCountry && addr.length > trailingCountry.length && addr.slice(-trailingCountry.length) === trailingCountry) {
-          addr = addr.slice(0, -trailingCountry.length).replace(/,\s*$/, '');
-        }
-        return addr;
-      }
-
-      if (typeof place.name === 'string' && place.name.trim()) {
-        return place.name.trim();
-      }
-
-      return '';
+      return trimmed;
     }
 
-    function extractPlaceDetails(place) {
+    function formatAddressForDisplay(place, inputValue) {
+      if (!place || typeof place !== 'object') {
+        return stripTrailingCountry(inputValue);
+      }
+
+      var rawDisplay = inputValue || place.formatted_address || place.name || '';
+      var cleaned = stripTrailingCountry(rawDisplay);
+      var placeName = (typeof place.name === 'string' ? place.name : '').trim();
+
+      if (placeName && cleaned.indexOf(placeName) === -1) {
+        cleaned = placeName + (cleaned ? ', ' + cleaned : '');
+      }
+
+      return cleaned || placeName || stripTrailingCountry(place.formatted_address) || '';
+    }
+
+    function extractPlaceDetails(place, inputValue) {
       var snapshot = clonePlaceSnapshot(PLACE_SNAPSHOT_EMPTY);
       if (!place) {
         return snapshot;
@@ -1102,7 +1058,7 @@ var GOOGLE_PLACES = (CONFIG.googlePlaces || {
       snapshot.label = typeof place.name === 'string' ? place.name : null;
       snapshot.formatted_address = typeof place.formatted_address === 'string' ? place.formatted_address : null;
 
-      var display = formatAddressForDisplay(place);
+      var display = formatAddressForDisplay(place, inputValue);
       if (display) {
         snapshot.label = display;
         if (!snapshot.formatted_address) {
@@ -1195,7 +1151,8 @@ var GOOGLE_PLACES = (CONFIG.googlePlaces || {
 
             autocomplete.addListener('place_changed', function () {
                 var place = autocomplete.getPlace();
-                var snapshot = extractPlaceDetails(place);
+                var currentInputValue = input.value;
+                var snapshot = extractPlaceDetails(place, currentInputValue);
 
                 if (!snapshot.place_id) {
                     placeSnapshots[field.snapshotKey] = clonePlaceSnapshot(PLACE_SNAPSHOT_EMPTY);
@@ -1306,6 +1263,52 @@ var GOOGLE_PLACES = (CONFIG.googlePlaces || {
 
         updateStatus(outboundDate, outboundTime, '[data-wsb-outbound-picker-status]');
         updateStatus(returnDate, returnTime, '[data-wsb-return-picker-status]');
+    }
+
+    function initClockTimePicker(root) {
+        if (typeof jQuery === 'undefined' || typeof jQuery.fn.clockTimePicker === 'undefined') {
+            return;
+        }
+
+        var $ = jQuery;
+        var baseSelector = 'input[name="outbound_pickup_time"], input[name="return_pickup_time"]';
+        var charterPickup = 'input[name="charter_pickup_time"]';
+        var charterDropoff = 'input[name="charter_dropoff_time"]';
+
+        $(baseSelector).clockTimePicker({
+            alwaysSelectHoursFirst: true,
+            duration: false,
+            precision: 5,
+            i18n: { cancelButton: 'Cancel', okButton: 'Done' },
+            colors: { popupHeaderBackgroundColor: '#c0392b', selectorColor: '#c0392b' },
+            onChange: function (newValue) {
+                updateAmPmLabels(root);
+                refreshPickerStatusMessages(root);
+                refreshPreview('');
+            }
+        });
+
+        [
+            { selector: charterPickup, defaultTime: '08:00' },
+            { selector: charterDropoff, defaultTime: '17:00' }
+        ].forEach(function (cfg) {
+            var $el = $(cfg.selector);
+            if (!$el.length) return;
+            $el.clockTimePicker({
+                alwaysSelectHoursFirst: true,
+                duration: false,
+                precision: 5,
+                i18n: { cancelButton: 'Cancel', okButton: 'Done' },
+                colors: { popupHeaderBackgroundColor: '#c0392b', selectorColor: '#c0392b' },
+                onChange: function (newValue) {
+                    updateAmPmLabels(root);
+                    refreshPickerStatusMessages(root);
+                }
+            });
+            $el.val(cfg.defaultTime);
+        });
+
+        updateAmPmLabels(root);
     }
 
     function initBookingBuilder(root) {
@@ -1486,6 +1489,7 @@ var GOOGLE_PLACES = (CONFIG.googlePlaces || {
         setDateDefaults(root);
         updateAmPmLabels(root);
         refreshPickerStatusMessages(root);
+        initClockTimePicker(root);
         initGooglePlacesAutocomplete(root, refreshPreview);
         refreshPreview('Live payload preview initialised');
         if (fixtureStatus && fixtures.length) {

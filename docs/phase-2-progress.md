@@ -333,6 +333,33 @@
 - All 15 valid handover fixtures pass (11 invalid skipped as expected).
 - Browser MCP visual QA: form renders correctly, charter/return tabs switch mode, fixture drawer opens and populates form.
 
+## Phase 2V — Legacy clock-style timepicker restored (completed)
+
+- Copied `jquery-clock-timepicker.min.js` from theme `themes/bricks-child/assets/js/` into plugin `assets/js/jquery-clock-timepicker.min.js`.
+- Registered `wsb-clock-timepicker` script handle in `inc/class-booking-client-form-shortcode.php` with jQuery dependency.
+- Added `initClockTimePicker(root)` function in `assets/js/booking-client-form.js`:
+  - Initializes legacy jQuery ClockTimePicker on transfer pickup/return pickup times
+  - Initializes charter start/end times with defaults 08:00 / 17:00
+  - 5-minute precision (`precision: 5`)
+  - AM/PM label integration via `updateAmPmLabels`
+  - `onChange` callback triggers AM/PM refresh, picker status refresh, and payload preview
+  - Color styling uses `#c0392b` (matching plugin CTA color)
+- Wired `initClockTimePicker(root)` into `initBookingBuilder` after picker defaults and before Google Places init.
+- Debug page layout fixed: removed `.wb-debug .wsb-booking-client-main-column { display: none }` bug; both form and preview now visible side by side on desktop.
+- All validation and fixture runners still pass.
+
+## Phase 2W — Section wording and hero cleanup (completed)
+
+- Removed dark "Plan your transfer" hero card and eyebrow from the transfer section; replaced with minimal card header.
+- Updated section headings:
+  - "Outbound leg" → "Trip details" (first transfer section, no large heading needed)
+  - "Return leg" → "Return transfer" (return section keeps clear heading for return-specific info)
+  - "Charter details" → "Shuttle Hire" heading with "Need a custom quote? Click to mail us your itinerary" subtext
+- Removed "Preview only" badge from charter section header.
+- Developer header text ("Build a new booking request. No real booking submission is enabled yet.") scoped to `?debug=1` only.
+- CTA button text remains "Check Pricing & Availability".
+- Additional stop toggles/fields preserved on outbound and return legs; charter section has no additional stops.
+
 
 ## Phase 2T — Google Places Autocomplete scaffold (completed)
 

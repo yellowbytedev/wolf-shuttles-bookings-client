@@ -1,7 +1,9 @@
 .wsb-booking-client-shell {
-  border: 1px solid var(--base-ultra-dark-trans-10);
+  border: none;
   border-radius: var(--radius-lg);
   overflow: hidden;
+  max-width: 860px;
+  margin: 0 auto;
 }
 
 .wsb-booking-client-header {
@@ -29,10 +31,12 @@
   border: 1px solid var(--base-ultra-dark-trans-25);
   background: var(--white);
   color: var(--base-ultra-dark);
-  padding: 10px 18px;
-  border-radius: 8px 8px 0 0;
+  padding: 12px 28px;
+  border-radius: 10px 10px 0 0;
   cursor: pointer;
   font-weight: 600;
+  font-size: 0.95rem;
+  letter-spacing: 0.01em;
   transition: background 120ms ease, color 120ms ease, border-color 120ms ease;
 }
 
@@ -62,21 +66,36 @@
     grid-template-columns: 1fr;
     align-items: start;
     background: var(--white);
-    border: 1px solid var(--base-ultra-dark-trans-15);
+    border: 1px solid var(--base-ultra-dark-trans-20);
     border-top: none;
     border-radius: 0 0 var(--radius-lg) var(--radius-lg);
   }
 
   .wb-debug .wsb-booking-client-grid {
-    grid-template-columns: minmax(0, 1.3fr) minmax(320px, 0.75fr);
+    grid-template-columns: minmax(0, 1.2fr) minmax(340px, 0.78fr);
   }
 }
 
-.wsb-booking-client-main-column,
-.wsb-booking-client-preview-column {
+.wsb-booking-client-main-column {
   display: grid;
-  gap: 16px;
-  padding: 16px;
+  gap: 12px;
+  padding: 20px;
+}
+
+.wsb-booking-client-preview-column {
+  display: none;
+}
+
+.wb-debug .wsb-booking-client-preview-column {
+  display: grid;
+  gap: 12px;
+  padding: 20px;
+  position: sticky;
+  top: var(--space-s);
+  align-self: start;
+  max-height: calc(100vh - var(--space-m) * 2);
+  overflow: auto;
+  border-left: 1px solid var(--base-ultra-dark-trans-12);
 }
 
 .wsb-booking-client-card {
@@ -91,6 +110,7 @@
   background: linear-gradient(90deg, #1e1e1e, #2a2a2a);
   border-color: transparent;
   color: #fff;
+  margin-bottom: 0;
 }
 
 .wsb-booking-client-card-header {
@@ -106,7 +126,8 @@
   text-transform: uppercase;
   letter-spacing: 0.08em;
   color: rgba(255,255,255,0.75);
-  font-size: 0.8rem;
+  font-size: 0.78rem;
+  font-weight: 600;
 }
 
 .wsb-booking-client-card-copy {
@@ -131,12 +152,12 @@
 .wsb-booking-client-preview-status {
   margin: 0;
   color: var(--base);
-  font-size: 0.95rem;
+  font-size: 0.85rem;
 }
 
 .wsb-booking-client-pill-group {
   display: inline-flex;
-  gap: var(--space-xs);
+  gap: 8px;
   flex-wrap: wrap;
   margin-bottom: var(--space-m);
 }
@@ -147,11 +168,13 @@
   align-items: center;
   cursor: pointer;
   border: 1px solid var(--base-ultra-dark-trans-20);
-  border-radius: var(--radius-full);
+  border-radius: 999px;
   background: var(--white);
-  padding: var(--space-2xs) var(--space-s);
+  padding: 6px 14px;
   color: var(--base-ultra-dark);
-  transition: background 120ms ease, border-color 120ms ease;
+  font-size: 0.9rem;
+  font-weight: 500;
+  transition: background 120ms ease, border-color 120ms ease, color 120ms ease;
 }
 
 .wsb-booking-client-pill input {
@@ -160,30 +183,12 @@
   pointer-events: none;
 }
 
-.wsb-booking-client-pill input:checked + *,
-.wsb-booking-client-pill input:checked {
-  background: transparent;
-}
-
-.wsb-booking-client-pill input:checked {
-  outline: none;
-}
-
 .wsb-booking-client-pill input:checked + span {
   color: var(--primary);
+  font-weight: 600;
 }
 
-.wsb-booking-client-pill input:checked + span,
-.wsb-booking-client-pill input:checked {
-  color: var(--primary);
-}
-
-.wsb-booking-client-pill input:checked ~ * {
-  color: var(--primary);
-}
-
-.wsb-booking-client-pill input[type="radio"]:checked + span,
-.wsb-booking-client-pill input[type="radio"]:checked + * {
+.wsb-booking-client-pill input[type="radio"]:checked + span {
   color: var(--primary);
 }
 
@@ -201,63 +206,94 @@
 
 .wsb-booking-client-field {
   display: grid;
-  gap: var(--space-3xs);
+  gap: 6px;
 }
 
 .wsb-form__label {
   display: block;
   color: var(--base);
   font-weight: 600;
-  margin-bottom: var(--space-3xs);
+  font-size: 0.85rem;
+  margin-bottom: 4px;
+  letter-spacing: 0.01em;
 }
 
 .wsb-form__input {
   width: 100%;
-  padding: var(--space-s);
+  padding: 10px 14px;
   border: 1px solid var(--base-ultra-dark-trans-20);
-  border-radius: var(--radius-s);
+  border-radius: 10px;
   background: var(--white);
   color: var(--base-ultra-dark);
+  font-family: inherit;
+  font-size: 0.95rem;
+  transition: border-color 120ms ease, box-shadow 120ms ease;
 }
 
 .wsb-booking-client-addons-row {
   display: grid;
-  gap: var(--space-s);
-  margin-top: var(--space-s);
+  gap: 10px;
+  margin-top: 10px;
 }
 
 .wsb-booking-client-checkbox-label {
   display: inline-flex;
   align-items: center;
-  gap: var(--space-2xs);
+  gap: 8px;
   color: var(--base);
   cursor: pointer;
+  font-size: 0.9rem;
 }
 
 .wsb-booking-client-additional-toggle-label {
   display: inline-flex;
   align-items: center;
-  gap: var(--space-2xs);
-  margin-bottom: var(--space-s);
+  gap: 8px;
+  margin-bottom: 8px;
+  font-weight: 500;
+  font-size: 0.9rem;
 }
 
 /* Date/Time Picker Parity — legacy-style native inputs */
 
 .wsb-booking-client-picker-group {
   display: grid;
-  gap: var(--space-2xs);
+  gap: 6px;
 }
 
 .wsb-booking-client-picker-wrapper {
   position: relative;
 }
 
+.wsb-booking-client-field--time {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.wsb-booking-client-field--time .wsb-form__label {
+  margin-bottom: 0;
+  min-width: fit-content;
+}
+
+.wsb-booking-client-field--time .clock-timepicker {
+  display: block !important;
+  width: 100% !important;
+  flex: 1 1 0 !important;
+  min-width: 0 !important;
+}
+
+.wsb-booking-client-field--time .clock-timepicker input {
+  width: 100% !important;
+  min-width: 0 !important;
+}
+
 .wsb-booking-client-field input[type="date"],
 .wsb-booking-client-field input[type="time"] {
   width: 100%;
-  padding: var(--space-s) calc(var(--space-s) + 1.8rem) var(--space-s) var(--space-s);
+  padding: 10px 14px;
   border: 1px solid var(--base-ultra-dark-trans-20);
-  border-radius: var(--radius-s);
+  border-radius: 10px;
   background: var(--white);
   color: var(--base-ultra-dark);
   font-family: inherit;
@@ -310,22 +346,6 @@
 
 .wsb-picker-status--ok {
   color: var(--success);
-}
-
-.wsb-booking-client-field--time {
-  display: flex;
-  align-items: center;
-  gap: var(--space-xs);
-}
-
-.wsb-booking-client-field--time .wsb-form__label {
-  margin-bottom: 0;
-  min-width: fit-content;
-}
-
-.wsb-booking-client-field--time input[type="time"] {
-  flex: 1;
-  min-width: 0;
 }
 
 .wsb-time-ampm-badge {
@@ -418,17 +438,26 @@
   width: 100%;
   padding: 14px 16px;
   border: none;
-  border-radius: 14px;
-  background: #c0392b;
+  border-radius: 999px;
+  background: linear-gradient(135deg, #c0392b 0%, #8e44ad 100%);
   color: var(--white);
   cursor: pointer;
   font-weight: 700;
   font-size: 1rem;
   letter-spacing: 0.01em;
+  box-shadow: 0 4px 14px rgba(192, 57, 43, 0.25);
+  transition: transform 120ms ease, box-shadow 120ms ease, opacity 120ms ease;
 }
 
 .wsb-booking-client-submit:hover {
-  background: #a93226;
+  background: linear-gradient(135deg, #a93226 0%, #7d3c98 100%);
+  transform: translateY(-1px);
+  box-shadow: 0 6px 18px rgba(192, 57, 43, 0.35);
+}
+
+.wsb-booking-client-submit:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 8px rgba(192, 57, 43, 0.2);
 }
 
 .wsb-booking-client-submit:focus-visible {
@@ -470,8 +499,7 @@
   display: grid;
 }
 
-.wb-debug .wsb-booking-client-main-column,
-.wsb-booking-client-preview-column {
+.ws-booking-client-preview-column {
   display: none;
 }
 
@@ -479,11 +507,61 @@
   display: grid;
 }
 
+.wb-debug .wsb-booking-client-preview-column {
+  position: sticky;
+  top: var(--space-s);
+  align-self: start;
+  max-height: calc(100vh - var(--space-m) * 2);
+  overflow: auto;
+}
+
 .wb-debug .wsb-booking-client-badge {
   display: inline-flex;
 }
 
 .wb-debug .wsb-booking-client-preview-summary {
+  display: block;
+}
+
+.wb-debug .wsb-booking-client-note {
+  display: block;
+}
+
+.wb-debug .wsb-booking-client-preview-help {
+  display: block;
+}
+
+.wb-debug .wsb-booking-client-header {
+  display: block;
+}
+
+.wb-debug .wsb-booking-client-submit-message {
+  display: block;
+}
+
+.wb-debug .wsb-booking-client-validation {
+  display: block;
+}
+
+.wb-debug .wsb-booking-client-preview-json {
+  display: block;
+}
+
+.wb-debug .wsb-booking-client-preview-column {
+  display: grid;
+  gap: 12px;
+  padding: 20px;
+  position: sticky;
+  top: var(--space-s);
+  align-self: start;
+  max-height: calc(100vh - var(--space-m) * 2);
+  overflow: auto;
+  border-left: 1px solid var(--base-ultra-dark-trans-12);
+}
+
+.wb-debug .wsb-booking-client-badge {
+  display: inline-flex;
+}
   display: block;
 }
 

@@ -49,18 +49,12 @@ class BookingClientFormShortcode {
             <form class="wsb-booking-client-form" data-wsb-booking-form method="post" action="#" novalidate>
                 <div class="wsb-booking-client-grid">
                     <div class="wsb-booking-client-main-column">
-                        <section class="wsb-booking-client-card wsb-booking-client-card--hero">
+                        <section class="wsb-booking-client-card wsb-booking-client-transfer-only" data-wsb-transfer-fields>
                             <div class="wsb-booking-client-card-header">
                                 <div>
                                     <p class="wsb-booking-client-eyebrow"><?php echo esc_html__('Book a Ride', 'wsb'); ?></p>
-                                    <h3><?php echo esc_html__('Plan your transfer', 'wsb'); ?></h3>
+                                    <h3><?php echo esc_html__('Trip details', 'wsb'); ?></h3>
                                 </div>
-                            </div>
-                        </section>
-
-                        <section class="wsb-booking-client-card wsb-booking-client-transfer-only" data-wsb-transfer-fields>
-                            <div class="wsb-booking-client-card-header">
-                                <h3><?php echo esc_html__('Trip settings', 'wsb'); ?></h3>
                             </div>
                             <div class="wsb-booking-client-pill-group" role="group" aria-label="<?php echo esc_attr__('Trip type', 'wsb'); ?>">
                                 <label class="wsb-booking-client-pill">
@@ -94,9 +88,12 @@ class BookingClientFormShortcode {
 
                         <section class="wsb-booking-client-card wsb-booking-client-charter wsb-booking-client-hidden" data-wsb-charter-section>
                             <div class="wsb-booking-client-card-header">
-                                <h3><?php echo esc_html__('Charter details', 'wsb'); ?></h3>
-                                <span class="wsb-booking-client-badge"><?php echo esc_html__('Preview only', 'wsb'); ?></span>
+                                <div>
+                                    <p class="wsb-booking-client-eyebrow"><?php echo esc_html__('Shuttle Hire', 'wsb'); ?></p>
+                                    <h3><?php echo esc_html__('Need a custom quote?', 'wsb'); ?></h3>
+                                </div>
                             </div>
+                            <p class="wsb-booking-client-card-copy"><?php echo esc_html__('Click to mail us your itinerary for a custom quote.', 'wsb'); ?></p>
                             <div class="wsb-booking-client-grid wsb-booking-client-grid--compact">
                                 <?php echo self::render_number_field($fields['passengers']); ?>
                                 <?php echo self::render_number_field($fields['baby_seats']); ?>
@@ -115,20 +112,21 @@ class BookingClientFormShortcode {
                                 </label>
                             </div>
 
-                            <?php echo self::render_text_field($fields['charter_pickup_location']); ?>
-                            <?php echo self::render_text_field($fields['charter_dropoff_location']); ?>
-<div class="wsb-booking-client-grid wsb-booking-client-grid--compact">
-                <?php echo self::render_date_field($fields['outbound_pickup_date'], false); ?>
-                <?php echo self::render_time_field($fields['charter_pickup_time'], false); ?>
-                <?php echo self::render_time_field($fields['charter_dropoff_time'], false); ?>
-            </div>
-        </section>
+                            <div class="wsb-booking-client-grid wsb-booking-client-grid--compact">
+                                <?php echo self::render_text_field($fields['charter_pickup_location']); ?>
+                                <?php echo self::render_text_field($fields['charter_dropoff_location']); ?>
+                            </div>
+
+                            <div class="wsb-booking-client-grid wsb-booking-client-grid--compact">
+                                <?php echo self::render_date_field($fields['outbound_pickup_date'], false); ?>
+                                <?php echo self::render_time_field($fields['charter_pickup_time'], false); ?>
+                                <?php echo self::render_time_field($fields['charter_dropoff_time'], false); ?>
+                            </div>
+                        </section>
 
                         <section class="wsb-booking-client-card wsb-booking-client-outbound" data-wsb-outbound-section>
-                            <div class="wsb-booking-client-card-header">
-                                <h3><?php echo esc_html__('Outbound leg', 'wsb'); ?></h3>
-                            </div>
                             <?php echo self::render_text_field($fields['outbound_from']); ?>
+                            <?php echo self::render_text_field($fields['outbound_to']); ?>
                             <label class="wsb-booking-client-checkbox-label wsb-booking-client-additional-toggle-label">
                                 <input type="checkbox" name="outbound_additional_stop_enabled" class="wsb-booking-client-additional-toggle" data-wsb-outbound-additional-stop-toggle>
                                 <?php echo esc_html(__('Enable additional stop', 'wsb')); ?>
@@ -137,7 +135,6 @@ class BookingClientFormShortcode {
                                 <label class="wsb-form__label" for="<?php echo esc_attr($fields['outbound_additional_stop']['key']); ?>"><?php echo esc_html($fields['outbound_additional_stop']['label']); ?></label>
                                 <input class="wsb-form__input" type="text" id="<?php echo esc_attr($fields['outbound_additional_stop']['key']); ?>" name="<?php echo esc_attr($fields['outbound_additional_stop']['key']); ?>" placeholder="<?php echo esc_attr($fields['outbound_additional_stop']['placeholder'] ?? ''); ?>" disabled />
                             </div>
-                            <?php echo self::render_text_field($fields['outbound_to']); ?>
                             <div class="wsb-booking-client-grid wsb-booking-client-grid--compact">
                                 <?php echo self::render_date_field($fields['outbound_pickup_date']); ?>
                                 <?php echo self::render_time_field($fields['outbound_pickup_time']); ?>
@@ -149,9 +146,10 @@ class BookingClientFormShortcode {
 
                         <section class="wsb-booking-client-card wsb-booking-client-return wsb-booking-client-hidden" data-wsb-return-section>
                             <div class="wsb-booking-client-card-header">
-                                <h3><?php echo esc_html__('Return leg', 'wsb'); ?></h3>
+                                <h3><?php echo esc_html__('Return transfer', 'wsb'); ?></h3>
                             </div>
                             <?php echo self::render_text_field($fields['return_from'], false); ?>
+                            <?php echo self::render_text_field($fields['return_to'], false); ?>
                             <label class="wsb-booking-client-checkbox-label wsb-booking-client-additional-toggle-label">
                                 <input type="checkbox" name="return_additional_stop_enabled" class="wsb-booking-client-additional-toggle" data-wsb-return-additional-stop-toggle>
                                 <?php echo esc_html(__('Enable additional stop', 'wsb')); ?>
@@ -160,7 +158,6 @@ class BookingClientFormShortcode {
                                 <label class="wsb-form__label" for="<?php echo esc_attr($fields['return_additional_stop']['key']); ?>"><?php echo esc_html($fields['return_additional_stop']['label']); ?></label>
                                 <input class="wsb-form__input" type="text" id="<?php echo esc_attr($fields['return_additional_stop']['key']); ?>" name="<?php echo esc_attr($fields['return_additional_stop']['key']); ?>" placeholder="<?php echo esc_attr($fields['return_additional_stop']['placeholder'] ?? ''); ?>" disabled />
                             </div>
-                            <?php echo self::render_text_field($fields['return_to'], false); ?>
                             <div class="wsb-booking-client-grid wsb-booking-client-grid--compact">
                                 <?php echo self::render_date_field($fields['return_pickup_date'], false); ?>
                                 <?php echo self::render_time_field($fields['return_pickup_time'], false); ?>
@@ -310,7 +307,7 @@ class BookingClientFormShortcode {
 
         $step = isset($field['step_attr']) && $field['step_attr'] ? ' step="' . (int) $field['step_attr'] . '"' : '';
         return sprintf(
-            '<div class="wsb-booking-client-field"><label class="wsb-form__label" for="%1$s">%2$s</label><input class="wsb-form__input"%4$s type="time" id="%1$s" name="%1$s" placeholder="%3$s" %5$s /></div>',
+            '<div class="wsb-booking-client-field"><label class="wsb-form__label" for="%1$s">%2$s</label><input class="wsb-form__input"%4$s type="text" id="%1$s" name="%1$s" placeholder="%3$s" %5$s /></div>',
             esc_attr($field['key']),
             esc_html($field['label']),
             esc_attr($field['placeholder'] ?? ''),
@@ -334,8 +331,16 @@ class BookingClientFormShortcode {
         wp_register_script(
             'wsb-booking-client-form-script',
             plugins_url('assets/js/booking-client-form.js', __DIR__ . '/../ws-bookings-client.php'),
-            [],
+            ['jquery'],
             file_exists($js_path) ? filemtime($js_path) : WSB_CLIENT_VERSION,
+            true
+        );
+
+        wp_register_script(
+            'wsb-clock-timepicker',
+            plugins_url('assets/js/jquery-clock-timepicker.min.js', __DIR__ . '/../ws-bookings-client.php'),
+            ['jquery'],
+            null,
             true
         );
 
@@ -403,6 +408,7 @@ class BookingClientFormShortcode {
         self::register_assets();
         wp_enqueue_style('wsb-booking-client-form-style');
         wp_enqueue_script('wsb-booking-client-form-script');
+        wp_enqueue_script('wsb-clock-timepicker');
         if (defined('GOOGLE_API_KEY') && GOOGLE_API_KEY !== '') {
             wp_enqueue_script('wsb-google-places-api');
         }

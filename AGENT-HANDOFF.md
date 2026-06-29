@@ -63,6 +63,8 @@ The roadmap lives in `docs/booking-intake-roadmap.md` and the phase log lives in
 - Phase 2S complete: date/time picker parity pass — legacy-style picker styling/behavior ported into plugin-owned CSS/JS.
 - Phase 2T complete: Google Places Autocomplete scaffold — plugin-owned enqueue, autocomplete init, place snapshot capture, stale-edit handling, and quote-ready diagnostic flag.
 - Phase 2U complete: Booking Builder UI polish — tabs/cards/inputs styled closer to legacy form, Google place display string now shows name + street/area/city without country suffix, date icon overlap fixed by hiding native indicator, debug-only copy/tools scoped to `?debug=1`, CTA updated to product-like wording.
+- Phase 2V complete: legacy clock-style timepicker restored — `jquery-clock-timepicker.min.js` copied from theme into plugin `assets/js/`, enqueued via `wsb-clock-timepicker` handle, `initClockTimePicker` wired into `initBookingBuilder` with 5-minute precision, AM/PM badges, charter defaults 08:00/17:00.
+- Phase 2W complete: section wording updated — "Trip details" replaces "Outbound leg", "Return transfer" replaces "Return leg", "Shuttle Hire" section uses charter-friendly language, hero heading removed from normal page.
 
 If roadmap or phase status changes, update this file at the same time.
 
@@ -85,9 +87,10 @@ If roadmap or phase status changes, update this file at the same time.
 - Booking Builder UI polished to closer match legacy form tabs/cards/inputs.
 - Debug tools (fixture drawer, preview panel, dev header) visible only on `?debug=1`.
 - Normal `/booking-builder/` page hides developer preview copy and shows product-style tabs and CTA.
-- Google Places autocomplete display now builds a clean readable address string from address components, falling back to formatted_address with trailing "South Africa" removed.
-- Date picker custom icon kept; native browser date indicator hidden to prevent overlap.
-- Time picker retains native `<input type="time">` with 5-minute step; opens via browser native picker on click/focus (no CDN vendor added).
+- Google Places autocomplete display now preserves the selected text (prefixed with place name if needed) and only removes trailing country suffix.
+- Date picker custom icon kept; native browser time indicator hidden to prevent overlap.
+- **Legacy clock-style timepicker restored**: jQuery ClockTimePicker copied into plugin assets, enqueued as `wsb-clock-timepicker`, initialized for transfer and charter time fields with 5-minute precision and AM/PM badges.
+- Debug page shows form plus payload/debug panel side by side on desktop, stacked on mobile.
 
 ## 6. What Is Deliberately Not Enabled Yet
 

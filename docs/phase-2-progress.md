@@ -251,6 +251,19 @@
 - Preflight must not create WooCommerce cart items or orders.
 - Draft work is performance optimisation, not source of truth.
 
+## Phase 2Q — Booking-site config consumer scaffold (completed)
+
+- Added config scaffold methods to `inc/class-booking-external-services.php`:
+  - `get_booking_site_config_scaffold()`
+  - `get_cached_booking_site_config()`
+  - `get_default_booking_site_config()`
+  - `is_booking_site_config_fetch_enabled()`
+- Config fetch disabled by default; no live HTTP calls.
+- Safe defaults expose `bookingSiteConfig` to frontend via `window.WSB_BOOKING_CLIENT_FORM`.
+- Added `max` attribute to passengers, baby seats, check-in bags, carry-on bags fields.
+- Added `step="300"` to time inputs based on config default.
+- No visual regressions; all fixtures pass.
+
 - Removed charter additional stop UI from the Booking Builder.
 - Charter legs now always use `stops: []` per business rules.
 - Transfer legs (outbound/return) still support additional stops.

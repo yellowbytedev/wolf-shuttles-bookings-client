@@ -129,9 +129,12 @@ Milestones:
 - Booking-site config contract defined in `docs/booking-site-config-contract.md`.
 - No live endpoint implemented; marketing-side config consumer scaffold planned for Phase 2?.
 
-### Phase 2P status (planned)
+### Phase 2P status (completed)
 
 - Quote preflight/draft itinerary concept documented.
+- Booking-site config consumer scaffold added to `inc/class-booking-external-services.php`.
+- Config fetch disabled by default; safe defaults exposed to frontend.
+- Max attributes and time step applied to Booking Builder inputs.
 - Google Places autocomplete must be mandatory for final production form.
 - No route-cache reliance for pricing.
 - Not implemented yet; follows booking-site v2 receiver foundations.

@@ -247,12 +247,16 @@ class BookingClientFormShortcode {
         }
 
         $required = !empty($field['required']) ? 'required' : '';
+        $max = isset($field['max_attr']) ? ' max="' . (int) $field['max_attr'] . '"' : '';
+        $step = isset($field['step_attr']) && $field['step_attr'] ? ' step="' . (int) $field['step_attr'] . '"' : '';
         return sprintf(
-            '<div class="wsb-booking-client-field"><label class="wsb-form__label" for="%1$s">%2$s</label><input class="wsb-form__input" type="number" id="%1$s" name="%1$s" min="0" value="0" placeholder="%3$s" %4$s /></div>',
+            '<div class="wsb-booking-client-field"><label class="wsb-form__label" for="%1$s">%2$s</label><input class="wsb-form__input"%5$s%6$s type="number" id="%1$s" name="%1$s" min="0" value="0" placeholder="%3$s" %4$s /></div>',
             esc_attr($field['key']),
             esc_html($field['label']),
             esc_attr($field['placeholder'] ?? ''),
-            $required
+            $required,
+            $max,
+            $step
         );
     }
 
@@ -289,11 +293,13 @@ class BookingClientFormShortcode {
             return '';
         }
 
+        $step = isset($field['step_attr']) && $field['step_attr'] ? ' step="' . (int) $field['step_attr'] . '"' : '';
         return sprintf(
-            '<div class="wsb-booking-client-field"><label class="wsb-form__label" for="%1$s">%2$s</label><input class="wsb-form__input" type="time" id="%1$s" name="%1$s" placeholder="%3$s" %4$s /></div>',
+            '<div class="wsb-booking-client-field"><label class="wsb-form__label" for="%1$s">%2$s</label><input class="wsb-form__input"%4$s type="time" id="%1$s" name="%1$s" placeholder="%3$s" %5$s /></div>',
             esc_attr($field['key']),
             esc_html($field['label']),
             esc_attr($field['placeholder'] ?? ''),
+            $step,
             $required ? 'required' : ''
         );
     }
@@ -326,6 +332,7 @@ class BookingClientFormShortcode {
             'debug' => (bool) current_user_can('manage_options'),
             'fixtureDrawerEnabled' => (bool) ( isset($_GET['debug']) && '1' === (string) $_GET['debug'] ),
             'uiInteractionsEnabled' => wsb_client_ui_interactions_enabled(),
+            'bookingSiteConfig' => wsb_client_external_services()->get_cached_booking_site_config(),
             'strings' => array(
                 'serverValidationPending' => __('Validating payload on server...', 'wsb'),
                 'serverValidationSuccess' => __('Server validation passed.', 'wsb'),

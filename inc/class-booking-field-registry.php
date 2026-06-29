@@ -13,6 +13,13 @@ class BookingFieldRegistry {
      * @return array<string,array<string,mixed>>
      */
     public static function get_fields(): array {
+        $config = wsb_client_external_services()->get_cached_booking_site_config();
+        $capacity = $config['capacity'] ?? [];
+        $picker = $config['picker'] ?? [];
+        $time_step = (int) ($picker['time_step_minutes'] ?? 5);
+        $max_passengers = (int) ($capacity['max_passengers'] ?? 13);
+        $max_bags = (int) ($capacity['max_check_in_bags'] ?? 13);
+
         $fields = [
             'trip_type' => [
                 'key' => 'trip_type',
@@ -31,6 +38,7 @@ class BookingFieldRegistry {
                 'required' => true,
                 'applies_to' => ['transfer', 'charter'],
                 'admin_editable' => true,
+                'max_attr' => $max_passengers,
             ],
             'baby_seats' => [
                 'key' => 'baby_seats',
@@ -40,6 +48,7 @@ class BookingFieldRegistry {
                 'required' => false,
                 'applies_to' => ['transfer', 'charter'],
                 'admin_editable' => true,
+                'max_attr' => $max_passengers,
             ],
             'check_in_bags' => [
                 'key' => 'check_in_bags',
@@ -49,6 +58,7 @@ class BookingFieldRegistry {
                 'required' => false,
                 'applies_to' => ['transfer', 'charter'],
                 'admin_editable' => true,
+                'max_attr' => $max_bags,
             ],
             'carry_on_bags' => [
                 'key' => 'carry_on_bags',
@@ -58,6 +68,7 @@ class BookingFieldRegistry {
                 'required' => false,
                 'applies_to' => ['transfer', 'charter'],
                 'admin_editable' => true,
+                'max_attr' => $max_bags,
             ],
             'trailer' => [
                 'key' => 'trailer',
@@ -112,6 +123,7 @@ class BookingFieldRegistry {
                 'required' => true,
                 'applies_to' => ['transfer', 'charter'],
                 'admin_editable' => true,
+                'step_attr' => $time_step * 60, // Convert to seconds
             ],
             'return_from' => [
                 'key' => 'return_from',
@@ -148,6 +160,7 @@ class BookingFieldRegistry {
                 'required' => false,
                 'applies_to' => ['transfer'],
                 'admin_editable' => true,
+                'step_attr' => $time_step * 60, // Convert to seconds
             ],
             'additional_stop' => [
                 'key' => 'additional_stop',
@@ -202,6 +215,7 @@ class BookingFieldRegistry {
                 'required' => true,
                 'applies_to' => ['charter'],
                 'admin_editable' => true,
+                'step_attr' => $time_step * 60, // Convert to seconds
             ],
             'charter_dropoff_time' => [
                 'key' => 'charter_dropoff_time',
@@ -211,6 +225,7 @@ class BookingFieldRegistry {
                 'required' => true,
                 'applies_to' => ['charter'],
                 'admin_editable' => true,
+                'step_attr' => $time_step * 60, // Convert to seconds
             ],
             'charter_additional_stop' => [
                 'key' => 'charter_additional_stop',

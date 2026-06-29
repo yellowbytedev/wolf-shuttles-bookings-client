@@ -138,6 +138,26 @@ ws-bookings-client
 
 If a task requires looking outside `ws-bookings-client`, the agent may only read files. It must not write, move, delete, stash, clean, reset, or initialise Git outside `ws-bookings-client`.
 
-## First deliverable target
+## Specialist Agent Usage
+
+### Specialist roles
+- **Documentation Specialist**: Audits, roadmap docs, handoff docs, legacy-snippet mapping, decisions logs
+- **Code**: Normal implementation tasks
+- **Frontend Specialist**: UI/CSS/frontend tasks; must use Browser MCP visual QA where available
+- **Code Reviewer**: Senior review checkpoints and risky review passes
+- **Debug**: Bug isolation, console errors, PHP fatals, failing fixtures
+- **Code Simplifier**: Refactors and extraction after behaviour is stable
+- **Plan**: Planning only; no application-code edits
+- **Ask**: Quick explanations or read-only inspection
+
+### Sub-agent rules
+- Main agent may use sub-agents for focused inspection, documentation, review, or debugging.
+- Sub-agents must not broaden scope.
+- Sub-agents must follow repo boundary rules (read-only outside `ws-bookings-client`).
+- Main agent remains responsible for final validation and completion report.
+- Completion report must mention whether sub-agents were used and what they checked.
+
+### Deprecated roles
+- **Orchestrator**: Do not use; deprecated.
 
 Create a new shortcode-rendered booking builder form that can submit one-way and return transfer payloads in v2 format while leaving the existing Bricks form untouched.

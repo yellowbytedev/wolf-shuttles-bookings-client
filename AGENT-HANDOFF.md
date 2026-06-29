@@ -144,6 +144,8 @@ Requirements:
 
 ## 10. Agent Tiers / Workflow Expectation
 
+See `AGENTS.md` for specialist agent roles and sub-agent rules.
+
 - Small or free agents should stick to small implementation tasks, fixtures, or doc updates.
 - Review agents should inspect diffs, tests, logs, and architecture for regressions.
 - Stronger agents should handle architecture changes and risky debugging.

@@ -314,3 +314,15 @@ Each feature should plug into a pricing pipeline rather than being hardcoded int
 - Time picker uses native input with 5-minute step; opens on click/focus.
 - Fixture drawer and raw preview panels remain on debug page.
 
+### Phase 2X status (completed)
+
+- Additional stop control reordered: now appears between origin (From) and destination (To) fields on both outbound and return legs.
+- Charter/Shuttle Hire section does not include additional stops.
+- AM/PM badge repositioned: now renders inside the time input (absolutely positioned, right-aligned, subtle grey).
+- Time inputs given extra right padding to prevent overlap with badge.
+- Badge updates dynamically via `updateAmPmLabels()` on time changes.
+- No payload contract change.
+- No booking-site/API behaviour change.
+- All 29 payload fixtures pass.
+- All 18 valid handover fixtures pass.
+

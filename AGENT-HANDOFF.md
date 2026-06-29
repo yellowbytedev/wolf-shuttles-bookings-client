@@ -63,6 +63,9 @@ The roadmap lives in `docs/booking-intake-roadmap.md` and the phase log lives in
 - Phase 2S complete: date/time picker parity pass — legacy-style picker styling/behavior ported into plugin-owned CSS/JS.
 - Phase 2T complete: Google Places Autocomplete scaffold — plugin-owned enqueue, autocomplete init, place snapshot capture, stale-edit handling, and quote-ready diagnostic flag.
 - Phase 2U complete: Booking Builder UI polish — tabs/cards/inputs styled closer to legacy form, Google place display string now shows name + street/area/city without country suffix, date icon overlap fixed by hiding native indicator, debug-only copy/tools scoped to `?debug=1`, CTA updated to product-like wording.
+- Phase 2V complete: legacy clock-style timepicker restored (jquery-clock-timepicker ported into plugin, AM/PM badge integration).
+- Phase 2W complete: section wording and hero cleanup.
+- Phase 2X complete: additional stop control reordered between From and To on outbound/return legs; AM/PM badge moved inside time input (absolutely positioned, right-aligned, subtle).
 - Phase 2V complete: legacy clock-style timepicker restored — `jquery-clock-timepicker.min.js` copied from theme into plugin `assets/js/`, enqueued via `wsb-clock-timepicker` handle, `initClockTimePicker` wired into `initBookingBuilder` with 5-minute precision, AM/PM badges, charter defaults 08:00/17:00.
 - Phase 2W complete: section wording updated — "Trip details" replaces "Outbound leg", "Return transfer" replaces "Return leg", "Shuttle Hire" section uses charter-friendly language, hero heading removed from normal page.
 

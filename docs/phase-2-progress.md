@@ -419,3 +419,18 @@
 - Normal `/booking-builder/` page no longer exposes developer preview copy or fixture drawer.
 - Debug page `/booking-builder/?debug=1` keeps fixture drawer, dev header, and raw preview panels.
 - All 29 payload fixtures pass.
+
+## Phase 2X — Final UI polish: stop placement and time badge (completed)
+
+- Reordered additional stop control in `inc/class-booking-client-form-shortcode.php`:
+  - Outbound/transfer section now renders: From → Enable additional stop → Additional stop field (when enabled) → To → Date/Time.
+  - Return section now renders: Return from → Enable return additional stop → Return additional stop field (when enabled) → Return to → Date/Time.
+  - Charter/Shuttle Hire section remains unchanged (no additional stops).
+- AM/PM badge positioning updated in `assets/css/booking-client-form.css`:
+  - `.wsb-time-ampm-badge` is now absolutely positioned inside the `.clock-timepicker` wrapper (right-aligned, subtle grey text).
+  - Time inputs receive extra right padding so typed text does not overlap badge.
+  - Badge updates on time change via existing `updateAmPmLabels()` JS helper.
+- No payload contract change.
+- No booking-site/API behaviour change.
+- All 29 payload fixtures pass.
+- All 18 valid handover fixtures pass (11 invalid skipped as expected).

@@ -126,7 +126,6 @@ class BookingClientFormShortcode {
 
                         <section class="wsb-booking-client-card wsb-booking-client-outbound" data-wsb-outbound-section>
                             <?php echo self::render_text_field($fields['outbound_from']); ?>
-                            <?php echo self::render_text_field($fields['outbound_to']); ?>
                             <label class="wsb-booking-client-checkbox-label wsb-booking-client-additional-toggle-label">
                                 <input type="checkbox" name="outbound_additional_stop_enabled" class="wsb-booking-client-additional-toggle" data-wsb-outbound-additional-stop-toggle>
                                 <?php echo esc_html(__('Enable additional stop', 'wsb')); ?>
@@ -135,6 +134,7 @@ class BookingClientFormShortcode {
                                 <label class="wsb-form__label" for="<?php echo esc_attr($fields['outbound_additional_stop']['key']); ?>"><?php echo esc_html($fields['outbound_additional_stop']['label']); ?></label>
                                 <input class="wsb-form__input" type="text" id="<?php echo esc_attr($fields['outbound_additional_stop']['key']); ?>" name="<?php echo esc_attr($fields['outbound_additional_stop']['key']); ?>" placeholder="<?php echo esc_attr($fields['outbound_additional_stop']['placeholder'] ?? ''); ?>" disabled />
                             </div>
+                            <?php echo self::render_text_field($fields['outbound_to']); ?>
                             <div class="wsb-booking-client-grid wsb-booking-client-grid--compact">
                                 <?php echo self::render_date_field($fields['outbound_pickup_date']); ?>
                                 <?php echo self::render_time_field($fields['outbound_pickup_time']); ?>
@@ -149,7 +149,6 @@ class BookingClientFormShortcode {
                                 <h3><?php echo esc_html__('Return transfer', 'wsb'); ?></h3>
                             </div>
                             <?php echo self::render_text_field($fields['return_from'], false); ?>
-                            <?php echo self::render_text_field($fields['return_to'], false); ?>
                             <label class="wsb-booking-client-checkbox-label wsb-booking-client-additional-toggle-label">
                                 <input type="checkbox" name="return_additional_stop_enabled" class="wsb-booking-client-additional-toggle" data-wsb-return-additional-stop-toggle>
                                 <?php echo esc_html(__('Enable additional stop', 'wsb')); ?>
@@ -158,6 +157,7 @@ class BookingClientFormShortcode {
                                 <label class="wsb-form__label" for="<?php echo esc_attr($fields['return_additional_stop']['key']); ?>"><?php echo esc_html($fields['return_additional_stop']['label']); ?></label>
                                 <input class="wsb-form__input" type="text" id="<?php echo esc_attr($fields['return_additional_stop']['key']); ?>" name="<?php echo esc_attr($fields['return_additional_stop']['key']); ?>" placeholder="<?php echo esc_attr($fields['return_additional_stop']['placeholder'] ?? ''); ?>" disabled />
                             </div>
+                            <?php echo self::render_text_field($fields['return_to'], false); ?>
                             <div class="wsb-booking-client-grid wsb-booking-client-grid--compact">
                                 <?php echo self::render_date_field($fields['return_pickup_date'], false); ?>
                                 <?php echo self::render_time_field($fields['return_pickup_time'], false); ?>

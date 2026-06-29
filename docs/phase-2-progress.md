@@ -243,6 +243,14 @@
 - Documented ownership: booking site authoritative, marketing site caches and constrains.
 - No live endpoint implemented yet; next task is booking-site endpoint or marketing consumer scaffold.
 
+## Phase 2P — Quote preflight/draft itinerary roadmap (documented)
+
+- Created `docs/quote-preflight-draft-itinerary.md` documenting the preflight concept.
+- Google Places autocomplete mandatory for final production form.
+- No route-cache reliance for pricing.
+- Preflight must not create WooCommerce cart items or orders.
+- Draft work is performance optimisation, not source of truth.
+
 - Removed charter additional stop UI from the Booking Builder.
 - Charter legs now always use `stops: []` per business rules.
 - Transfer legs (outbound/return) still support additional stops.

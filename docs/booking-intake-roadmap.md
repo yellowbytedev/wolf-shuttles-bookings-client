@@ -124,10 +124,17 @@ Milestones:
 - No live Google API calls; placeholder/mock place IDs only.
 - Labels are abstract; no client details exposed.
 
-### Phase 2O status (planned)
+### Phase 2O status (completed)
 
 - Booking-site config contract defined in `docs/booking-site-config-contract.md`.
-- No live endpoint implemented; next task is marketing-side config consumer scaffold or booking-side endpoint.
+- No live endpoint implemented; marketing-side config consumer scaffold planned for Phase 2?.
+
+### Phase 2P status (planned)
+
+- Quote preflight/draft itinerary concept documented.
+- Google Places autocomplete must be mandatory for final production form.
+- No route-cache reliance for pricing.
+- Not implemented yet; follows booking-site v2 receiver foundations.
 
 ## Phase 3 — Booking-site v2 intake
 

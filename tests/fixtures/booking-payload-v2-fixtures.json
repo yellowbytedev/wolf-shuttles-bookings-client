@@ -1025,5 +1025,268 @@
         }
       ]
     }
+  },
+  {
+    "id": "valid-one-way-with-google-place-snapshots",
+    "description": "Valid one-way transfer with Google Places autocomplete snapshots on both origin and destination",
+    "expected_ok": true,
+    "payload": {
+      "schema_version": "2.0",
+      "source": "marketing_booking_builder",
+      "service_group": "transfer",
+      "service_type": "city_transfer",
+      "trip_type": "one_way",
+      "passengers": 2,
+      "customer": {
+        "name": "Test User",
+        "email": "test@example.com",
+        "phone": "+27710000000"
+      },
+      "add_ons": {
+        "trailer": false,
+        "oversize_luggage": false
+      },
+      "legs": [
+        {
+          "type": "outbound",
+          "from": {
+            "label": "Cape Town International Airport",
+            "place_id": "ChIJvQtA90JFzB0RkF7P43l1SEA",
+            "formatted_address": "Cape Town International Airport, Matroosfontein, Cape Town, 7493, South Africa",
+            "coords": {
+              "lat": -33.9696,
+              "lng": 18.5978
+            }
+          },
+          "to": {
+            "label": "Stellenbosch Central",
+            "place_id": "ChIJNcaAuaNHzB0Ruy1x8vqiSUM",
+            "formatted_address": "Stellenbosch Central, Stellenbosch, South Africa",
+            "coords": {
+              "lat": -33.9333,
+              "lng": 18.8467
+            }
+          },
+          "pickup_date": "2026-08-15",
+          "pickup_time": "10:00",
+          "stops": [],
+          "route": [],
+          "place_snapshots": {
+            "from": {
+              "provider": "google_places",
+              "place_id": "ChIJvQtA90JFzB0RkF7P43l1SEA",
+              "label": "Cape Town International Airport",
+              "formatted_address": "Cape Town International Airport, Matroosfontein, Cape Town, 7493, South Africa",
+              "lat": -33.9696,
+              "lng": 18.5978
+            },
+            "to": {
+              "provider": "google_places",
+              "place_id": "ChIJNcaAuaNHzB0Ruy1x8vqiSUM",
+              "label": "Stellenbosch Central",
+              "formatted_address": "Stellenbosch Central, Stellenbosch, South Africa",
+              "lat": -33.9333,
+              "lng": 18.8467
+            },
+            "stops": []
+          }
+        }
+      ],
+      "validation_flags": {
+        "google_place_snapshots_ready": true
+      }
+    }
+  },
+  {
+    "id": "valid-return-with-google-place-snapshots",
+    "description": "Valid return transfer with Google Places snapshots on outbound and return legs",
+    "expected_ok": true,
+    "payload": {
+      "schema_version": "2.0",
+      "source": "marketing_booking_builder",
+      "service_group": "transfer",
+      "service_type": "city_transfer",
+      "trip_type": "return",
+      "passengers": 3,
+      "customer": {
+        "name": "Return User",
+        "email": "return@example.com",
+        "phone": "+27720000000"
+      },
+      "add_ons": {
+        "trailer": false,
+        "oversize_luggage": false
+      },
+      "legs": [
+        {
+          "type": "outbound",
+          "from": {
+            "label": "Cape Town International Airport",
+            "place_id": "ChIJvQtA90JFzB0RkF7P43l1SEA",
+            "formatted_address": "Cape Town International Airport, Matroosfontein, Cape Town, 7493, South Africa",
+            "coords": {
+              "lat": -33.9696,
+              "lng": 18.5978
+            }
+          },
+          "to": {
+            "label": "Franschhoek",
+            "place_id": "ChIJsR1XUKhHzB0RYuD08vqiSUM",
+            "formatted_address": "Franschhoek, South Africa",
+            "coords": {
+              "lat": -33.8889,
+              "lng": 18.9869
+            }
+          },
+          "pickup_date": "2026-08-15",
+          "pickup_time": "14:00",
+          "stops": [],
+          "route": [],
+          "place_snapshots": {
+            "from": {
+              "provider": "google_places",
+              "place_id": "ChIJvQtA90JFzB0RkF7P43l1SEA",
+              "label": "Cape Town International Airport",
+              "formatted_address": "Cape Town International Airport, Matroosfontein, Cape Town, 7493, South Africa",
+              "lat": -33.9696,
+              "lng": 18.5978
+            },
+            "to": {
+              "provider": "google_places",
+              "place_id": "ChIJsR1XUKhHzB0RYuD08vqiSUM",
+              "label": "Franschhoek",
+              "formatted_address": "Franschhoek, South Africa",
+              "lat": -33.8889,
+              "lng": 18.9869
+            },
+            "stops": []
+          }
+        },
+        {
+          "type": "return",
+          "from": {
+            "label": "Franschhoek",
+            "place_id": "ChIJsR1XUKhHzB0RYuD08vqiSUM",
+            "formatted_address": "Franschhoek, South Africa",
+            "coords": {
+              "lat": -33.8889,
+              "lng": 18.9869
+            }
+          },
+          "to": {
+            "label": "Cape Town International Airport",
+            "place_id": "ChIJvQtA90JFzB0RkF7P43l1SEA",
+            "formatted_address": "Cape Town International Airport, Matroosfontein, Cape Town, 7493, South Africa",
+            "coords": {
+              "lat": -33.9696,
+              "lng": 18.5978
+            }
+          },
+          "pickup_date": "2026-08-20",
+          "pickup_time": "09:00",
+          "stops": [],
+          "route": [],
+          "place_snapshots": {
+            "from": {
+              "provider": "google_places",
+              "place_id": "ChIJsR1XUKhHzB0RYuD08vqiSUM",
+              "label": "Franschhoek",
+              "formatted_address": "Franschhoek, South Africa",
+              "lat": -33.8889,
+              "lng": 18.9869
+            },
+            "to": {
+              "provider": "google_places",
+              "place_id": "ChIJvQtA90JFzB0RkF7P43l1SEA",
+              "label": "Cape Town International Airport",
+              "formatted_address": "Cape Town International Airport, Matroosfontein, Cape Town, 7493, South Africa",
+              "lat": -33.9696,
+              "lng": 18.5978
+            },
+            "stops": []
+          }
+        }
+      ],
+      "validation_flags": {
+        "google_place_snapshots_ready": true
+      }
+    }
+  },
+  {
+    "id": "valid-charter-with-google-place-snapshots",
+    "description": "Valid charter with Google Places snapshots on pickup and drop-off",
+    "expected_ok": true,
+    "payload": {
+      "schema_version": "2.0",
+      "source": "marketing_booking_builder",
+      "service_group": "charter",
+      "service_type": "charter_hire",
+      "trip_type": "charter",
+      "passengers": 4,
+      "customer": {
+        "name": "Charter User",
+        "email": "charter@example.com",
+        "phone": "+27730000000"
+      },
+      "add_ons": {
+        "trailer": false,
+        "oversize_luggage": false
+      },
+      "legs": [
+        {
+          "type": "charter",
+          "from": {
+            "label": "Cape Town Waterfront",
+            "place_id": "ChIJNcaAuaNHzB0Ruy1x8vqiSUM",
+            "formatted_address": "V&A Waterfront, Cape Town, 8002, South Africa",
+            "coords": {
+              "lat": -33.9025,
+              "lng": 18.4181
+            }
+          },
+          "to": {
+            "label": "Cape Point",
+            "place_id": "ChIJk3K-gLhHzB0Ru2D08vqiSUM",
+            "formatted_address": "Cape Point, Cape Peninsula, Cape Town, South Africa",
+            "coords": {
+              "lat": -34.3568,
+              "lng": 18.474
+            }
+          },
+          "pickup_date": "2026-08-15",
+          "pickup_time": "09:00",
+          "dropoff_time": "17:00",
+          "stops": [],
+          "route": [],
+          "place_snapshots": {
+            "from": {
+              "provider": "google_places",
+              "place_id": "ChIJNcaAuaNHzB0Ruy1x8vqiSUM",
+              "label": "Cape Town Waterfront",
+              "formatted_address": "V&A Waterfront, Cape Town, 8002, South Africa",
+              "lat": -33.9025,
+              "lng": 18.4181
+            },
+            "to": {
+              "provider": "google_places",
+              "place_id": "ChIJk3K-gLhHzB0Ru2D08vqiSUM",
+              "label": "Cape Point",
+              "formatted_address": "Cape Point, Cape Peninsula, Cape Town, South Africa",
+              "lat": -34.3568,
+              "lng": 18.474
+            },
+            "stops": []
+          }
+        }
+      ],
+      "charter": {
+        "enabled": true,
+        "type": "same_day",
+        "days": []
+      },
+      "validation_flags": {
+        "google_place_snapshots_ready": true
+      }
+    }
   }
 ]

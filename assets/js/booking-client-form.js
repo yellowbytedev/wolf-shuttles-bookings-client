@@ -16,6 +16,11 @@
         serverPreviewError: 'Server preview could not be completed.',
     };
     var BOOKING_SITE_CONFIG = CONFIG.bookingSiteConfig || {};
+var GOOGLE_PLACES = (CONFIG.googlePlaces || {
+    enabled: false,
+    available: false,
+    requiredForQuoteReady: false
+});
 
     function logDebug() {
         if (!DEBUG || typeof window.console === 'undefined' || typeof window.console.log !== 'function') {
@@ -180,20 +185,59 @@
         return 'transfer';
     }
 
+    var placeSnapshots = {};
+
     function buildLeg(form, type) {
         var prefix = type === 'return' ? 'return_' : 'outbound_';
+        var fromLabel = getFieldValue(form, 'input[name="' + prefix + 'from"]', '');
+        var toLabel = getFieldValue(form, 'input[name="' + prefix + 'to"]', '');
+        var fromSnapshot = placeSnapshots[prefix + 'from'] || clonePlaceSnapshot(PLACE_SNAPSHOT_EMPTY);
+        var toSnapshot = placeSnapshots[prefix + 'to'] || clonePlaceSnapshot(PLACE_SNAPSHOT_EMPTY);
+
+        // Merge label from text input if snapshot label is missing
+        if (!fromSnapshot.label && fromLabel) {
+            fromSnapshot.label = fromLabel;
+            fromSnapshot.formatted_address = fromLabel;
+        }
+        if (!toSnapshot.label && toLabel) {
+            toSnapshot.label = toLabel;
+            toSnapshot.formatted_address = toLabel;
+        }
+
         var leg = {
             type: type,
-            from: textLocation(getFieldValue(form, 'input[name="' + prefix + 'from"]', '')),
-            to: textLocation(getFieldValue(form, 'input[name="' + prefix + 'to"]', '')),
+            from: {
+                label: fromLabel,
+                name: fromSnapshot.label || '',
+                town: '',
+                neighbourhood: '',
+                place_id: fromSnapshot.place_id || '',
+                coords: {
+                    lat: fromSnapshot.lat != null ? fromSnapshot.lat : null,
+                    lng: fromSnapshot.lng != null ? fromSnapshot.lng : null
+                },
+                formatted_address: fromSnapshot.formatted_address || fromLabel
+            },
+            to: {
+                label: toLabel,
+                name: toSnapshot.label || '',
+                town: '',
+                neighbourhood: '',
+                place_id: toSnapshot.place_id || '',
+                coords: {
+                    lat: toSnapshot.lat != null ? toSnapshot.lat : null,
+                    lng: toSnapshot.lng != null ? toSnapshot.lng : null
+                },
+                formatted_address: toSnapshot.formatted_address || toLabel
+            },
             pickup_date: getFieldValue(form, 'input[name="' + prefix + 'pickup_date"]', ''),
             pickup_time: getFieldValue(form, 'input[name="' + prefix + 'pickup_time"]', ''),
             pickup_datetime: trimValue(getFieldValue(form, 'input[name="' + prefix + 'pickup_date"]', '') + ' ' + getFieldValue(form, 'input[name="' + prefix + 'pickup_time"]', '')),
             stops: [],
             route: {},
             place_snapshots: {
-                from: { provider: null, place_id: null, label: null, formatted_address: null, lat: null, lng: null },
-                to: { provider: null, place_id: null, label: null, formatted_address: null, lat: null, lng: null },
+                from: fromSnapshot,
+                to: toSnapshot,
                 stops: []
             }
         };
@@ -211,18 +255,54 @@
     }
 
     function buildCharterLeg(form, state) {
+        var fromLabel = getFieldValue(form, 'input[name="charter_pickup_location"]', '');
+        var toLabel = getFieldValue(form, 'input[name="charter_dropoff_location"]', '');
+        var fromSnapshot = placeSnapshots['charter_pickup_location'] || clonePlaceSnapshot(PLACE_SNAPSHOT_EMPTY);
+        var toSnapshot = placeSnapshots['charter_dropoff_location'] || clonePlaceSnapshot(PLACE_SNAPSHOT_EMPTY);
+
+        if (!fromSnapshot.label && fromLabel) {
+            fromSnapshot.label = fromLabel;
+            fromSnapshot.formatted_address = fromLabel;
+        }
+        if (!toSnapshot.label && toLabel) {
+            toSnapshot.label = toLabel;
+            toSnapshot.formatted_address = toLabel;
+        }
+
         var leg = {
             type: 'charter',
-            from: textLocation(getFieldValue(form, 'input[name="charter_pickup_location"]', '')),
-            to: textLocation(getFieldValue(form, 'input[name="charter_dropoff_location"]', '')),
+            from: {
+                label: fromLabel,
+                name: fromSnapshot.label || '',
+                town: '',
+                neighbourhood: '',
+                place_id: fromSnapshot.place_id || '',
+                coords: {
+                    lat: fromSnapshot.lat != null ? fromSnapshot.lat : null,
+                    lng: fromSnapshot.lng != null ? fromSnapshot.lng : null
+                },
+                formatted_address: fromSnapshot.formatted_address || fromLabel
+            },
+            to: {
+                label: toLabel,
+                name: toSnapshot.label || '',
+                town: '',
+                neighbourhood: '',
+                place_id: toSnapshot.place_id || '',
+                coords: {
+                    lat: toSnapshot.lat != null ? toSnapshot.lat : null,
+                    lng: toSnapshot.lng != null ? toSnapshot.lng : null
+                },
+                formatted_address: toSnapshot.formatted_address || toLabel
+            },
             pickup_date: getFieldValue(form, 'input[name="outbound_pickup_date"]', ''),
             pickup_time: getFieldValue(form, 'input[name="charter_pickup_time"]', ''),
             dropoff_time: getFieldValue(form, 'input[name="charter_dropoff_time"]', ''),
             stops: [],
             route: {},
             place_snapshots: {
-                from: { provider: null, place_id: null, label: null, formatted_address: null, lat: null, lng: null },
-                to: { provider: null, place_id: null, label: null, formatted_address: null, lat: null, lng: null },
+                from: fromSnapshot,
+                to: toSnapshot,
                 stops: []
             }
         };
@@ -277,6 +357,19 @@
              days: []
          };
 
+        var quoteReady = true;
+        var requiredPlaceIds = [];
+        legs.forEach(function (leg) {
+            if (leg.place_snapshots && leg.place_snapshots.from && !leg.place_snapshots.from.place_id) {
+                quoteReady = false;
+                requiredPlaceIds.push(leg.type + '.from');
+            }
+            if (leg.place_snapshots && leg.place_snapshots.to && !leg.place_snapshots.to.place_id) {
+                quoteReady = false;
+                requiredPlaceIds.push(leg.type + '.to');
+            }
+        });
+
         return {
             schema_version: '2.0',
             source: 'marketing_booking_builder',
@@ -309,7 +402,9 @@
                 notes: []
             },
             tracking: {},
-            validation_flags: {},
+            validation_flags: {
+                google_place_snapshots_ready: quoteReady
+            },
             meta: {
                 preview_only: true,
                 handover_mode: 'preview',
@@ -899,6 +994,169 @@
         }
     }
 
+    /* ---------- Google Places Autocomplete ---------- */
+
+    var PLACE_SNAPSHOT_EMPTY = {
+        provider: null,
+        place_id: null,
+        label: null,
+        formatted_address: null,
+        lat: null,
+        lng: null
+    };
+
+    function clonePlaceSnapshot(snapshot) {
+        return {
+            provider: snapshot.provider || null,
+            place_id: snapshot.place_id || null,
+            label: snapshot.label || null,
+            formatted_address: snapshot.formatted_address || null,
+            lat: snapshot.lat != null ? snapshot.lat : null,
+            lng: snapshot.lng != null ? snapshot.lng : null
+        };
+    }
+
+    function extractPlaceDetails(place) {
+        var snapshot = clonePlaceSnapshot(PLACE_SNAPSHOT_EMPTY);
+        if (!place) {
+            return snapshot;
+        }
+
+        snapshot.provider = 'google_places';
+        snapshot.place_id = typeof place.place_id === 'string' ? place.place_id : null;
+        snapshot.label = typeof place.name === 'string' ? place.name : null;
+        snapshot.formatted_address = typeof place.formatted_address === 'string' ? place.formatted_address : null;
+
+        if (place.geometry && place.geometry.location) {
+            var loc = place.geometry.location;
+            if (typeof loc.lat === 'function') {
+                snapshot.lat = loc.lat();
+            } else if (typeof loc.lat === 'number') {
+                snapshot.lat = loc.lat;
+            }
+            if (typeof loc.lng === 'function') {
+                snapshot.lng = loc.lng();
+            } else if (typeof loc.lng === 'number') {
+                snapshot.lng = loc.lng;
+            }
+        }
+
+        return snapshot;
+    }
+
+    function markPlaceFieldSelected(input) {
+        if (!input) {
+            return;
+        }
+        var wrapper = input.closest('.wsb-booking-client-field');
+        if (!wrapper) {
+            return;
+        }
+        wrapper.classList.add('wsb-booking-client-field--place-selected');
+        wrapper.classList.remove('wsb-booking-client-field--place-stale');
+    }
+
+    function markPlaceFieldStale(input) {
+        if (!input) {
+            return;
+        }
+        var wrapper = input.closest('.wsb-booking-client-field');
+        if (!wrapper) {
+            return;
+        }
+        wrapper.classList.remove('wsb-booking-client-field--place-selected');
+        wrapper.classList.add('wsb-booking-client-field--place-stale');
+    }
+
+    function clearPlaceFieldState(input) {
+        if (!input) {
+            return;
+        }
+        var wrapper = input.closest('.wsb-booking-client-field');
+        if (!wrapper) {
+            return;
+        }
+        wrapper.classList.remove('wsb-booking-client-field--place-selected', 'wsb-booking-client-field--place-stale');
+    }
+
+    function initGooglePlacesAutocomplete(root) {
+        if (!GOOGLE_PLACES.enabled || typeof google === 'undefined' || typeof google.maps === 'undefined' || typeof google.maps.places === 'undefined') {
+            return;
+        }
+
+        var autocompleteFields = [
+            { selector: 'input[name="outbound_from"]', snapshotKey: 'outbound_from' },
+            { selector: 'input[name="outbound_to"]', snapshotKey: 'outbound_to' },
+            { selector: 'input[name="return_from"]', snapshotKey: 'return_from' },
+            { selector: 'input[name="return_to"]', snapshotKey: 'return_to' },
+            { selector: 'input[name="charter_pickup_location"]', snapshotKey: 'charter_pickup_location' },
+            { selector: 'input[name="charter_dropoff_location"]', snapshotKey: 'charter_dropoff_location' },
+        ];
+
+        autocompleteFields.forEach(function (field) {
+            var input = root.querySelector(field.selector);
+            if (!input) {
+                return;
+            }
+
+            // Skip if already initialized
+            if (input.dataset.wsbPlaceInitialized === 'true') {
+                return;
+            }
+            input.dataset.wsbPlaceInitialized = 'true';
+
+            var autocomplete = new google.maps.places.Autocomplete(input, {
+                types: ['establishment', 'geocode'],
+                componentRestrictions: { country: 'ZA' },
+                fields: ['address_components', 'geometry', 'name', 'place_id', 'formatted_address']
+            });
+
+            autocomplete.addListener('place_changed', function () {
+                var place = autocomplete.getPlace();
+                var snapshot = extractPlaceDetails(place);
+
+                if (!snapshot.place_id) {
+                    // No valid place selected, clear snapshot
+                    placeSnapshots[field.snapshotKey] = clonePlaceSnapshot(PLACE_SNAPSHOT_EMPTY);
+                    markPlaceFieldSelected(input);
+                    input.value = '';
+                    refreshPreview('');
+                    return;
+                }
+
+                // Store snapshot
+                placeSnapshots[field.snapshotKey] = snapshot;
+
+                // Update display label if name differs from current input
+                if (snapshot.label && snapshot.label !== input.value) {
+                    input.value = snapshot.label;
+                }
+
+                markPlaceFieldSelected(input);
+                refreshPreview('');
+            });
+
+            // Detect manual edits after selection — mark stale
+            input.addEventListener('input', function () {
+                var wrapper = input.closest('.wsb-booking-client-field');
+                if (!wrapper) {
+                    return;
+                }
+                if (wrapper.classList.contains('wsb-booking-client-field--place-selected')) {
+                    markPlaceFieldStale(input);
+                }
+            });
+
+            // Clear stale state on focus if user wants to re-select
+            input.addEventListener('focus', function () {
+                var wrapper = input.closest('.wsb-booking-client-field');
+                if (wrapper && wrapper.classList.contains('wsb-booking-client-field--place-stale')) {
+                    clearPlaceFieldState(input);
+                }
+            });
+        });
+    }
+
     function refreshPickerStatusMessages(root) {
         var outboundDate = root.querySelector('input[name="outbound_pickup_date"]');
         var outboundTime = root.querySelector('input[name="outbound_pickup_time"]');
@@ -982,6 +1240,7 @@
             fixtureId: '',
             fixtureExpected: ''
         };
+        placeSnapshots = {};
         var constraints = {
             transferMinNoticeMinutes: parseInt((BOOKING_SITE_CONFIG.lead_times || {}).transfer_min_notice_minutes || 300, 10),
             charterMinNoticeMinutes: parseInt((BOOKING_SITE_CONFIG.lead_times || {}).charter_min_notice_minutes || 2880, 10),
@@ -1136,6 +1395,7 @@
         setDateDefaults(root);
         updateAmPmLabels(root);
         refreshPickerStatusMessages(root);
+        initGooglePlacesAutocomplete(root);
         refreshPreview('Live payload preview initialised');
         if (fixtureStatus && fixtures.length) {
             updateFixtureDrawerStatus(

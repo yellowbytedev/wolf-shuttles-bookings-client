@@ -342,6 +342,24 @@ class BookingClientFormShortcode {
             true
         );
 
+        $google_places_enabled = false;
+        $google_places_available = false;
+        if (defined('GOOGLE_API_KEY') && GOOGLE_API_KEY !== '') {
+            $google_places_enabled = true;
+            $google_places_available = true; // Actual availability checked in JS
+
+            wp_register_script(
+                'wsb-google-places-api',
+                sprintf(
+                    'https://maps.googleapis.com/maps/api/js?key=%s&libraries=places',
+                    rawurlencode(GOOGLE_API_KEY)
+                ),
+                [],
+                null,
+                true
+            );
+        }
+
         $preview_url = rest_url('ws-bookings-client/v1/payload-preview');
         $config = array(
             'previewUrl' => esc_url_raw($preview_url),
@@ -372,6 +390,12 @@ class BookingClientFormShortcode {
                 'pickerDateAfterMax' => __('Date exceeds the maximum advance booking window.', 'wsb'),
                 'pickerTimeBeforeMin' => __('Time is inside the lead-time window.', 'wsb'),
                 'pickerDateBlocked' => __('Selected date is blocked for bookings.', 'wsb'),
+                'placeSnapshotStale' => __('Location was edited after selection. Please select a place again.', 'wsb'),
+            ),
+            'googlePlaces' => array(
+                'enabled' => $google_places_enabled,
+                'available' => $google_places_available,
+                'requiredForQuoteReady' => true,
             ),
         );
 
@@ -382,6 +406,9 @@ class BookingClientFormShortcode {
         self::register_assets();
         wp_enqueue_style('wsb-booking-client-form-style');
         wp_enqueue_script('wsb-booking-client-form-script');
+        if (defined('GOOGLE_API_KEY') && GOOGLE_API_KEY !== '') {
+            wp_enqueue_script('wsb-google-places-api');
+        }
     }
 
     private static function should_show_dev_drawer(): bool {

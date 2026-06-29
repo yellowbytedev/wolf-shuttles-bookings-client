@@ -218,6 +218,12 @@ if ( ! class_exists( 'WSB_Client_Booking_Payload_V2_Validator' ) ) {
                 }
             }
 
+            // Quote-ready diagnostic: warn if Google place IDs are missing when enabled
+            $validation_flags = is_array( $payload['validation_flags'] ?? null ) ? $payload['validation_flags'] : array();
+            if ( empty( $validation_flags['google_place_snapshots_ready'] ) ) {
+                $warnings[] = $this->warning( 'validation_flags', 'place_snapshots_missing', 'Google place snapshots are not quote-ready. Origin/destination place IDs are required for pricing.' );
+            }
+
             /**
              * Filter v2 validation result.
              *

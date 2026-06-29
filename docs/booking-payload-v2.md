@@ -279,7 +279,7 @@ The preview endpoint uses `X-WP-Nonce` protection and verifies a WP REST nonce w
 ### Current limitations
 - Preview is validation-only and does not submit a real booking
 - Booking-site handover is pending (v2 handover envelope dry-run foundation added)
-- Google autocomplete is still pending
+- Google Places autocomplete is scaffolded but route/distance/toll integration is not implemented yet
 - Charter is preview-only; no real pricing yet
 - Multi-day charter drag/drop not implemented
 

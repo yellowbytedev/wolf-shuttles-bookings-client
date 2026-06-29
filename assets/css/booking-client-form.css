@@ -271,6 +271,18 @@
   background: var(--danger-trans-05);
 }
 
+/* Google Places selected place state */
+.wsb-booking-client-field--place-selected input[type="text"] {
+  border-color: var(--success);
+  background: var(--success-trans-05);
+}
+
+/* Google Places stale state (user edited after selection) */
+.wsb-booking-client-field--place-stale input[type="text"] {
+  border-color: var(--warning);
+  background: var(--warning-trans-05);
+}
+
 .wsb-booking-client-picker-wrapper .wsb-picker-status {
   display: flex;
   align-items: center;

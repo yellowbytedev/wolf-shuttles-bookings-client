@@ -61,6 +61,7 @@ The roadmap lives in `docs/booking-intake-roadmap.md` and the phase log lives in
 - Phase 2P complete: marketing-side config consumer scaffold added.
 - Phase 2R complete: booking-site config date/time constraints applied to external services adapter.
 - Phase 2S complete: date/time picker parity pass — legacy-style picker styling/behavior ported into plugin-owned CSS/JS.
+- Phase 2T complete: Google Places Autocomplete scaffold — plugin-owned enqueue, autocomplete init, place snapshot capture, stale-edit handling, and quote-ready diagnostic flag.
 
 If roadmap or phase status changes, update this file at the same time.
 

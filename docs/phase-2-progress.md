@@ -332,3 +332,40 @@
 - All 26 payload fixtures pass.
 - All 15 valid handover fixtures pass (11 invalid skipped as expected).
 - Browser MCP visual QA: form renders correctly, charter/return tabs switch mode, fixture drawer opens and populates form.
+
+
+## Phase 2T — Google Places Autocomplete scaffold (completed)
+
+- Added plugin-owned Google Places script enqueue in `inc/class-booking-client-form-shortcode.php`.
+  - Only enqueues when `GOOGLE_API_KEY` constant is defined and non-empty.
+  - Only loads on Booking Builder shortcode pages.
+  - Does not hard-code or log the API key.
+- Added `googlePlaces` frontend config flag:
+  - `enabled`, `available`, `requiredForQuoteReady`.
+- Added Google Places Autocomplete to Booking Builder location fields:
+  - `outbound_from`, `outbound_to`
+  - `return_from`, `return_to`
+  - `charter_pickup_location`, `charter_dropoff_location`
+- Place snapshot capture stores in JS state:
+  - `provider`: `google_places`
+  - `place_id`, `label`, `formatted_address`
+  - `lat`, `lng` (numeric)
+- Stale-edit handling:
+  - If user edits text after selection, snapshot is marked stale via `.wsb-booking-client-field--place-stale`.
+  - Re-focusing field clears stale state.
+- Payload integration:
+  - `buildLeg()` and `buildCharterLeg()` now include `place_snapshots` populated from JS state.
+  - `from`/`to` display strings remain for compatibility.
+  - `validation_flags.google_place_snapshots_ready` indicates quote-ready status.
+- Styling:
+  - `.wsb-booking-client-field--place-selected` for valid selections.
+  - `.wsb-booking-client-field--place-stale` for edited-after-selection state.
+- Validator added optional warning for missing place snapshots.
+- No route/distance/toll calls made; no booking-site calls made.
+- Legacy componentRestriction: country `ZA` preserved.
+- 3 new fixtures added (total 29):
+  - `valid-one-way-with-google-place-snapshots`
+  - `valid-return-with-google-place-snapshots`
+  - `valid-charter-with-google-place-snapshots`
+- All 29 payload fixtures pass.
+- All 18 valid handover fixtures pass (11 invalid skipped as expected).

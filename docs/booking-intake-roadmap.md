@@ -289,3 +289,17 @@ Each feature should plug into a pricing pipeline rather than being hardcoded int
 - Updated `render_date_field()` to include status containers for outbound/return pickers.
 - No third-party picker library added; no CDN or npm dependencies.
 - Company-profile max values remain future booking-site config work (not implemented in this phase).
+
+### Phase 2T status (completed)
+
+- Google Places Autocomplete scaffolded and active on Booking Builder.
+- Plugin-owned PHP enqueue loads Google Maps JS API with Places library only when `GOOGLE_API_KEY` is available.
+- Plugin-owned JS attaches `google.maps.places.Autocomplete` to all location fields.
+- Place snapshots captured into `legs[].place_snapshots` (from/to).
+- Stale-edit detection: user edits after selection mark snapshot stale.
+- `validation_flags.google_place_snapshots_ready` added for quote-ready diagnostic.
+- No route/distance/toll/classification calls yet.
+- No booking-site API calls.
+- 3 new fixtures added (total 29).
+- All 29 payload fixtures pass.
+

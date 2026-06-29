@@ -218,7 +218,7 @@ class BookingFieldRegistry {
                 'placeholder' => __('Add an optional stop', 'wsb'),
                 'type' => 'text',
                 'required' => false,
-                'applies_to' => ['charter'],
+                'applies_to' => ['transfer'],
                 'admin_editable' => true,
             ],
         ];

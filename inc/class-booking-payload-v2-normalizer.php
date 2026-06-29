@@ -284,11 +284,13 @@ if ( ! class_exists( 'WSB_Client_Booking_Payload_V2_Normalizer' ) ) {
                     'route'           => is_array( $raw_leg['route'] ?? null ) ? $raw_leg['route'] : array(),
                 );
 
-                if ( $type === 'charter' || ( $trip_type === 'charter' && count( $normalized ) === 0 ) ) {
-                    $normalized_leg['dropoff_time'] = sanitize_text_field( $raw_leg['dropoff_time'] ?? '' );
-                }
+if ( $type === 'charter' || ( $trip_type === 'charter' && count( $normalized ) === 0 ) ) {
+                     $normalized_leg['dropoff_time'] = sanitize_text_field( $raw_leg['dropoff_time'] ?? '' );
+                     // Charter legs do not support additional stops per business rules
+                     $normalized_leg['stops'] = array();
+                 }
 
-                $normalized[] = $normalized_leg;
+                 $normalized[] = $normalized_leg;
             }
 
             return $normalized;
@@ -306,15 +308,8 @@ if ( ! class_exists( 'WSB_Client_Booking_Payload_V2_Normalizer' ) ) {
             $pickup_time = sanitize_text_field( $raw['charter_pickup_time'] ?? '' );
             $dropoff_time = sanitize_text_field( $raw['charter_dropoff_time'] ?? '' );
 
+            // Charter legs do not support additional stops per business rules
             $stops = array();
-            $additionalStopEnabled = $this->to_bool( $raw['charter_additional_stop_enabled'] ?? false );
-            $additionalStop = $this->normalize_location( $raw['charter_additional_stop'] ?? array() );
-            if ( ! empty( $additionalStop['label'] ) ) {
-                $stops[] = array(
-                    'type'     => 'additional_stop',
-                    'location' => $additionalStop,
-                );
-            }
 
             return array(
                 'type'            => 'charter',

@@ -36,11 +36,9 @@ charter_pickup_location
 charter_dropoff_location
 charter_pickup_time
 charter_dropoff_time
-charter_additional_stop_enabled
-charter_additional_stop
 ```
 
-Additional stops are leg-scoped. Each leg (outbound, return, or charter) may have its own `stops[]` array.
+Additional stops are transfer-leg-scoped only. Each transfer leg (outbound or return) may have its own `stops[]` array. Charter legs always have an empty `stops[]` array per business rules.
 
 ## Core structure
 The browser preview uses this shape:

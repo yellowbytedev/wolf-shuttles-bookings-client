@@ -121,20 +121,12 @@ class BookingClientFormShortcode {
 
                             <?php echo self::render_text_field($fields['charter_pickup_location']); ?>
                             <?php echo self::render_text_field($fields['charter_dropoff_location']); ?>
-                            <div class="wsb-booking-client-grid wsb-booking-client-grid--compact">
-                                <?php echo self::render_date_field($fields['outbound_pickup_date'], false); ?>
-                                <?php echo self::render_time_field($fields['charter_pickup_time'], false); ?>
-                                <?php echo self::render_time_field($fields['charter_dropoff_time'], false); ?>
-                            </div>
-                            <label class="wsb-booking-client-checkbox-label wsb-booking-client-additional-toggle-label">
-                                <input type="checkbox" name="charter_additional_stop_enabled" class="wsb-booking-client-additional-toggle" data-wsb-charter-additional-stop-toggle>
-                                <?php echo esc_html(__('Enable additional stop', 'wsb')); ?>
-                            </label>
-                            <div class="wsb-booking-client-field wsb-booking-client-additional-stop-field wsb-booking-client-hidden" data-wsb-charter-additional-stop-section>
-                                <label class="wsb-form__label" for="<?php echo esc_attr($fields['charter_additional_stop']['key']); ?>"><?php echo esc_html($fields['charter_additional_stop']['label']); ?></label>
-                                <input class="wsb-form__input" type="text" id="<?php echo esc_attr($fields['charter_additional_stop']['key']); ?>" name="<?php echo esc_attr($fields['charter_additional_stop']['key']); ?>" placeholder="<?php echo esc_attr($fields['charter_additional_stop']['placeholder'] ?? ''); ?>" disabled />
-                            </div>
-                        </section>
+<div class="wsb-booking-client-grid wsb-booking-client-grid--compact">
+                <?php echo self::render_date_field($fields['outbound_pickup_date'], false); ?>
+                <?php echo self::render_time_field($fields['charter_pickup_time'], false); ?>
+                <?php echo self::render_time_field($fields['charter_dropoff_time'], false); ?>
+            </div>
+        </section>
 
                         <section class="wsb-booking-client-card wsb-booking-client-outbound" data-wsb-outbound-section>
                             <div class="wsb-booking-client-card-header">

@@ -216,15 +216,6 @@
             route: {}
         };
 
-        var additionalStopEnabled = getBooleanValue(form, 'input[name="charter_additional_stop_enabled"]');
-        var additionalStop = trimValue(getFieldValue(form, 'input[name="charter_additional_stop"]', ''));
-        if (additionalStopEnabled && additionalStop) {
-            leg.stops.push({
-                type: 'additional_stop',
-                location: textLocation(additionalStop)
-            });
-        }
-
         return leg;
     }
 
@@ -255,25 +246,25 @@
             }
         }
 
-        var charterBlock = serviceGroup === 'charter' ? {
-            enabled: true,
-            type: 'same_day',
-            days: [
-                {
-                    day_index: 0,
-                    date: legs[0].pickup_date,
-                    start_time: legs[0].pickup_time,
-                    end_time: legs[0].dropoff_time,
-                    pickup_location: legs[0].from,
-                    dropoff_location: legs[0].to,
-                    stops: legs[0].stops
-                }
-            ]
-        } : {
-            enabled: false,
-            type: null,
-            days: []
-        };
+var charterBlock = serviceGroup === 'charter' ? {
+             enabled: true,
+             type: 'same_day',
+             days: [
+                 {
+                     day_index: 0,
+                     date: legs[0].pickup_date,
+                     start_time: legs[0].pickup_time,
+                     end_time: legs[0].dropoff_time,
+                     pickup_location: legs[0].from,
+                     dropoff_location: legs[0].to,
+                     stops: []
+                 }
+             ]
+         } : {
+             enabled: false,
+             type: null,
+             days: []
+         };
 
         return {
             schema_version: '2.0',
@@ -606,19 +597,12 @@
         setCheckboxValue(form, 'oversize_luggage', Boolean(payload.add_ons && payload.add_ons.oversize_luggage));
 
 if (currentState.serviceGroup === 'charter') {
-             setInputValue(form, 'charter_pickup_location', outboundLeg.from && outboundLeg.from.label ? outboundLeg.from.label : '');
-             setInputValue(form, 'charter_dropoff_location', outboundLeg.to && outboundLeg.to.label ? outboundLeg.to.label : '');
-             var charterDay = payload.charter && payload.charter.days && payload.charter.days.length ? payload.charter.days[0] : null;
-             setInputValue(form, 'outbound_pickup_date', outboundLeg.pickup_date || (charterDay ? charterDay.date : ''));
-             setInputValue(form, 'charter_pickup_time', outboundLeg.pickup_time || (charterDay ? charterDay.start_time : ''));
-             setInputValue(form, 'charter_dropoff_time', outboundLeg.dropoff_time || (charterDay ? charterDay.end_time : ''));
-
-            var charterStop = outboundLeg.stops && outboundLeg.stops.length ? outboundLeg.stops[0] : (charterDay && charterDay.stops && charterDay.stops.length ? charterDay.stops[0] : null);
-            var charterStopEnabled = Boolean(charterStop && charterStop.location && charterStop.location.label);
-            setCheckboxValue(form, 'charter_additional_stop_enabled', charterStopEnabled);
-            setInputValue(form, 'charter_additional_stop', charterStopEnabled ? charterStop.location.label : '');
-            setFieldGroupDisabled(form, '[data-wsb-charter-additional-stop-section]', !charterStopEnabled);
-            updateAdditionalStop(form.querySelector('[data-wsb-charter-additional-stop-toggle]'), root.querySelector('[data-wsb-charter-additional-stop-section]'));
+setInputValue(form, 'charter_pickup_location', outboundLeg.from && outboundLeg.from.label ? outboundLeg.from.label : '');
+              setInputValue(form, 'charter_dropoff_location', outboundLeg.to && outboundLeg.to.label ? outboundLeg.to.label : '');
+              var charterDay = payload.charter && payload.charter.days && payload.charter.days.length ? payload.charter.days[0] : null;
+              setInputValue(form, 'outbound_pickup_date', outboundLeg.pickup_date || (charterDay ? charterDay.date : ''));
+              setInputValue(form, 'charter_pickup_time', outboundLeg.pickup_time || (charterDay ? charterDay.start_time : ''));
+              setInputValue(form, 'charter_dropoff_time', outboundLeg.dropoff_time || (charterDay ? charterDay.end_time : ''));
         } else {
             setInputValue(form, 'outbound_from', outboundLeg.from && outboundLeg.from.label ? outboundLeg.from.label : '');
             setInputValue(form, 'outbound_to', outboundLeg.to && outboundLeg.to.label ? outboundLeg.to.label : '');
@@ -743,8 +727,6 @@ if (currentState.serviceGroup === 'charter') {
         var outboundAdditionalStopField = root.querySelector('[data-wsb-outbound-additional-stop-section]');
         var returnAdditionalStopToggle = root.querySelector('[data-wsb-return-additional-stop-toggle]');
         var returnAdditionalStopField = root.querySelector('[data-wsb-return-additional-stop-section]');
-        var charterAdditionalStopToggle = root.querySelector('[data-wsb-charter-additional-stop-toggle]');
-        var charterAdditionalStopField = root.querySelector('[data-wsb-charter-additional-stop-section]');
         var previewElement = root.querySelector('[data-wsb-payload-preview]');
         var validationElement = root.querySelector('[data-wsb-validation-output]');
         var statusElement = root.querySelector('[data-wsb-preview-status]');
@@ -822,21 +804,14 @@ if (currentState.serviceGroup === 'charter') {
             });
         }
 
-        if (returnAdditionalStopToggle) {
-            returnAdditionalStopToggle.addEventListener('change', function () {
-                updateAdditionalStop(returnAdditionalStopToggle, returnAdditionalStopField);
-                refreshPreview('');
-            });
-        }
+if (returnAdditionalStopToggle) {
+             returnAdditionalStopToggle.addEventListener('change', function () {
+                 updateAdditionalStop(returnAdditionalStopToggle, returnAdditionalStopField);
+                 refreshPreview('');
+             });
+         }
 
-        if (charterAdditionalStopToggle) {
-            charterAdditionalStopToggle.addEventListener('change', function () {
-                updateAdditionalStop(charterAdditionalStopToggle, charterAdditionalStopField);
-                refreshPreview('');
-            });
-        }
-
-        if (fixtureToggle && fixtureDrawer && fixtureList && fixtures.length) {
+         if (fixtureToggle && fixtureDrawer && fixtureList && fixtures.length) {
             fixtureToggle.addEventListener('click', function () {
                 var isOpen = !fixtureDrawer.classList.contains('wsb-booking-client-hidden');
                 if (isOpen) {
@@ -886,7 +861,6 @@ if (currentState.serviceGroup === 'charter') {
         updateReturnVisibility(returnSection, tripTypeInputs);
         updateAdditionalStop(outboundAdditionalStopToggle, outboundAdditionalStopField);
         updateAdditionalStop(returnAdditionalStopToggle, returnAdditionalStopField);
-        updateAdditionalStop(charterAdditionalStopToggle, charterAdditionalStopField);
         refreshPreview('Live payload preview initialised');
         if (fixtureStatus && fixtures.length) {
             updateFixtureDrawerStatus(

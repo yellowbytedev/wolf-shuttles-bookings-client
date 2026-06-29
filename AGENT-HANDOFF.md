@@ -54,6 +54,7 @@ The roadmap lives in `docs/booking-intake-roadmap.md` and the phase log lives in
 - Phase 2J complete: schema extension scaffolds (route, validation_flags, charter, blockouts, leg-scoped stops).
 - Phase 2K complete: charter preview mode (Shuttle Hire tab enabled, canonical charter payload shape, trip_type: "charter" fix applied).
 - Phase 2L complete: legacy external services audit, adapter scaffold (`inc/class-booking-external-services.php`).
+- Phase 2M complete: charter additional stop support removed (charters do not offer additional stops).
 
 If roadmap or phase status changes, update this file at the same time.
 
@@ -68,9 +69,9 @@ If roadmap or phase status changes, update this file at the same time.
 - The normalizer now preserves `service_group`, top-level `route`, `validation_flags`, and `charter` scaffolds.
 - Meta fields are aligned: both `meta.preview_only` and `meta.handover_mode` are set in JS and PHP.
 - The developer fixture drawer loads fixtures from `tests/fixtures/booking-payload-v2-fixtures.json`, populates the form, and re-runs preview checks.
-- Each leg (outbound/return) has its own additional stop toggle and field; stops are stored in `legs[].stops[]`.
+- Each leg (outbound/return) has its own additional stop toggle and field; stops are stored in `legs[].stops[]`. Charter legs use empty stops.
 - `blockouts` diagnostic scaffold added for future vehicle-scoped blockout support.
-- **Charter preview mode**: Shuttle Hire tab enabled, charter leg type supported, `dropoff_time` preserved in legs, `charter` block populated, `trip_type: "charter"` when charter active.
+- **Charter preview mode**: Shuttle Hire tab enabled, charter leg type supported, `dropoff_time` preserved in legs, `charter` block populated, `trip_type: "charter"` when charter active. Charter does not offer additional stops.
 - Legacy Bricks/Fluent booking flow is still untouched.
 - No real booking submission is enabled yet.
 

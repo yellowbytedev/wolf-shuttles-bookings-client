@@ -220,3 +220,25 @@
 - No real API calls, no API keys exposed.
 - Wired adapter into `inc/booking-client.php` bootstrap.
 - Legacy Bricks/Fluent flow remains unchanged.
+
+## Phase 2M — Charter Additional Stop Removal
+
+- Removed charter additional stop UI from the Booking Builder.
+- Charter legs now always use `stops: []` per business rules.
+- Transfer legs (outbound/return) still support additional stops.
+- Updated `inc/class-booking-client-form-shortcode.php` to remove charter stop toggle/field.
+- Updated `inc/class-booking-field-registry.php` to change `charter_additional_stop` applies_to to transfer-only.
+- Updated `assets/js/booking-client-form.js`:
+  - Removed `buildCharterLeg` stop logic
+  - Changed charter days stops to always be `[]`
+  - Removed charter additional stop event listeners
+  - Removed charter stop UI initialization
+- Updated `inc/class-booking-payload-v2-normalizer.php`:
+  - Removed stop handling from `normalize_charter_leg_from_flat_fields`
+  - Added charter stop clearing in `normalize_legs_from_payload`
+- Updated `tests/fixtures/booking-payload-v2-fixtures.json`:
+  - Renamed `valid-same-day-charter-with-stop` to `valid-same-day-charter-with-trailer`
+  - Removed stops from both legs and charter.days arrays
+  - Added trailer: true for the new fixture
+- Updated `docs/booking-payload-v2.md` to clarify stop rules.
+- All fixture runners still pass (20 fixtures).

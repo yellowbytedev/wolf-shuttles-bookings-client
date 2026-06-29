@@ -57,6 +57,7 @@ The roadmap lives in `docs/booking-intake-roadmap.md` and the phase log lives in
 - Phase 2L complete: legacy external services audit, adapter scaffold (`inc/class-booking-external-services.php`).
 - Phase 2M complete: charter additional stop support removed (charters do not offer additional stops).
 - Phase 2N complete: place snapshot scaffolding added (per-leg place_snapshots block).
+- Phase 2O planned: booking-site config contract defined for future lead time/capacity picker constraints.
 
 If roadmap or phase status changes, update this file at the same time.
 

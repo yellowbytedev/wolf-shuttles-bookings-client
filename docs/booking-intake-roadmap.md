@@ -124,6 +124,11 @@ Milestones:
 - No live Google API calls; placeholder/mock place IDs only.
 - Labels are abstract; no client details exposed.
 
+### Phase 2O status (planned)
+
+- Booking-site config contract defined in `docs/booking-site-config-contract.md`.
+- No live endpoint implemented; next task is marketing-side config consumer scaffold or booking-side endpoint.
+
 ## Phase 3 — Booking-site v2 intake
 
 Add booking-system support for v2 payloads.

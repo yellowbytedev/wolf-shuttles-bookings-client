@@ -236,6 +236,13 @@
 - Place IDs are mock/placeholder values (e.g., `mock_origin_place_id`).
 - Labels are abstract; no client names/details included.
 
+## Phase 2O — Booking-site config contract (planning)
+
+- Created `docs/booking-site-config-contract.md` defining the configuration contract.
+- Contract covers: lead times, capacity limits, picker constraints, blockouts settings.
+- Documented ownership: booking site authoritative, marketing site caches and constrains.
+- No live endpoint implemented yet; next task is booking-site endpoint or marketing consumer scaffold.
+
 - Removed charter additional stop UI from the Booking Builder.
 - Charter legs now always use `stops: []` per business rules.
 - Transfer legs (outbound/return) still support additional stops.

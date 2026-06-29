@@ -66,7 +66,7 @@ If roadmap or phase status changes, update this file at the same time.
 - The `/booking-builder/?debug=1` page renders the developer fixture drawer and smoke-tested at HTTP 200.
 - Realtime BookingPayload v2 preview works in the browser.
 - The server-side preview endpoint works at `POST /wp-json/ws-bookings-client/v1/payload-preview`.
-- The payload fixture runner passes (20 fixtures).
+- The payload fixture runner passes (22 fixtures).
 - The handover preview fixture runner passes (13 passed, 7 skipped as invalid).
 - The normalizer now preserves `service_group`, top-level `route`, `validation_flags`, and `charter` scaffolds.
 - Meta fields are aligned: both `meta.preview_only` and `meta.handover_mode` are set in JS and PHP.
@@ -106,7 +106,7 @@ If roadmap or phase status changes, update this file at the same time.
 - `inc/class-booking-external-services.php` - no-op adapter scaffold for Google/HERE/route/toll integrations.
 - `assets/js/booking-client-form.js` - lightweight UI state, preview rendering, and REST preview submission.
 - `assets/css/booking-client-form.css` - Booking Builder styling.
-- `tests/fixtures/booking-payload-v2-fixtures.json` - canonical v2 fixture corpus (20 fixtures).
+- `tests/fixtures/booking-payload-v2-fixtures.json` - canonical v2 fixture corpus (22 fixtures).
 - `tests/fixtures/booking-intake-fixtures.v2.seed.json` - legacy seed fixture reference.
 - `scripts/run-booking-payload-fixtures.php` - terminal v2 payload fixture runner.
 - `scripts/run-booking-handover-preview-fixtures.php` - terminal dry-run handover fixture runner.

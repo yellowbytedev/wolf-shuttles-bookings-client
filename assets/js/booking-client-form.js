@@ -933,7 +933,7 @@ var GOOGLE_PLACES = (CONFIG.googlePlaces || {
     }
 
     function updateAmPmLabels(root) {
-        var timeInputs = root.querySelectorAll('input[type="time"]');
+        var timeInputs = root.querySelectorAll('input[name="outbound_pickup_time"], input[name="return_pickup_time"], input[name="charter_pickup_time"], input[name="charter_dropoff_time"]');
         forEachNode(timeInputs, function (input) {
             var wrapper = input.closest('.wsb-booking-client-field');
             if (!wrapper) {

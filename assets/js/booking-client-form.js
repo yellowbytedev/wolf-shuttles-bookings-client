@@ -189,7 +189,12 @@
             pickup_time: getFieldValue(form, 'input[name="' + prefix + 'pickup_time"]', ''),
             pickup_datetime: trimValue(getFieldValue(form, 'input[name="' + prefix + 'pickup_date"]', '') + ' ' + getFieldValue(form, 'input[name="' + prefix + 'pickup_time"]', '')),
             stops: [],
-            route: {}
+            route: {},
+            place_snapshots: {
+                from: { provider: null, place_id: null, label: null, formatted_address: null, lat: null, lng: null },
+                to: { provider: null, place_id: null, label: null, formatted_address: null, lat: null, lng: null },
+                stops: []
+            }
         };
 
         var additionalStopEnabled = getBooleanValue(form, 'input[name="' + prefix + 'additional_stop_enabled"]');
@@ -213,7 +218,12 @@
             pickup_time: getFieldValue(form, 'input[name="charter_pickup_time"]', ''),
             dropoff_time: getFieldValue(form, 'input[name="charter_dropoff_time"]', ''),
             stops: [],
-            route: {}
+            route: {},
+            place_snapshots: {
+                from: { provider: null, place_id: null, label: null, formatted_address: null, lat: null, lng: null },
+                to: { provider: null, place_id: null, label: null, formatted_address: null, lat: null, lng: null },
+                stops: []
+            }
         };
 
         return leg;

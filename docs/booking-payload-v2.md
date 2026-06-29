@@ -167,6 +167,39 @@ An additional stop is stored on any leg:
 }
 ```
 
+## Place snapshots (Phase 2N)
+
+Per-leg `place_snapshots` carries Google Places metadata separately from the display strings. This is scaffold-only; no live Google calls yet.
+
+```json
+"place_snapshots": {
+  "from": {
+    "provider": "google_places",
+    "place_id": "mock_origin_place_id",
+    "label": "Origin location",
+    "formatted_address": "Street Address, City, Country",
+    "lat": -33.9249,
+    "lng": 18.4241
+  },
+  "to": {
+    "provider": "google_places",
+    "place_id": "mock_destination_place_id",
+    "label": "Destination location",
+    "formatted_address": "Street Address, City, Country",
+    "lat": -33.9333,
+    "lng": 18.8467
+  },
+  "stops": []
+}
+```
+
+Rules:
+- `from` and `to` strings remain the display label (unchanged)
+- `place_snapshots` is optional; defaults to null values if absent
+- `provider` is `google_places` when Google data is available
+- `place_id` is optional; placeholder values like `mock_origin_place_id` are used in fixtures
+- No real API keys or client details are included
+
 ## Preview behavior
 The live preview should update:
 - on page load

@@ -694,7 +694,12 @@
                     "pickup_time": "17:00",
                     "dropoff_time": "09:00",
                     "stops": [],
-                    "route": []
+                    "route": [],
+                    "place_snapshots": {
+                        "from": { "provider": null, "place_id": null, "label": null, "formatted_address": null, "lat": null, "lng": null },
+                        "to": { "provider": null, "place_id": null, "label": null, "formatted_address": null, "lat": null, "lng": null },
+                        "stops": []
+                    }
                 }
             ],
             "charter": {
@@ -702,6 +707,150 @@
                 "type": "same_day",
                 "days": []
             }
+        }
+    },
+    {
+        "id": "valid-with-place-snapshots",
+        "description": "Valid one-way transfer with mock place snapshots for origin and destination",
+        "expected_ok": true,
+        "payload": {
+            "schema_version": "2.0",
+            "source": "marketing_booking_builder",
+            "service_group": "transfer",
+            "service_type": "city_transfer",
+            "trip_type": "one_way",
+            "passengers": 2,
+            "customer": {
+                "name": "Test User",
+                "email": "test@example.com",
+                "phone": "+27710000000"
+            },
+            "add_ons": {
+                "trailer": false,
+                "oversize_luggage": false
+            },
+            "legs": [
+                {
+                    "type": "outbound",
+                    "from": {
+                        "label": "Cape Town Central"
+                    },
+                    "to": {
+                        "label": "Stellenbosch Central"
+                    },
+                    "pickup_date": "2026-08-15",
+                    "pickup_time": "09:00",
+                    "stops": [],
+                    "route": [],
+                    "place_snapshots": {
+                        "from": {
+                            "provider": "google_places",
+                            "place_id": "mock_origin_place_id",
+                            "label": "Cape Town Central",
+                            "formatted_address": "Central Business District, Cape Town, South Africa",
+                            "lat": -33.9249,
+                            "lng": 18.4241
+                        },
+                        "to": {
+                            "provider": "google_places",
+                            "place_id": "mock_destination_place_id",
+                            "label": "Stellenbosch Central",
+                            "formatted_address": "Stellenbosch Central, Stellenbosch, South Africa",
+                            "lat": -33.9333,
+                            "lng": 18.8467
+                        },
+                        "stops": []
+                    }
+                }
+            ]
+        }
+    },
+    {
+        "id": "valid-return-with-place-snapshots",
+        "description": "Valid return trip with place snapshots on both legs",
+        "expected_ok": true,
+        "payload": {
+            "schema_version": "2.0",
+            "source": "marketing_booking_builder",
+            "service_group": "transfer",
+            "service_type": "city_transfer",
+            "trip_type": "return",
+            "passengers": 1,
+            "customer": {
+                "name": "Test Return",
+                "email": "return@example.com",
+                "phone": "+27720000000"
+            },
+            "add_ons": {
+                "trailer": false,
+                "oversize_luggage": false
+            },
+            "legs": [
+                {
+                    "type": "outbound",
+                    "from": {
+                        "label": "Cape Town International Airport"
+                    },
+                    "to": {
+                        "label": "Franschhoek"
+                    },
+                    "pickup_date": "2026-09-01",
+                    "pickup_time": "08:00",
+                    "stops": [],
+                    "route": [],
+                    "place_snapshots": {
+                        "from": {
+                            "provider": "google_places",
+                            "place_id": "mock_airport_place_id",
+                            "label": "Cape Town International Airport",
+                            "formatted_address": "Cape Town International Airport, Cape Town, South Africa",
+                            "lat": -33.9696,
+                            "lng": 18.5978
+                        },
+                        "to": {
+                            "provider": "google_places",
+                            "place_id": "mock_franschhoek_place_id",
+                            "label": "Franschhoek",
+                            "formatted_address": "Franschhoek, Western Cape, South Africa",
+                            "lat": -33.8889,
+                            "lng": 19.0222
+                        },
+                        "stops": []
+                    }
+                },
+                {
+                    "type": "return",
+                    "from": {
+                        "label": "Franschhoek"
+                    },
+                    "to": {
+                        "label": "Cape Town International Airport"
+                    },
+                    "pickup_date": "2026-09-02",
+                    "pickup_time": "17:00",
+                    "stops": [],
+                    "route": [],
+                    "place_snapshots": {
+                        "from": {
+                            "provider": "google_places",
+                            "place_id": "mock_franschhoek_return_place_id",
+                            "label": "Franschhoek",
+                            "formatted_address": "Franschhoek, Western Cape, South Africa",
+                            "lat": -33.8889,
+                            "lng": 19.0222
+                        },
+                        "to": {
+                            "provider": "google_places",
+                            "place_id": "mock_airport_return_place_id",
+                            "label": "Cape Town International Airport",
+                            "formatted_address": "Cape Town International Airport, Cape Town, South Africa",
+                            "lat": -33.9696,
+                            "lng": 18.5978
+                        },
+                        "stops": []
+                    }
+                }
+            ]
         }
     }
 ]

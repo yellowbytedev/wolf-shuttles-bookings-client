@@ -117,6 +117,13 @@ Milestones:
 - No third-party library installed; drag/drop is inactive.
 - Future use cases documented: ordered stops, charter day segments, itinerary trip ordering.
 
+### Phase 2N status (completed)
+
+- Place snapshot scaffolding added to `legs[].place_snapshots`.
+- Per-leg `place_snapshots.from`, `place_snapshots.to`, `place_snapshots.stops` scaffolded.
+- No live Google API calls; placeholder/mock place IDs only.
+- Labels are abstract; no client details exposed.
+
 ## Phase 3 — Booking-site v2 intake
 
 Add booking-system support for v2 payloads.

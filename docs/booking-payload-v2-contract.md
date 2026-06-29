@@ -81,8 +81,27 @@ Avoid `service_family`.
 - `meta.handover_mode` — `"preview"` for dry-run, `"live"` for real handover
 - All other fields — as documented in `docs/booking-payload-v2.md`
 
+## Transfer leg shape
+```json
+{
+  "type": "outbound",
+  "from": { "label": "Origin location" },
+  "to": { "label": "Destination location" },
+  "pickup_date": "2026-07-15",
+  "pickup_time": "14:00",
+  "pickup_datetime": "2026-07-15 14:00",
+  "stops": [],
+  "route": {},
+  "place_snapshots": {
+    "from": { "provider": null, "place_id": null, "label": null, "formatted_address": null, "lat": null, "lng": null },
+    "to": { "provider": null, "place_id": null, "label": null, "formatted_address": null, "lat": null, "lng": null },
+    "stops": []
+  }
+}
+```
+
 ## Charter leg shape (Phase 2K+)
-Same-day charter legs include an additional `dropoff_time` field:
+Same-day charter legs include an additional `dropoff_time` field and scaffold for `place_snapshots`:
 ```json
 {
   "type": "charter",
@@ -133,8 +152,10 @@ The fixture corpus in `tests/fixtures/booking-payload-v2-fixtures.json` includes
 - `valid-with-charter-scaffold` — `charter.enabled: false` (updated to full charter leg)
 - `invalid-missing-legs` — zero legs
 - `valid-same-day-charter` — valid charter with pickup and dropoff times
-- `valid-same-day-charter-with-stop` — valid charter with additional stop
+- `valid-same-day-charter-with-trailer` — valid charter with trailer enabled
+- `valid-with-place-snapshots` — one-way transfer with mock Google place snapshots
+- `valid-return-with-place-snapshots` — return trip with place snapshots on both legs
 - `invalid-charter-missing-dropoff` — missing dropoff_time
 - `invalid-charter-end-time-before-start` — end time before start time
 
-Total fixtures: 20
+Total fixtures: 22

@@ -282,6 +282,7 @@ if ( ! class_exists( 'WSB_Client_Booking_Payload_V2_Normalizer' ) ) {
                     'pickup_datetime' => $pickup_datetime,
                     'stops'           => $stops,
                     'route'           => is_array( $raw_leg['route'] ?? null ) ? $raw_leg['route'] : array(),
+                    'place_snapshots' => $this->normalize_place_snapshots( $raw_leg['place_snapshots'] ?? null ),
                 );
 
 if ( $type === 'charter' || ( $trip_type === 'charter' && count( $normalized ) === 0 ) ) {
@@ -321,6 +322,7 @@ if ( $type === 'charter' || ( $trip_type === 'charter' && count( $normalized ) =
                 'pickup_datetime' => trim( $date . ' ' . $pickup_time ),
                 'stops'           => $stops,
                 'route'           => array(),
+                'place_snapshots' => $this->normalize_place_snapshots( null ),
             );
         }
 
@@ -357,6 +359,7 @@ if ( $type === 'charter' || ( $trip_type === 'charter' && count( $normalized ) =
                 'pickup_datetime' => trim( $date . ' ' . $time ),
                 'stops'           => $stops,
                 'route'           => array(),
+                'place_snapshots' => $this->normalize_place_snapshots( null ),
             );
         }
 
@@ -377,6 +380,87 @@ if ( $type === 'charter' || ( $trip_type === 'charter' && count( $normalized ) =
                 'lng'               => isset( $location['lng'] ) && '' !== $location['lng'] ? (float) $location['lng'] : null,
                 'formatted_address' => sanitize_text_field( $location['formatted_address'] ?? '' ),
             );
+        }
+
+        /**
+         * Normalize place snapshots with safe empty scaffold.
+         *
+         * @param mixed $snapshots
+         * @return array<string,mixed>
+         */
+        private function normalize_place_snapshots( $snapshots ) : array {
+            if ( ! is_array( $snapshots ) ) {
+                return array(
+                    'from'  => array(
+                        'provider'          => null,
+                        'place_id'          => null,
+                        'label'             => null,
+                        'formatted_address' => null,
+                        'lat'               => null,
+                        'lng'               => null,
+                    ),
+                    'to'    => array(
+                        'provider'          => null,
+                        'place_id'          => null,
+                        'label'             => null,
+                        'formatted_address' => null,
+                        'lat'               => null,
+                        'lng'               => null,
+                    ),
+                    'stops'   => array(),
+                );
+            }
+
+            return array(
+                'from'  => $this->normalize_place_snapshot_entry( $snapshots['from'] ?? null ),
+                'to'    => $this->normalize_place_snapshot_entry( $snapshots['to'] ?? null ),
+                'stops' => is_array( $snapshots['stops'] ?? null ) ? $this->normalize_place_snapshot_stops( $snapshots['stops'] ) : array(),
+            );
+        }
+
+        /**
+         * Normalize a single place snapshot entry (from/to).
+         *
+         * @param mixed $entry
+         * @return array<string,mixed>
+         */
+        private function normalize_place_snapshot_entry( $entry ) : array {
+            if ( ! is_array( $entry ) ) {
+                return array(
+                    'provider'          => null,
+                    'place_id'          => null,
+                    'label'             => null,
+                    'formatted_address' => null,
+                    'lat'               => null,
+                    'lng'               => null,
+                );
+            }
+
+            return array(
+                'provider'          => isset( $entry['provider'] ) ? sanitize_text_field( $entry['provider'] ) : null,
+                'place_id'          => isset( $entry['place_id'] ) ? sanitize_text_field( $entry['place_id'] ) : null,
+                'label'             => isset( $entry['label'] ) ? sanitize_text_field( $entry['label'] ) : null,
+                'formatted_address' => isset( $entry['formatted_address'] ) ? sanitize_text_field( $entry['formatted_address'] ) : null,
+                'lat'               => isset( $entry['lat'] ) && '' !== $entry['lat'] ? (float) $entry['lat'] : null,
+                'lng'               => isset( $entry['lng'] ) && '' !== $entry['lng'] ? (float) $entry['lng'] : null,
+            );
+        }
+
+        /**
+         * Normalize stops array within place_snapshots.
+         *
+         * @param array<int,mixed> $stops
+         * @return array<int,array<string,mixed>>
+         */
+        private function normalize_place_snapshot_stops( array $stops ) : array {
+            $normalized = array();
+            foreach ( $stops as $stop ) {
+                if ( ! is_array( $stop ) ) {
+                    continue;
+                }
+                $normalized[] = $this->normalize_place_snapshot_entry( $stop );
+            }
+            return $normalized;
         }
     }
 }

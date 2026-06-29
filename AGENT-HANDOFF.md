@@ -53,8 +53,10 @@ The roadmap lives in `docs/booking-intake-roadmap.md` and the phase log lives in
 - Phase 2I complete: developer fixture drawer / payload test lab.
 - Phase 2J complete: schema extension scaffolds (route, validation_flags, charter, blockouts, leg-scoped stops).
 - Phase 2K complete: charter preview mode (Shuttle Hire tab enabled, canonical charter payload shape, trip_type: "charter" fix applied).
+- Phase 2K+ complete: UI interaction scaffold (sortable adapter, CSS hooks).
 - Phase 2L complete: legacy external services audit, adapter scaffold (`inc/class-booking-external-services.php`).
 - Phase 2M complete: charter additional stop support removed (charters do not offer additional stops).
+- Phase 2N complete: place snapshot scaffolding added (per-leg place_snapshots block).
 
 If roadmap or phase status changes, update this file at the same time.
 

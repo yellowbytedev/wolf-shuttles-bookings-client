@@ -224,7 +224,17 @@
 - Wired adapter into `inc/booking-client.php` bootstrap.
 - Legacy Bricks/Fluent flow remains unchanged.
 
-## Phase 2M — Charter Additional Stop Removal
+## Phase 2N — Place snapshot scaffolding
+
+- Added optional per-leg `place_snapshots` block to BookingPayload v2 normalizer.
+- Legs now include `place_snapshots.from`, `place_snapshots.to`, `place_snapshots.stops` scaffold.
+- JS preview builder includes empty `place_snapshots` scaffold in built legs.
+- Added 2 new fixtures with mock place snapshot data:
+  - `valid-with-place-snapshots` — one-way with mock Google place IDs
+  - `valid-return-with-place-snapshots` — return trip with place snapshots on both legs
+- No live Google API calls; no API keys exposed.
+- Place IDs are mock/placeholder values (e.g., `mock_origin_place_id`).
+- Labels are abstract; no client names/details included.
 
 - Removed charter additional stop UI from the Booking Builder.
 - Charter legs now always use `stops: []` per business rules.

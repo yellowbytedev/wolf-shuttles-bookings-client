@@ -265,6 +265,10 @@ The endpoint returns JSON with:
   - `to.label`
   - `pickup_date`
   - `pickup_time`
+- Lead-time validation:
+  - Transfer/charter legs: `pickup_date` + `pickup_time` must be at least `transfer_min_notice_minutes` (default: 300) in the future
+  - Charter legs: `pickup_date` + `pickup_time` must be at least `charter_min_notice_minutes` (default: 2880 / 48 hours) in the future
+  - All legs: `pickup_date` + `pickup_time` must not exceed `max_advance_booking_days` (default: 365) in the future
 - Charter legs additionally require:
   - `dropoff_time`
   - end time must be after start time on same day

@@ -64,6 +64,11 @@ if ( ! function_exists( 'random_bytes' ) ) {
         return $b;
     }
 }
+if ( ! function_exists( 'wp_timezone' ) ) {
+    function wp_timezone() {
+        return new DateTimeZone('UTC');
+    }
+}
 if ( ! function_exists( 'wp_json_encode' ) ) {
     function wp_json_encode( $val, $opts = 0, $depth = 512 ) {
         return json_encode( $val, $opts | JSON_UNESCAPED_UNICODE, $depth );
@@ -92,6 +97,7 @@ $plugin_root = dirname( __DIR__ );
 require_once $plugin_root . '/inc/class-booking-payload-v2-normalizer.php';
 require_once $plugin_root . '/inc/class-booking-payload-v2-validator.php';
 require_once $plugin_root . '/inc/class-booking-payload-v2-handover-service.php';
+require_once $plugin_root . '/inc/class-booking-external-services.php';
 require_once $plugin_root . '/inc/booking-client-config.php';
 
 $fixture_file = $plugin_root . '/tests/fixtures/booking-payload-v2-fixtures.json';

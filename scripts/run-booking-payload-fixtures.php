@@ -77,6 +77,22 @@ if ( ! function_exists( 'gmdate' ) ) {
     }
 }
 
+if ( ! function_exists( 'wp_timezone' ) ) {
+    function wp_timezone() {
+        // Return UTC timezone as fallback
+        return new DateTimeZone('UTC');
+    }
+}
+
+if ( ! function_exists( '__' ) ) {
+    function __( $text, $domain = '' ) {
+        return $text;
+    }
+}
+
+// ---- Load external services (with config scaffold) ----
+require_once dirname( __DIR__ ) . '/inc/class-booking-external-services.php';
+
 // ---- Load plugin classes ----
 $plugin_root = dirname( __DIR__ );
 require_once $plugin_root . '/inc/class-booking-payload-v2-normalizer.php';

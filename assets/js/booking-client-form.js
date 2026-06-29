@@ -15,6 +15,7 @@
         serverPreviewUnavailable: 'Server-side preview endpoint is unavailable.',
         serverPreviewError: 'Server preview could not be completed.',
     };
+    var BOOKING_SITE_CONFIG = CONFIG.bookingSiteConfig || {};
 
     function logDebug() {
         if (!DEBUG || typeof window.console === 'undefined' || typeof window.console.log !== 'function') {
@@ -256,7 +257,7 @@
             }
         }
 
-var charterBlock = serviceGroup === 'charter' ? {
+        var charterBlock = serviceGroup === 'charter' ? {
              enabled: true,
              type: 'same_day',
              days: [
@@ -606,13 +607,13 @@ var charterBlock = serviceGroup === 'charter' ? {
         setCheckboxValue(form, 'trailer', Boolean(payload.add_ons && payload.add_ons.trailer));
         setCheckboxValue(form, 'oversize_luggage', Boolean(payload.add_ons && payload.add_ons.oversize_luggage));
 
-if (currentState.serviceGroup === 'charter') {
-setInputValue(form, 'charter_pickup_location', outboundLeg.from && outboundLeg.from.label ? outboundLeg.from.label : '');
-              setInputValue(form, 'charter_dropoff_location', outboundLeg.to && outboundLeg.to.label ? outboundLeg.to.label : '');
-              var charterDay = payload.charter && payload.charter.days && payload.charter.days.length ? payload.charter.days[0] : null;
-              setInputValue(form, 'outbound_pickup_date', outboundLeg.pickup_date || (charterDay ? charterDay.date : ''));
-              setInputValue(form, 'charter_pickup_time', outboundLeg.pickup_time || (charterDay ? charterDay.start_time : ''));
-              setInputValue(form, 'charter_dropoff_time', outboundLeg.dropoff_time || (charterDay ? charterDay.end_time : ''));
+        if (currentState.serviceGroup === 'charter') {
+            setInputValue(form, 'charter_pickup_location', outboundLeg.from && outboundLeg.from.label ? outboundLeg.from.label : '');
+            setInputValue(form, 'charter_dropoff_location', outboundLeg.to && outboundLeg.to.label ? outboundLeg.to.label : '');
+            var charterDay = payload.charter && payload.charter.days && payload.charter.days.length ? payload.charter.days[0] : null;
+            setInputValue(form, 'outbound_pickup_date', outboundLeg.pickup_date || (charterDay ? charterDay.date : ''));
+            setInputValue(form, 'charter_pickup_time', outboundLeg.pickup_time || (charterDay ? charterDay.start_time : ''));
+            setInputValue(form, 'charter_dropoff_time', outboundLeg.dropoff_time || (charterDay ? charterDay.end_time : ''));
         } else {
             setInputValue(form, 'outbound_from', outboundLeg.from && outboundLeg.from.label ? outboundLeg.from.label : '');
             setInputValue(form, 'outbound_to', outboundLeg.to && outboundLeg.to.label ? outboundLeg.to.label : '');
@@ -730,6 +731,34 @@ setInputValue(form, 'charter_pickup_location', outboundLeg.from && outboundLeg.f
         }
     }
 
+    function constrainTimeByDate(dateInput, timeInput, constraints) {
+        if (!dateInput || !timeInput || !constraints) {
+            return;
+        }
+
+        var dateValue = dateInput.value;
+        if (!dateValue) {
+            return;
+        }
+
+        var minDateFromConfig = dateInput.getAttribute('min');
+        if (!minDateFromConfig) {
+            return;
+        }
+
+        var transferMinNotice = constraints.transferMinNoticeMinutes || 300;
+
+        var now = new Date();
+        var minDateTime = new Date(now.getTime() + transferMinNotice * 60000);
+        var minTimeStr = ('0' + minDateTime.getHours()).slice(-2) + ':' + ('0' + minDateTime.getMinutes()).slice(-2);
+
+        if (dateValue === minDateFromConfig) {
+            timeInput.min = minTimeStr;
+        } else {
+            timeInput.removeAttribute('min');
+        }
+    }
+
     function initBookingBuilder(root) {
         var form = root.querySelector('[data-wsb-booking-form]');
         var returnSection = root.querySelector('[data-wsb-return-section]');
@@ -752,6 +781,12 @@ setInputValue(form, 'charter_pickup_location', outboundLeg.from && outboundLeg.f
             serviceType: trimValue(root.dataset.wsbServiceType || 'city_transfer') || 'city_transfer',
             fixtureId: '',
             fixtureExpected: ''
+        };
+        var constraints = {
+            transferMinNoticeMinutes: parseInt((BOOKING_SITE_CONFIG.lead_times || {}).transfer_min_notice_minutes || 300, 10),
+            charterMinNoticeMinutes: parseInt((BOOKING_SITE_CONFIG.lead_times || {}).charter_min_notice_minutes || 2880, 10),
+            maxAdvanceBookingDays: parseInt((BOOKING_SITE_CONFIG.lead_times || {}).max_advance_booking_days || 365, 10),
+            timeStepMinutes: parseInt((BOOKING_SITE_CONFIG.picker || {}).time_step_minutes || 5, 10)
         };
 
         if (!form) {
@@ -814,14 +849,32 @@ setInputValue(form, 'charter_pickup_location', outboundLeg.from && outboundLeg.f
             });
         }
 
-if (returnAdditionalStopToggle) {
-             returnAdditionalStopToggle.addEventListener('change', function () {
-                 updateAdditionalStop(returnAdditionalStopToggle, returnAdditionalStopField);
-                 refreshPreview('');
-             });
-         }
+        if (returnAdditionalStopToggle) {
+            returnAdditionalStopToggle.addEventListener('change', function () {
+                updateAdditionalStop(returnAdditionalStopToggle, returnAdditionalStopField);
+                refreshPreview('');
+            });
+        }
 
-         if (fixtureToggle && fixtureDrawer && fixtureList && fixtures.length) {
+        var outboundDateInput = form.querySelector('input[name="outbound_pickup_date"]');
+        var outboundTimeInput = form.querySelector('input[name="outbound_pickup_time"]');
+        if (outboundDateInput && outboundTimeInput) {
+            outboundDateInput.addEventListener('change', function () {
+                constrainTimeByDate(outboundDateInput, outboundTimeInput, constraints);
+                refreshPreview('');
+            });
+        }
+
+        var charterDateInput = form.querySelector('input[name="outbound_pickup_date"]');
+        var charterTimeInput = form.querySelector('input[name="charter_pickup_time"]');
+        if (charterDateInput && charterTimeInput) {
+            charterDateInput.addEventListener('change', function () {
+                constrainTimeByDate(charterDateInput, charterTimeInput, constraints);
+                refreshPreview('');
+            });
+        }
+
+        if (fixtureToggle && fixtureDrawer && fixtureList && fixtures.length) {
             fixtureToggle.addEventListener('click', function () {
                 var isOpen = !fixtureDrawer.classList.contains('wsb-booking-client-hidden');
                 if (isOpen) {

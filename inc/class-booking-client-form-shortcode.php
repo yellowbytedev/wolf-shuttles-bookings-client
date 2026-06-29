@@ -279,12 +279,17 @@ class BookingClientFormShortcode {
             return '';
         }
 
+        $date_min = !empty($field['date_min_attr']) ? ' min="' . esc_attr($field['date_min_attr']) . '"' : '';
+        $date_max = !empty($field['date_max_attr']) ? ' max="' . esc_attr($field['date_max_attr']) . '"' : '';
+
         return sprintf(
-            '<div class="wsb-booking-client-field"><label class="wsb-form__label" for="%1$s">%2$s</label><input class="wsb-form__input" type="date" id="%1$s" name="%1$s" placeholder="%3$s" %4$s /></div>',
+            '<div class="wsb-booking-client-field"><label class="wsb-form__label" for="%1$s">%2$s</label><input class="wsb-form__input" type="date" id="%1$s" name="%1$s" placeholder="%3$s" %4$s%5$s%6$s /></div>',
             esc_attr($field['key']),
             esc_html($field['label']),
             esc_attr($field['placeholder'] ?? ''),
-            $required ? 'required' : ''
+            $required ? 'required' : '',
+            $date_min,
+            $date_max
         );
     }
 

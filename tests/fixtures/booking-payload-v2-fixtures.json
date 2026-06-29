@@ -696,8 +696,22 @@
                     "stops": [],
                     "route": [],
                     "place_snapshots": {
-                        "from": { "provider": null, "place_id": null, "label": null, "formatted_address": null, "lat": null, "lng": null },
-                        "to": { "provider": null, "place_id": null, "label": null, "formatted_address": null, "lat": null, "lng": null },
+                        "from": {
+                            "provider": null,
+                            "place_id": null,
+                            "label": null,
+                            "formatted_address": null,
+                            "lat": null,
+                            "lng": null
+                        },
+                        "to": {
+                            "provider": null,
+                            "place_id": null,
+                            "label": null,
+                            "formatted_address": null,
+                            "lat": null,
+                            "lng": null
+                        },
                         "stops": []
                     }
                 }
@@ -849,6 +863,165 @@
                         },
                         "stops": []
                     }
+                }
+            ]
+        }
+    },
+    {
+        "id": "invalid-transfer-inside-lead-time",
+        "description": "Invalid: transfer pickup inside minimum lead time window (too soon)",
+        "expected_ok": false,
+        "rationale": "Pickup date/time is before the 300-minute transfer lead time threshold",
+        "payload": {
+            "schema_version": "2.0",
+            "trip_type": "one_way",
+            "service_type": "city_transfer",
+            "passengers": 2,
+            "add_ons": {
+                "trailer": false,
+                "oversize_luggage": false
+            },
+            "legs": [
+                {
+                    "type": "outbound",
+                    "from": {
+                        "label": "Cape Town International Airport"
+                    },
+                    "to": {
+                        "label": "Stellenbosch Central"
+                    },
+                    "pickup_date": "2026-06-29",
+                    "pickup_time": "10:00",
+                    "stops": [],
+                    "route": []
+                }
+            ]
+        }
+    },
+    {
+        "id": "invalid-charter-inside-lead-time",
+        "description": "Invalid: charter pickup inside minimum lead time window (too soon, requires 48 hours)",
+        "expected_ok": false,
+        "rationale": "Charter pickup requires 2880 minutes (48 hours) minimum notice",
+        "payload": {
+            "schema_version": "2.0",
+            "source": "marketing_booking_builder",
+            "service_group": "charter",
+            "service_type": "charter_hire",
+            "trip_type": "charter",
+            "passengers": 4,
+            "add_ons": {
+                "trailer": false,
+                "oversize_luggage": false
+            },
+            "legs": [
+                {
+                    "type": "charter",
+                    "from": {
+                        "label": "Cape Town International Airport"
+                    },
+                    "to": {
+                        "label": "Winelands Hotel"
+                    },
+                    "pickup_date": "2026-06-30",
+                    "pickup_time": "09:00",
+                    "dropoff_time": "17:00",
+                    "stops": [],
+                    "route": []
+                }
+            ],
+            "charter": {
+                "enabled": true,
+                "type": "same_day",
+                "days": [
+                    {
+                        "day_index": 0,
+                        "date": "2026-06-30",
+                        "start_time": "09:00",
+                        "end_time": "17:00",
+                        "pickup_location": {
+                            "label": "Cape Town International Airport"
+                        },
+                        "dropoff_location": {
+                            "label": "Winelands Hotel"
+                        },
+                        "stops": []
+                    }
+                ]
+            }
+        }
+    },
+    {
+        "id": "invalid-pickup-beyond-max-advance",
+        "description": "Invalid: pickup date beyond maximum advance booking window (more than 365 days)",
+        "expected_ok": false,
+        "rationale": "Pickup date exceeds the 365-day maximum advance booking limit",
+        "payload": {
+            "schema_version": "2.0",
+            "trip_type": "one_way",
+            "service_type": "city_transfer",
+            "passengers": 2,
+            "add_ons": {
+                "trailer": false,
+                "oversize_luggage": false
+            },
+            "legs": [
+                {
+                    "type": "outbound",
+                    "from": {
+                        "label": "Cape Town International Airport"
+                    },
+                    "to": {
+                        "label": "Stellenbosch Central"
+                    },
+                    "pickup_date": "2027-07-29",
+                    "pickup_time": "14:00",
+                    "stops": [],
+                    "route": []
+                }
+            ]
+        }
+    },
+    {
+        "id": "invalid-return-inside-lead-time",
+        "description": "Invalid: return leg pickup inside minimum lead time window",
+        "expected_ok": false,
+        "rationale": "Return leg pickup time violates transfer lead time constraint",
+        "payload": {
+            "schema_version": "2.0",
+            "trip_type": "return",
+            "service_type": "city_transfer",
+            "passengers": 2,
+            "add_ons": {
+                "trailer": false,
+                "oversize_luggage": false
+            },
+            "legs": [
+                {
+                    "type": "outbound",
+                    "from": {
+                        "label": "Cape Town International Airport"
+                    },
+                    "to": {
+                        "label": "Franschhoek"
+                    },
+                    "pickup_date": "2026-07-15",
+                    "pickup_time": "10:00",
+                    "stops": [],
+                    "route": []
+                },
+                {
+                    "type": "return",
+                    "from": {
+                        "label": "Franschhoek"
+                    },
+                    "to": {
+                        "label": "Cape Town International Airport"
+                    },
+                    "pickup_date": "2026-06-29",
+                    "pickup_time": "10:00",
+                    "stops": [],
+                    "route": []
                 }
             ]
         }

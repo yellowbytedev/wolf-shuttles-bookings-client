@@ -248,3 +248,24 @@ Once the data model is clean, add modular pricing features:
 - additional stops
 
 Each feature should plug into a pricing pipeline rather than being hardcoded into form snippets.
+### Phase 2Q status (completed)
+
+- Booking-site config consumer scaffold added.
+- `get_booking_site_config_scaffold()`, `get_cached_booking_site_config()`, `get_default_booking_site_config()`, and `is_booking_site_config_fetch_enabled()` methods added.
+- Config fetch disabled by default; safe defaults used.
+- No live HTTP calls; no booking data exposed.
+
+### Phase 2R status (completed)
+
+- Date constraints applied using config lead times.
+- `outbound_pickup_date` and `return_pickup_date` include min/max attributes.
+- Minimum date calculated from `transfer_min_notice_minutes` (300 minutes / 5 hours).
+- Maximum date calculated from `max_advance_booking_days` (365 days).
+- Time step constraint (`step="300"`) applied to time inputs.
+- Frontend `constrainTimeByDate()` sets min time when minimum date is selected.
+- Server-side lead-time validation added for transfer and charter legs.
+- Max advance booking window validation added.
+- 4 new lead-time violation fixtures added (total 26 fixtures).
+- All 26 payload fixtures pass.
+- Global blockouts still pending (no implementation yet).
+- Vehicle-scoped blockouts still do not affect marketing picker.

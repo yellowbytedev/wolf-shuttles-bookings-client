@@ -11,6 +11,46 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 if ( ! class_exists( 'WSB_Client_Booking_Payload_V2_Validator' ) ) {
     final class WSB_Client_Booking_Payload_V2_Validator {
+        private function get_booking_config(): array {
+            if ( function_exists( 'wsb_client_external_services' ) ) {
+                return wsb_client_external_services()->get_cached_booking_site_config();
+            }
+            return array(
+                'lead_times' => array(
+                    'transfer_min_notice_minutes' => 300,
+                    'charter_min_notice_minutes' => 2880,
+                    'max_advance_booking_days' => 365,
+                ),
+                'capacity' => array(
+                    'max_passengers' => 13,
+                ),
+            );
+        }
+
+        private function parse_time_to_minutes( string $time ): ?int {
+            $time = trim( strtolower( $time ) );
+            if ( $time === '' ) {
+                return null;
+            }
+            if ( ! preg_match( '/^(\d{1,2})(?::?(\d{2}))?\s*(am|pm)?$/', $time, $m ) ) {
+                return null;
+            }
+            $h = (int) $m[1];
+            $mi = isset( $m[2] ) ? (int) $m[2] : 0;
+            $ap = $m[3] ?? '';
+            if ( $ap === 'pm' && $h < 12 ) {
+                $h += 12;
+            }
+            if ( $ap === 'am' && $h === 12 ) {
+                $h = 0;
+            }
+            return $h * 60 + $mi;
+        }
+
+        private function format_validation_error( array $error ): string {
+            return sprintf( '%s: %s', $error['field'], $error['message'] );
+        }
+
         /**
          * @param array<string,mixed> $payload Normalized BookingPayload v2.
          * @return array{valid:bool,errors:array<int,array<string,string>>,warnings:array<int,array<string,string>>}
@@ -31,6 +71,10 @@ if ( ! class_exists( 'WSB_Client_Booking_Payload_V2_Validator' ) ) {
             if ( (int) ( $payload['passengers'] ?? 0 ) < 1 ) {
                 $errors[] = $this->error( 'passengers', 'required', 'At least one passenger is required.' );
             }
+
+            $config = $this->get_booking_config();
+            $lead_times = $config['lead_times'] ?? array();
+            $tz = wp_timezone();
 
             $legs = is_array( $payload['legs'] ?? null ) ? $payload['legs'] : array();
             if ( empty( $legs ) ) {
@@ -74,6 +118,43 @@ if ( ! class_exists( 'WSB_Client_Booking_Payload_V2_Validator' ) ) {
                             $errors[] = $this->error( $prefix . '.dropoff_time', 'invalid_time_order', 'Charter end time must be after start time.' );
                         }
                     }
+
+                    // Charter lead time validation
+                    if ( ! empty( $leg['pickup_date'] ) && ! empty( $leg['pickup_time'] ) ) {
+                        $pickup_date = $leg['pickup_date'];
+                        $pickup_time_val = $leg['pickup_time'];
+                        $charter_min = (int) ( $lead_times['charter_min_notice_minutes'] ?? 2880 );
+                        $max_advance = (int) ( $lead_times['max_advance_booking_days'] ?? 365 );
+
+                        try {
+                            $pickup_dt = new DateTime( $pickup_date . ' ' . $pickup_time_val, $tz );
+                            $now = new DateTime( 'now', $tz );
+
+                            $diff_minutes = ( (int) $pickup_dt->format( 'U' ) - (int) $now->format( 'U' ) ) / 60;
+
+                            if ( $diff_minutes < $charter_min ) {
+                                $errors[] = $this->error(
+                                    $prefix . '.pickup_time',
+                                    'lead_time_violation',
+                                    sprintf( 'Charter pickup must be at least %d hours in advance.', $charter_min / 60 )
+                                );
+                            }
+
+                            $max_date = new DateTime( 'now', $tz );
+                            $max_date->modify( '+' . $max_advance . ' days' );
+                            $max_date->setTime( 23, 59, 59 );
+
+                            if ( $pickup_dt > $max_date ) {
+                                $errors[] = $this->error(
+                                    $prefix . '.pickup_date',
+                                    'max_advance_violation',
+                                    sprintf( 'Charter pickup date cannot be more than %d days in advance.', $max_advance )
+                                );
+                            }
+                        } catch ( Exception $e ) {
+                            // Date parsing failed, skip lead time validation
+                        }
+                    }
                 } else {
                     if ( empty( $leg['pickup_date'] ?? '' ) ) {
                         $errors[] = $this->error( $prefix . '.pickup_date', 'required', 'Pickup date is required.' );
@@ -81,6 +162,43 @@ if ( ! class_exists( 'WSB_Client_Booking_Payload_V2_Validator' ) ) {
 
                     if ( empty( $leg['pickup_time'] ?? '' ) ) {
                         $errors[] = $this->error( $prefix . '.pickup_time', 'required', 'Pickup time is required.' );
+                    }
+
+                    // Transfer lead time validation
+                    if ( ! empty( $leg['pickup_date'] ) && ! empty( $leg['pickup_time'] ) ) {
+                        $pickup_date = $leg['pickup_date'];
+                        $pickup_time_val = $leg['pickup_time'];
+                        $transfer_min = (int) ( $lead_times['transfer_min_notice_minutes'] ?? 300 );
+                        $max_advance = (int) ( $lead_times['max_advance_booking_days'] ?? 365 );
+
+                        try {
+                            $pickup_dt = new DateTime( $pickup_date . ' ' . $pickup_time_val, $tz );
+                            $now = new DateTime( 'now', $tz );
+
+                            $diff_minutes = ( (int) $pickup_dt->format( 'U' ) - (int) $now->format( 'U' ) ) / 60;
+
+                            if ( $diff_minutes < $transfer_min ) {
+                                $errors[] = $this->error(
+                                    $prefix . '.pickup_time',
+                                    'lead_time_violation',
+                                    sprintf( 'Pickup must be at least %d minutes in advance.', $transfer_min )
+                                );
+                            }
+
+                            $max_date = new DateTime( 'now', $tz );
+                            $max_date->modify( '+' . $max_advance . ' days' );
+                            $max_date->setTime( 23, 59, 59 );
+
+                            if ( $pickup_dt > $max_date ) {
+                                $errors[] = $this->error(
+                                    $prefix . '.pickup_date',
+                                    'max_advance_violation',
+                                    sprintf( 'Pickup date cannot be more than %d days in advance.', $max_advance )
+                                );
+                            }
+                        } catch ( Exception $e ) {
+                            // Date parsing failed, skip lead time validation
+                        }
                     }
                 }
             }

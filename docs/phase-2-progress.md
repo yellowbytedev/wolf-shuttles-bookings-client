@@ -283,3 +283,24 @@
   - Added trailer: true for the new fixture
 - Updated `docs/booking-payload-v2.md` to clarify stop rules.
 - All fixture runners still pass (20 fixtures).
+## Phase 2R — Booking-site config date/time constraints (completed)
+
+- Added date constraints to `inc/class-booking-field-registry.php`:
+  - `outbound_pickup_date` and `return_pickup_date` now include `date_min_attr` and `date_max_attr`
+  - Minimum date calculated from `transfer_min_notice_minutes` (300 = 5 hours)
+  - Maximum date calculated from `max_advance_booking_days` (365 days)
+- Updated `inc/class-booking-client-form-shortcode.php` to render date min/max attributes.
+- Added frontend time constraint logic in `assets/js/booking-client-form.js`:
+  - `constrainTimeByDate()` sets min time attribute when selected date equals minimum allowed date
+  - Reads constraints from `CONFIG.bookingSiteConfig.lead_times`
+- Enhanced `inc/class-booking-payload-v2-validator.php` with lead-time validation:
+  - Validates transfer/charter pickup datetime against respective minimum notice windows
+  - Validates max advance booking days for all legs
+  - Uses WordPress timezone via `wp_timezone()`
+- Added 4 new lead-time violation fixtures:
+  - `invalid-transfer-inside-lead-time` — pickup too soon for transfer
+  - `invalid-charter-inside-lead-time` — pickup too soon for charter (requires 48 hours)
+  - `invalid-pickup-beyond-max-advance` — pickup date > 365 days in future
+  - `invalid-return-inside-lead-time` — return leg pickup too soon
+- All 26 payload fixtures pass (26 total, up from 22).
+- All 15 valid handover fixtures pass (11 invalid skipped as expected).

@@ -58,7 +58,8 @@ The roadmap lives in `docs/booking-intake-roadmap.md` and the phase log lives in
 - Phase 2M complete: charter additional stop support removed (charters do not offer additional stops).
 - Phase 2N complete: place snapshot scaffolding added (per-leg place_snapshots block).
 - Phase 2O complete: booking-site config contract defined for future lead time/capacity picker constraints.
-- Phase 2P complete: marketing-side config consumer scaffold added to external services adapter.
+- Phase 2P complete: marketing-side config consumer scaffold added.
+- Phase 2R complete: booking-site config date/time constraints applied to external services adapter.
 
 If roadmap or phase status changes, update this file at the same time.
 
@@ -68,8 +69,8 @@ If roadmap or phase status changes, update this file at the same time.
 - The `/booking-builder/?debug=1` page renders the developer fixture drawer and smoke-tested at HTTP 200.
 - Realtime BookingPayload v2 preview works in the browser.
 - The server-side preview endpoint works at `POST /wp-json/ws-bookings-client/v1/payload-preview`.
-- The payload fixture runner passes (22 fixtures).
-- The handover preview fixture runner passes (13 passed, 7 skipped as invalid).
+- The payload fixture runner passes (26 fixtures).
+- The handover preview fixture runner passes (15 passed, 11 skipped as invalid).
 - The normalizer now preserves `service_group`, top-level `route`, `validation_flags`, and `charter` scaffolds.
 - Meta fields are aligned: both `meta.preview_only` and `meta.handover_mode` are set in JS and PHP.
 - The developer fixture drawer loads fixtures from `tests/fixtures/booking-payload-v2-fixtures.json`, populates the form, and re-runs preview checks.

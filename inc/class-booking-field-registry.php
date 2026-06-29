@@ -16,9 +16,29 @@ class BookingFieldRegistry {
         $config = wsb_client_external_services()->get_cached_booking_site_config();
         $capacity = $config['capacity'] ?? [];
         $picker = $config['picker'] ?? [];
+        $lead_times = $config['lead_times'] ?? [];
         $time_step = (int) ($picker['time_step_minutes'] ?? 5);
         $max_passengers = (int) ($capacity['max_passengers'] ?? 13);
         $max_bags = (int) ($capacity['max_check_in_bags'] ?? 13);
+
+        $tz = wp_timezone();
+        $now = new \DateTime('now', $tz);
+
+        // Calculate min date (transfer lead time = 5 hours minimum)
+        $transfer_min_notice = (int) ($lead_times['transfer_min_notice_minutes'] ?? 300);
+        $charter_min_notice = (int) ($lead_times['charter_min_notice_minutes'] ?? 2880);
+        $max_advance = (int) ($lead_times['max_advance_booking_days'] ?? 365);
+
+        // Min date: earliest selectable date based on transfer lead time
+        $min_date = clone $now;
+        $min_date->modify('+' . $transfer_min_notice . ' minutes');
+        $min_date->setTime((int)$min_date->format('H'), 0, 0); // Align to hour start
+        $min_date_str = $min_date->format('Y-m-d');
+
+        // Max date: latest selectable date
+        $max_date = clone $now;
+        $max_date->modify('+' . $max_advance . ' days');
+        $max_date_str = $max_date->format('Y-m-d');
 
         $fields = [
             'trip_type' => [
@@ -114,6 +134,8 @@ class BookingFieldRegistry {
                 'required' => true,
                 'applies_to' => ['transfer', 'charter'],
                 'admin_editable' => true,
+                'date_min_attr' => $min_date_str,
+                'date_max_attr' => $max_date_str,
             ],
             'outbound_pickup_time' => [
                 'key' => 'outbound_pickup_time',
@@ -151,6 +173,8 @@ class BookingFieldRegistry {
                 'required' => false,
                 'applies_to' => ['transfer'],
                 'admin_editable' => true,
+                'date_min_attr' => $min_date_str,
+                'date_max_attr' => $max_date_str,
             ],
             'return_pickup_time' => [
                 'key' => 'return_pickup_time',

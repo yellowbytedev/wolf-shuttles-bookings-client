@@ -517,3 +517,33 @@
     z-index: 10001;
   }
 }
+
+/* UI Interaction Scaffold (Phase 2K+) - future use only, no visual effect yet */
+.wsb-sortable-list {
+  touch-action: none;
+  user-select: none;
+}
+
+.wsb-sortable-item {
+  touch-action: none;
+}
+
+.wsb-drag-handle {
+  touch-action: none;
+  user-select: none;
+  cursor: grab;
+}
+
+.wsb-drag-handle:active {
+  cursor: grabbing;
+}
+
+.wsb-sortable-placeholder {
+  opacity: 0.4;
+  background: var(--secondary);
+  border-radius: var(--radius-s);
+}
+
+.wsb-sortable-chosen {
+  opacity: 0.8;
+}

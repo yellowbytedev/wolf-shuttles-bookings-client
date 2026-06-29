@@ -197,6 +197,9 @@
 - Added PHP config flag `WSB_CLIENT_UI_INTERACTIONS_ENABLED` (default false).
 - Added `uiInteractionsEnabled` to JS config via `inc/class-booking-client-form-shortcode.php`.
 - Created `docs/ui-interaction-scaffold.md` documenting future use cases and library decisions.
+- Added CSS hooks in `assets/css/booking-client-form.css`:
+  - `.wsb-sortable-list`, `.wsb-sortable-item`, `.wsb-drag-handle`
+  - `.wsb-sortable-placeholder`, `.wsb-sortable-chosen`
 - No third-party library loaded; no functional changes to existing UI; all tests pass.
 
 ## Phase 2L — Legacy External Services Audit

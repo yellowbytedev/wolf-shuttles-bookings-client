@@ -181,7 +181,13 @@ A no-op sortable adapter scaffold exists in `assets/js/booking-client-form.js`:
 - `WSB_BOOKING_UI_INTERACTIONS.initSortableList(root)` — no-op placeholder for future SortableJS integration
 - `WSB_BOOKING_UI_INTERACTIONS.destroySortableList(root)` — no-op placeholder for cleanup
 
-PHP flag `WSB_CLIENT_UI_INTERACTIONS_ENABLED` (default false) controls via config. No third-party library is loaded yet. See `docs/ui-interaction-scaffold.md` for full details.
+PHP flag `WSB_CLIENT_UI_INTERACTIONS_ENABLED` (default false) controls via config.
+
+CSS hooks added in `assets/css/booking-client-form.css`:
+- `.wsb-sortable-list`, `.wsb-sortable-item`
+- `.wsb-drag-handle`, `.wsb-sortable-placeholder`, `.wsb-sortable-chosen`
+
+No third-party library is loaded yet. See `docs/ui-interaction-scaffold.md` for full details.
 
 ## Keeping This Handoff Current
 

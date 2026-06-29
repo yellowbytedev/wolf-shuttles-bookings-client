@@ -110,6 +110,13 @@ Milestones:
 - All 13 valid handover fixtures pass (7 invalid skipped as expected).
 - Dry-run handover preserves charter payloads.
 
+### Phase 2K+ status (completed)
+
+- UI interaction scaffold added: `WSB_BOOKING_UI_INTERACTIONS` JS adapter (no-op until library loaded).
+- CSS hooks added: `.wsb-sortable-list`, `.wsb-sortable-item`, `.wsb-drag-handle`, `.wsb-sortable-placeholder`, `.wsb-sortable-chosen`.
+- No third-party library installed; drag/drop is inactive.
+- Future use cases documented: ordered stops, charter day segments, itinerary trip ordering.
+
 ## Phase 3 — Booking-site v2 intake
 
 Add booking-system support for v2 payloads.

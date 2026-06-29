@@ -369,3 +369,26 @@
   - `valid-charter-with-google-place-snapshots`
 - All 29 payload fixtures pass.
 - All 18 valid handover fixtures pass (11 invalid skipped as expected).
+
+## Phase 2U — Booking Builder UI polish (completed)
+
+- Refreshed frontend CSS and shortcode markup to move closer to legacy booking form styling.
+- Tabs updated: "Book a Ride" (active red) and "Shuttle Hire".
+- Hero card simplified: removed developer preview copy; normal page shows product-like heading only.
+- Preview summary and badge hidden on normal page via CSS; debug page restores them via `.wb-debug` utility class.
+- CTA button updated to "Check Pricing & Availability".
+- Rounded inputs and clean white card styling applied; dark gradient hero retained.
+- Google Places display string improved:
+  - New `formatAddressForDisplay()` helper builds readable location from `address_components`.
+  - Strips trailing "South Africa" from `formatted_address` when needed.
+  - Still preserves `place_id`, `lat`, `lng`, and raw `formatted_address` in payload.
+- Date picker icon overlap fixed:
+  - Native browser date/time picker indicators hidden (`display: none`) to avoid overlap with custom calendar icon.
+  - Custom branded calendar icon retained via `::after` mask.
+- Time picker opening behaviour:
+  - Native `<input type="time">` used with `step="300"`.
+  - Browser-native picker opens on click/focus on macOS/Chrome.
+  - Legacy jQuery ClockTimePicker not reused (would require theme asset or vendor approval); exact legacy behaviour documented as limitation.
+- Normal `/booking-builder/` page no longer exposes developer preview copy or fixture drawer.
+- Debug page `/booking-builder/?debug=1` keeps fixture drawer, dev header, and raw preview panels.
+- All 29 payload fixtures pass.

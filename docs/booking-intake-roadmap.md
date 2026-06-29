@@ -303,3 +303,14 @@ Each feature should plug into a pricing pipeline rather than being hardcoded int
 - 3 new fixtures added (total 29).
 - All 29 payload fixtures pass.
 
+### Phase 2U status (completed)
+
+- Booking Builder UI polished to closer match legacy booking form.
+- Tabs renamed to "Book a Ride" / "Shuttle Hire" with active red style.
+- Developer preview copy removed from normal page; debug-only content scoped to `?debug=1`.
+- CTA changed to "Check Pricing & Availability".
+- Google place display string improved: builds clean readable address from components, removes trailing "South Africa".
+- Date picker icon overlap fixed by hiding native browser indicator.
+- Time picker uses native input with 5-minute step; opens on click/focus.
+- Fixture drawer and raw preview panels remain on debug page.
+

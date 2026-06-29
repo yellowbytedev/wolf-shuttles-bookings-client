@@ -304,6 +304,7 @@ PRICING_RULES.thresholds = {
 | `readonly` enforcement | Native date input constraint (`min`/`max` attributes) + JS status feedback |
 | Hard-coded `BLOCKED_DATES` Map | `getBlockedDatesFromConfig()` scaffold reading `bookingSiteConfig.blockouts.blocked_dates` |
 | Date format `dd/mm/yy` | Native ISO `Y-m-d` format (browser-localized display) |
+| Custom calendar icon overlap with native indicator | Native indicator hidden (`display: none`); custom branded icon retained |
 
 ### Time picker — what was ported
 
@@ -313,6 +314,7 @@ PRICING_RULES.thresholds = {
 | Charter defaults 08:00 pickup / 17:00 dropoff | JS `setCharterTimeDefaults()` sets these values automatically |
 | AM/PM label injected as sibling | `.wsb-time-ampm-badge` span inserted next to time input |
 | `min` time enforcement on min date | `constrainTimeByDate()` sets `timeInput.min` when date equals config min |
+| Clock-style popover on click/focus | Browser-native `<input type="time">` picker opens on click/focus (exact jQuery plugin not vendored) |
 
 ### What was deliberately not ported
 

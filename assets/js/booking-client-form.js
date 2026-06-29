@@ -1016,32 +1016,115 @@ var GOOGLE_PLACES = (CONFIG.googlePlaces || {
         };
     }
 
+    function formatAddressForDisplay(place) {
+      if (!place || typeof place !== 'object') {
+        return '';
+      }
+
+      var components = [];
+      if (Array.isArray(place.address_components)) {
+        var typePriority = ['premise', 'establishment', 'route', 'sublocality_level_2', 'sublocality', 'neighborhood', 'locality', 'administrative_area_level_2', 'administrative_area_level_1'];
+        var seenTypes = new Set();
+
+        place.address_components.forEach(function (component) {
+          if (!component || !Array.isArray(component.types)) {
+            return;
+          }
+
+          var shortName = typeof component.short_name === 'string' ? component.short_name.trim() : '';
+          var longName = typeof component.long_name === 'string' ? component.long_name.trim() : '';
+
+          if (!longName) {
+            return;
+          }
+
+          if (shortName === 'ZA') {
+            return;
+          }
+
+          if (shortName === 'South Africa') {
+            return;
+          }
+
+          component.types.forEach(function (type) {
+            if (seenTypes.has(type)) {
+              return;
+            }
+            var index = typePriority.indexOf(type);
+            if (index === -1) {
+              return;
+            }
+            seenTypes.add(type);
+            if (shortName) {
+              components[index] = shortName;
+            } else if (longName) {
+              components[index] = longName;
+            }
+          });
+        });
+      }
+
+      var filtered = [];
+      for (var i = 0; i < components.length; i += 1) {
+        if (typeof components[i] === 'string' && components[i] && filtered.indexOf(components[i]) === -1) {
+          filtered.push(components[i]);
+        }
+      }
+
+      if (filtered.length) {
+        return filtered.join(', ');
+      }
+
+      if (typeof place.formatted_address === 'string' && place.formatted_address.trim()) {
+        var addr = place.formatted_address.trim();
+        var trailingCountry = 'South Africa';
+        if (trailingCountry && addr.length > trailingCountry.length && addr.slice(-trailingCountry.length) === trailingCountry) {
+          addr = addr.slice(0, -trailingCountry.length).replace(/,\s*$/, '');
+        }
+        return addr;
+      }
+
+      if (typeof place.name === 'string' && place.name.trim()) {
+        return place.name.trim();
+      }
+
+      return '';
+    }
+
     function extractPlaceDetails(place) {
-        var snapshot = clonePlaceSnapshot(PLACE_SNAPSHOT_EMPTY);
-        if (!place) {
-            return snapshot;
-        }
-
-        snapshot.provider = 'google_places';
-        snapshot.place_id = typeof place.place_id === 'string' ? place.place_id : null;
-        snapshot.label = typeof place.name === 'string' ? place.name : null;
-        snapshot.formatted_address = typeof place.formatted_address === 'string' ? place.formatted_address : null;
-
-        if (place.geometry && place.geometry.location) {
-            var loc = place.geometry.location;
-            if (typeof loc.lat === 'function') {
-                snapshot.lat = loc.lat();
-            } else if (typeof loc.lat === 'number') {
-                snapshot.lat = loc.lat;
-            }
-            if (typeof loc.lng === 'function') {
-                snapshot.lng = loc.lng();
-            } else if (typeof loc.lng === 'number') {
-                snapshot.lng = loc.lng;
-            }
-        }
-
+      var snapshot = clonePlaceSnapshot(PLACE_SNAPSHOT_EMPTY);
+      if (!place) {
         return snapshot;
+      }
+
+      snapshot.provider = 'google_places';
+      snapshot.place_id = typeof place.place_id === 'string' ? place.place_id : null;
+      snapshot.label = typeof place.name === 'string' ? place.name : null;
+      snapshot.formatted_address = typeof place.formatted_address === 'string' ? place.formatted_address : null;
+
+      var display = formatAddressForDisplay(place);
+      if (display) {
+        snapshot.label = display;
+        if (!snapshot.formatted_address) {
+          snapshot.formatted_address = display;
+        }
+      }
+
+      if (place.geometry && place.geometry.location) {
+        var loc = place.geometry.location;
+        if (typeof loc.lat === 'function') {
+          snapshot.lat = loc.lat();
+        } else if (typeof loc.lat === 'number') {
+          snapshot.lat = loc.lat;
+        }
+        if (typeof loc.lng === 'function') {
+          snapshot.lng = loc.lng();
+        } else if (typeof loc.lng === 'number') {
+          snapshot.lng = loc.lng;
+        }
+      }
+
+      return snapshot;
     }
 
     function markPlaceFieldSelected(input) {
@@ -1079,7 +1162,7 @@ var GOOGLE_PLACES = (CONFIG.googlePlaces || {
         wrapper.classList.remove('wsb-booking-client-field--place-selected', 'wsb-booking-client-field--place-stale');
     }
 
-    function initGooglePlacesAutocomplete(root) {
+    function initGooglePlacesAutocomplete(root, refreshCallback) {
         if (!GOOGLE_PLACES.enabled || typeof google === 'undefined' || typeof google.maps === 'undefined' || typeof google.maps.places === 'undefined') {
             return;
         }
@@ -1099,7 +1182,6 @@ var GOOGLE_PLACES = (CONFIG.googlePlaces || {
                 return;
             }
 
-            // Skip if already initialized
             if (input.dataset.wsbPlaceInitialized === 'true') {
                 return;
             }
@@ -1116,27 +1198,37 @@ var GOOGLE_PLACES = (CONFIG.googlePlaces || {
                 var snapshot = extractPlaceDetails(place);
 
                 if (!snapshot.place_id) {
-                    // No valid place selected, clear snapshot
                     placeSnapshots[field.snapshotKey] = clonePlaceSnapshot(PLACE_SNAPSHOT_EMPTY);
                     markPlaceFieldSelected(input);
                     input.value = '';
-                    refreshPreview('');
+                    if (typeof refreshCallback === 'function') {
+                        refreshCallback('');
+                    }
                     return;
                 }
 
-                // Store snapshot
                 placeSnapshots[field.snapshotKey] = snapshot;
-
-                // Update display label if name differs from current input
-                if (snapshot.label && snapshot.label !== input.value) {
+                if (snapshot.label) {
                     input.value = snapshot.label;
                 }
-
                 markPlaceFieldSelected(input);
-                refreshPreview('');
+                if (typeof refreshCallback === 'function') {
+                    refreshCallback('');
+                }
             });
 
-            // Detect manual edits after selection — mark stale
+            input.addEventListener('click', function () {
+                if (input.hasAttribute('readonly')) {
+                    input.removeAttribute('readonly');
+                }
+            });
+
+            input.addEventListener('focus', function () {
+                if (input.hasAttribute('readonly')) {
+                    input.removeAttribute('readonly');
+                }
+            });
+
             input.addEventListener('input', function () {
                 var wrapper = input.closest('.wsb-booking-client-field');
                 if (!wrapper) {
@@ -1147,7 +1239,6 @@ var GOOGLE_PLACES = (CONFIG.googlePlaces || {
                 }
             });
 
-            // Clear stale state on focus if user wants to re-select
             input.addEventListener('focus', function () {
                 var wrapper = input.closest('.wsb-booking-client-field');
                 if (wrapper && wrapper.classList.contains('wsb-booking-client-field--place-stale')) {
@@ -1395,7 +1486,7 @@ var GOOGLE_PLACES = (CONFIG.googlePlaces || {
         setDateDefaults(root);
         updateAmPmLabels(root);
         refreshPickerStatusMessages(root);
-        initGooglePlacesAutocomplete(root);
+        initGooglePlacesAutocomplete(root, refreshPreview);
         refreshPreview('Live payload preview initialised');
         if (fixtureStatus && fixtures.length) {
             updateFixtureDrawerStatus(

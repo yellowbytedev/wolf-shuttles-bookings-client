@@ -62,6 +62,7 @@ The roadmap lives in `docs/booking-intake-roadmap.md` and the phase log lives in
 - Phase 2R complete: booking-site config date/time constraints applied to external services adapter.
 - Phase 2S complete: date/time picker parity pass — legacy-style picker styling/behavior ported into plugin-owned CSS/JS.
 - Phase 2T complete: Google Places Autocomplete scaffold — plugin-owned enqueue, autocomplete init, place snapshot capture, stale-edit handling, and quote-ready diagnostic flag.
+- Phase 2U complete: Booking Builder UI polish — tabs/cards/inputs styled closer to legacy form, Google place display string now shows name + street/area/city without country suffix, date icon overlap fixed by hiding native indicator, debug-only copy/tools scoped to `?debug=1`, CTA updated to product-like wording.
 
 If roadmap or phase status changes, update this file at the same time.
 
@@ -71,7 +72,7 @@ If roadmap or phase status changes, update this file at the same time.
 - The `/booking-builder/?debug=1` page renders the developer fixture drawer and smoke-tested at HTTP 200.
 - Realtime BookingPayload v2 preview works in the browser.
 - The server-side preview endpoint works at `POST /wp-json/ws-bookings-client/v1/payload-preview`.
-- The payload fixture runner passes (26 fixtures).
+- The payload fixture runner passes (29 fixtures).
 - The handover preview fixture runner passes (15 passed, 11 skipped as invalid).
 - The normalizer now preserves `service_group`, top-level `route`, `validation_flags`, and `charter` scaffolds.
 - Meta fields are aligned: both `meta.preview_only` and `meta.handover_mode` are set in JS and PHP.
@@ -81,6 +82,12 @@ If roadmap or phase status changes, update this file at the same time.
 - **Charter preview mode**: Shuttle Hire tab enabled, charter leg type supported, `dropoff_time` preserved in legs, `charter` block populated, `trip_type: "charter"` when charter active. Charter does not offer additional stops.
 - Legacy Bricks/Fluent booking flow is still untouched.
 - No real booking submission is enabled yet.
+- Booking Builder UI polished to closer match legacy form tabs/cards/inputs.
+- Debug tools (fixture drawer, preview panel, dev header) visible only on `?debug=1`.
+- Normal `/booking-builder/` page hides developer preview copy and shows product-style tabs and CTA.
+- Google Places autocomplete display now builds a clean readable address string from address components, falling back to formatted_address with trailing "South Africa" removed.
+- Date picker custom icon kept; native browser date indicator hidden to prevent overlap.
+- Time picker retains native `<input type="time">` with 5-minute step; opens via browser native picker on click/focus (no CDN vendor added).
 
 ## 6. What Is Deliberately Not Enabled Yet
 

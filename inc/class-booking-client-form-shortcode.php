@@ -16,7 +16,7 @@ class BookingClientFormShortcode {
         self::enqueue_assets();
 
         $fields = BookingFieldRegistry::get_fields();
-        $title = __('Booking Builder', 'wsb');
+        $title = __('Book a Ride', 'wsb');
 
         $atts = shortcode_atts([
             'title' => $title,
@@ -28,20 +28,22 @@ class BookingClientFormShortcode {
         ob_start();
         ?>
         <div
-            class="wsb-booking-client-shell"
+            class="wsb-booking-client-shell<?php echo $show_dev_drawer ? ' wb-debug' : ''; ?>"
             data-wsb-booking-builder
             data-wsb-service-group="transfer"
             data-wsb-service-type="city_transfer"
             data-wsb-fixtures='<?php echo esc_attr(json_encode($fixtures)); ?>'
         >
+            <?php if ($show_dev_drawer): ?>
             <div class="wsb-booking-client-header">
                 <h2><?php echo esc_html($atts['title']); ?></h2>
                 <p><?php echo esc_html__('Build a new booking request. No real booking submission is enabled yet.', 'wsb'); ?></p>
             </div>
+            <?php endif; ?>
 
             <div class="wsb-booking-client-service-tabs" role="tablist">
-                <button type="button" class="wsb-booking-client-service-tab wsb-booking-client-service-tab--active" data-service="transfer" data-wsb-service-tab="transfer"><?php echo esc_html__('City Transfers', 'wsb'); ?></button>
-                <button type="button" class="wsb-booking-client-service-tab" data-service="charter" data-wsb-service-tab="charter"><?php echo esc_html__('Shuttle Hire (preview)', 'wsb'); ?></button>
+                <button type="button" class="wsb-booking-client-service-tab wsb-booking-client-service-tab--active" data-service="transfer" data-wsb-service-tab="transfer"><?php echo esc_html__('Book a Ride', 'wsb'); ?></button>
+                <button type="button" class="wsb-booking-client-service-tab" data-service="charter" data-wsb-service-tab="charter"><?php echo esc_html__('Shuttle Hire', 'wsb'); ?></button>
             </div>
 
             <form class="wsb-booking-client-form" data-wsb-booking-form method="post" action="#" novalidate>
@@ -50,15 +52,9 @@ class BookingClientFormShortcode {
                         <section class="wsb-booking-client-card wsb-booking-client-card--hero">
                             <div class="wsb-booking-client-card-header">
                                 <div>
-                                    <p class="wsb-booking-client-eyebrow"><?php echo esc_html__('Booking Builder', 'wsb'); ?></p>
-                                    <h3><?php echo esc_html__('Create a local transfer preview', 'wsb'); ?></h3>
+                                    <p class="wsb-booking-client-eyebrow"><?php echo esc_html__('Book a Ride', 'wsb'); ?></p>
+                                    <h3><?php echo esc_html__('Plan your transfer', 'wsb'); ?></h3>
                                 </div>
-                                <span class="wsb-booking-client-badge"><?php echo esc_html__('Preview only', 'wsb'); ?></span>
-                            </div>
-                            <p class="wsb-booking-client-card-copy"><?php echo esc_html__('This form builds a local BookingPayload v2 preview. Real booking submission is not enabled yet.', 'wsb'); ?></p>
-                            <div class="wsb-booking-client-preview-summary" data-wsb-payload-summary>
-                                <p class="wsb-booking-client-preview-summary-text"><?php echo esc_html__('Live payload preview active', 'wsb'); ?></p>
-                                <p class="wsb-booking-client-preview-status" data-wsb-preview-status><?php echo esc_html__('Waiting for updates...', 'wsb'); ?></p>
                             </div>
                         </section>
 
@@ -175,7 +171,7 @@ class BookingClientFormShortcode {
                         </section>
 
                         <div class="wsb-booking-client-actions">
-                            <button type="submit" class="wsb-booking-client-submit" data-wsb-preview-submit><?php echo esc_html__('Preview booking payload', 'wsb'); ?></button>
+                            <button type="submit" class="wsb-booking-client-submit" data-wsb-preview-submit><?php echo esc_html__('Check Pricing & Availability', 'wsb'); ?></button>
                             <div class="wsb-booking-client-submit-message" aria-live="polite" data-wsb-submit-message></div>
                             <p class="wsb-booking-client-note"><?php echo esc_html__('This preview is local only; no real booking is submitted.', 'wsb'); ?></p>
                         </div>
@@ -192,8 +188,8 @@ class BookingClientFormShortcode {
                         </section>
                     </aside>
                 </div>
-            </form>
-            <?php if ($show_dev_drawer && !empty($fixtures)): ?>
+
+                <?php if ($show_dev_drawer && !empty($fixtures)): ?>
                 <button
                     type="button"
                     class="wsb-booking-client-fixture-toggle"
@@ -240,7 +236,8 @@ class BookingClientFormShortcode {
                         </div>
                     </div>
                 </aside>
-            <?php endif; ?>
+                <?php endif; ?>
+            </form>
         </div>
         <?php
 

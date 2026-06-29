@@ -293,3 +293,30 @@ PRICING_RULES.thresholds = {
 | Direction classification | JS bearings | PHP scaffold | Real-time via Google |
 | Toll detection | HERE API via AJAX | Scaffold only | Full evaluation |
 | Charter codes | Hard-coded map | - | Full business logic |
+## 10. Date/Time Picker Parity (Phase 2S)
+
+### Date picker — what was ported
+
+| Legacy behavior | Plugin-owned implementation |
+|----------------|----------------------------|
+| jQuery UI Datepicker with `minDate: 0`, `defaultDate: tomorrow` | Native `<input type="date">` with `min`/`max` from config; JS defaults to tomorrow |
+| `beforeShowDay` blockout styling (`wsb-blocked` class + tooltip) | `.wsb-date-blocked` CSS class + `.wsb-picker-status` inline messages |
+| `readonly` enforcement | Native date input constraint (`min`/`max` attributes) + JS status feedback |
+| Hard-coded `BLOCKED_DATES` Map | `getBlockedDatesFromConfig()` scaffold reading `bookingSiteConfig.blockouts.blocked_dates` |
+| Date format `dd/mm/yy` | Native ISO `Y-m-d` format (browser-localized display) |
+
+### Time picker — what was ported
+
+| Legacy behavior | Plugin-owned implementation |
+|----------------|----------------------------|
+| jQuery ClockTimePicker `precision: 5` | Native `<input type="time" step="300">` |
+| Charter defaults 08:00 pickup / 17:00 dropoff | JS `setCharterTimeDefaults()` sets these values automatically |
+| AM/PM label injected as sibling | `.wsb-time-ampm-badge` span inserted next to time input |
+| `min` time enforcement on min date | `constrainTimeByDate()` sets `timeInput.min` when date equals config min |
+
+### What was deliberately not ported
+
+- jQuery UI library dependency → replaced with native HTML5 inputs
+- CDN-loaded jQuery UI CSS → replaced with plugin-owned CSS
+- Hard-coded blocked dates Map → replaced with config scaffold (empty until booking site provides data)
+- Vehicle-specific blockouts → explicitly excluded from marketing picker per `blockouts.vehicle_scoped_blockouts_affect_marketing_picker: false`

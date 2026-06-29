@@ -304,3 +304,31 @@
   - `invalid-return-inside-lead-time` — return leg pickup too soon
 - All 26 payload fixtures pass (26 total, up from 22).
 - All 15 valid handover fixtures pass (11 invalid skipped as expected).
+
+## Phase 2S — Date/time picker parity (completed)
+
+- Ported legacy date/time picker styling and behavior into plugin-owned files.
+- Added custom CSS in `assets/css/booking-client-form.css`:
+  - Branded date/time input styling with custom calendar icon (masked SVG)
+  - Blocked/out-of-range date state (`.wsb-date-blocked`)
+  - Picker status messages (`.wsb-picker-status`, `.wsb-picker-status--ok`)
+  - AM/PM visual badge (`.wsb-time-ampm-badge`) for legacy-style time labels
+  - Blockout legend UI (`.wsb-booking-client-picker-legend`)
+- Added date/time helper functions in `assets/js/booking-client-form.js`:
+  - `setDateDefaults()` — defaults outbound/return/charter dates to tomorrow
+  - `setCharterTimeDefaults()` / `clearCharterTimeDefaults()` — 08:00/17:00 defaults
+  - `deriveAmPmLabel()` / `updateAmPmLabels()` — legacy-style AM/PM badges
+  - `getBlockedDatesFromConfig()` / `validateDateAgainstBlockouts()` — scaffold for global blockouts
+  - `refreshPickerStatusMessages()` — live lead-time/blockout status feedback
+- Updated `inc/class-booking-client-form-shortcode.php`:
+  - `render_date_field()` now wraps dates in `.wsb-booking-client-picker-group` with status containers
+  - Added picker legend copy (blocked dates, charter 48-hour lead time, return lead time)
+  - Added translatable picker status strings
+- Updated `inc/class-booking-external-services.php`:
+  - Added `blocked_dates` empty array to default config scaffold
+- Transfer rules verified: one-way, return, additional stops, Shuttle Hire, charter 48-hour lead time.
+- Company-profile max values remain future booking-site config work (not implemented).
+- No third-party picker library added; no CDN dependencies; pure CSS/JS over native inputs.
+- All 26 payload fixtures pass.
+- All 15 valid handover fixtures pass (11 invalid skipped as expected).
+- Browser MCP visual QA: form renders correctly, charter/return tabs switch mode, fixture drawer opens and populates form.

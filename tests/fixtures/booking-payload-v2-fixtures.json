@@ -1,1029 +1,1029 @@
 [
-    {
-        "id": "valid-one-way-city-transfer",
-        "description": "Valid one-way city transfer with standard luggage",
-        "expected_ok": true,
-        "payload": {
-            "schema_version": "2.0",
-            "trip_type": "one_way",
-            "service_type": "city_transfer",
-            "passengers": 2,
-            "customer": {
-                "name": "Jane Doe",
-                "email": "jane@example.com",
-                "phone": "+27712345678"
-            },
-            "add_ons": {
-                "trailer": false,
-                "oversize_luggage": false
-            },
-            "legs": [
-                {
-                    "type": "outbound",
-                    "from": {
-                        "label": "Cape Town International Airport"
-                    },
-                    "to": {
-                        "label": "Stellenbosch Central"
-                    },
-                    "pickup_date": "2026-07-15",
-                    "pickup_time": "14:00",
-                    "stops": [],
-                    "route": []
-                }
-            ]
+  {
+    "id": "valid-one-way-city-transfer",
+    "description": "Valid one-way city transfer with standard luggage",
+    "expected_ok": true,
+    "payload": {
+      "schema_version": "2.0",
+      "trip_type": "one_way",
+      "service_type": "city_transfer",
+      "passengers": 2,
+      "customer": {
+        "name": "Jane Doe",
+        "email": "jane@example.com",
+        "phone": "+27712345678"
+      },
+      "add_ons": {
+        "trailer": false,
+        "oversize_luggage": false
+      },
+      "legs": [
+        {
+          "type": "outbound",
+          "from": {
+            "label": "Cape Town International Airport"
+          },
+          "to": {
+            "label": "Stellenbosch Central"
+          },
+          "pickup_date": "2026-07-15",
+          "pickup_time": "14:00",
+          "stops": [],
+          "route": []
         }
-    },
-    {
-        "id": "valid-return-city-transfer",
-        "description": "Valid return city transfer with outbound and return legs",
-        "expected_ok": true,
-        "payload": {
-            "schema_version": "2.0",
-            "trip_type": "return",
-            "service_type": "city_transfer",
-            "passengers": 4,
-            "customer": {
-                "name": "John Smith",
-                "email": "john@example.com",
-                "phone": "+27729876543"
-            },
-            "add_ons": {
-                "trailer": false,
-                "oversize_luggage": false
-            },
-            "legs": [
-                {
-                    "type": "outbound",
-                    "from": {
-                        "label": "Cape Town International Airport"
-                    },
-                    "to": {
-                        "label": "Franschhoek"
-                    },
-                    "pickup_date": "2026-07-15",
-                    "pickup_time": "14:00",
-                    "stops": [],
-                    "route": []
-                },
-                {
-                    "type": "return",
-                    "from": {
-                        "label": "Franschhoek"
-                    },
-                    "to": {
-                        "label": "Cape Town International Airport"
-                    },
-                    "pickup_date": "2026-07-20",
-                    "pickup_time": "09:00",
-                    "stops": [],
-                    "route": []
-                }
-            ]
-        }
-    },
-    {
-        "id": "valid-one-way-additional-stop",
-        "description": "Valid one-way transfer with additional stop",
-        "expected_ok": true,
-        "payload": {
-            "schema_version": "2.0",
-            "trip_type": "one_way",
-            "service_type": "city_transfer",
-            "passengers": 3,
-            "customer": {
-                "name": "Alice M",
-                "email": "alice@example.com",
-                "phone": "+27731234567"
-            },
-            "add_ons": {
-                "trailer": false,
-                "oversize_luggage": false
-            },
-            "legs": [
-                {
-                    "type": "outbound",
-                    "from": {
-                        "label": "Somerset West"
-                    },
-                    "to": {
-                        "label": "Sun City"
-                    },
-                    "pickup_date": "2026-08-01",
-                    "pickup_time": "08:30",
-                    "stops": [
-                        {
-                            "type": "additional_stop",
-                            "location": {
-                                "label": "Engen Winelands 1 Stop"
-                            }
-                        }
-                    ],
-                    "route": []
-                }
-            ]
-        }
-    },
-    {
-        "id": "valid-with-trailer-oversize",
-        "description": "Valid transfer with trailer and oversize luggage enabled",
-        "expected_ok": true,
-        "payload": {
-            "schema_version": "2.0",
-            "trip_type": "one_way",
-            "service_type": "city_transfer",
-            "passengers": 1,
-            "customer": {
-                "name": "Bob K",
-                "email": "bob@example.com",
-                "phone": "+27739876543"
-            },
-            "add_ons": {
-                "trailer": true,
-                "oversize_luggage": true
-            },
-            "legs": [
-                {
-                    "type": "outbound",
-                    "from": {
-                        "label": "Paarl"
-                    },
-                    "to": {
-                        "label": "Cape Town Harbour"
-                    },
-                    "pickup_date": "2026-09-10",
-                    "pickup_time": "06:00",
-                    "stops": [],
-                    "route": []
-                }
-            ]
-        }
-    },
-    {
-        "id": "invalid-missing-outbound-from",
-        "description": "Invalid: outbound leg missing origin label",
-        "expected_ok": false,
-        "payload": {
-            "schema_version": "2.0",
-            "trip_type": "one_way",
-            "service_type": "city_transfer",
-            "passengers": 1,
-            "customer": {
-                "name": "Test",
-                "email": "test@example.com",
-                "phone": "+27730000000"
-            },
-            "add_ons": {
-                "trailer": false,
-                "oversize_luggage": false
-            },
-            "legs": [
-                {
-                    "type": "outbound",
-                    "from": {
-                        "label": ""
-                    },
-                    "to": {
-                        "label": "Cape Town"
-                    },
-                    "pickup_date": "2026-07-15",
-                    "pickup_time": "14:00",
-                    "stops": [],
-                    "route": []
-                }
-            ]
-        }
-    },
-    {
-        "id": "invalid-missing-outbound-to",
-        "description": "Invalid: outbound leg missing destination label",
-        "expected_ok": false,
-        "payload": {
-            "schema_version": "2.0",
-            "trip_type": "one_way",
-            "service_type": "city_transfer",
-            "passengers": 1,
-            "add_ons": {
-                "trailer": false,
-                "oversize_luggage": false
-            },
-            "legs": [
-                {
-                    "type": "outbound",
-                    "from": {
-                        "label": "Stellenbosch"
-                    },
-                    "to": {
-                        "label": ""
-                    },
-                    "pickup_date": "2026-07-15",
-                    "pickup_time": "14:00",
-                    "stops": [],
-                    "route": []
-                }
-            ]
-        }
-    },
-    {
-        "id": "invalid-passengers-zero",
-        "description": "Normalizer corrects passengers=0 to fallback 1, so post-normalization this is valid. Tested as expected behaviour.",
-        "expected_ok": true,
-        "rationale": "The normalizer's positive_int() silently upgrades 0 to the fallback (1). The validator sees the corrected value and passes.",
-        "payload": {
-            "schema_version": "2.0",
-            "trip_type": "one_way",
-            "service_type": "city_transfer",
-            "passengers": 0,
-            "add_ons": {
-                "trailer": false,
-                "oversize_luggage": false
-            },
-            "legs": [
-                {
-                    "type": "outbound",
-                    "from": {
-                        "label": "Cape Town"
-                    },
-                    "to": {
-                        "label": "Stellenbosch"
-                    },
-                    "pickup_date": "2026-07-15",
-                    "pickup_time": "14:00",
-                    "stops": [],
-                    "route": []
-                }
-            ]
-        }
-    },
-    {
-        "id": "invalid-return-missing-return-leg",
-        "description": "Invalid: trip_type is return but only one leg provided",
-        "expected_ok": false,
-        "payload": {
-            "schema_version": "2.0",
-            "trip_type": "return",
-            "service_type": "city_transfer",
-            "passengers": 1,
-            "add_ons": {
-                "trailer": false,
-                "oversize_luggage": false
-            },
-            "legs": [
-                {
-                    "type": "outbound",
-                    "from": {
-                        "label": "Cape Town"
-                    },
-                    "to": {
-                        "label": "Stellenbosch"
-                    },
-                    "pickup_date": "2026-07-15",
-                    "pickup_time": "14:00",
-                    "stops": [],
-                    "route": []
-                }
-            ]
-        }
-    },
-    {
-        "id": "invalid-passengers-zero-no-legs",
-        "description": "Invalid: passengers=0 and empty legs array",
-        "expected_ok": false,
-        "payload": {
-            "schema_version": "2.0",
-            "trip_type": "one_way",
-            "service_type": "city_transfer",
-            "passengers": 0,
-            "add_ons": {
-                "trailer": false,
-                "oversize_luggage": false
-            },
-            "legs": []
-        }
-    },
-    {
-        "id": "invalid-bad-schema-version",
-        "description": "Normalizer always sets schema_version: 2.0 in output, so post-normalization this passes. Schema version enforcement requires pre-normalizer validation.",
-        "expected_ok": true,
-        "rationale": "The normalizer hardcodes schema_version: 2.0 during normalization. The raw input's schema_version is overwritten. Pre-normalization validation would be a separate layer.",
-        "payload": {
-            "schema_version": "1.5",
-            "trip_type": "one_way",
-            "service_type": "city_transfer",
-            "passengers": 1,
-            "add_ons": {
-                "trailer": false,
-                "oversize_luggage": false
-            },
-            "legs": [
-                {
-                    "type": "outbound",
-                    "from": {
-                        "label": "Cape Town"
-                    },
-                    "to": {
-                        "label": "Stellenbosch"
-                    },
-                    "pickup_date": "2026-07-15",
-                    "pickup_time": "14:00",
-                    "stops": [],
-                    "route": []
-                }
-            ]
-        }
-    },
-    {
-        "id": "valid-with-route-scaffold",
-        "description": "Valid one-way with empty top-level route scaffold (flat field format)",
-        "expected_ok": true,
-        "payload": {
-            "service_group": "transfer",
-            "trip_type": "one_way",
-            "service_type": "city_transfer",
-            "passengers": 2,
-            "outbound_from": "Cape Town International Airport",
-            "outbound_to": "Stellenbosch Central",
-            "outbound_pickup_date": "2026-07-15",
-            "outbound_pickup_time": "14:00",
-            "route": {
-                "provider": null,
-                "selected_route_id": null,
-                "selected_route_label": null,
-                "distance_meters": null,
-                "duration_seconds": null,
-                "polyline": null,
-                "route_options": []
-            }
-        }
-    },
-    {
-        "id": "valid-with-route-options",
-        "description": "Valid one-way with populated route_options (flat field format)",
-        "expected_ok": true,
-        "payload": {
-            "service_group": "transfer",
-            "trip_type": "one_way",
-            "service_type": "city_transfer",
-            "passengers": 2,
-            "outbound_from": "Airport",
-            "outbound_to": "Hotel",
-            "outbound_pickup_date": "2026-07-20",
-            "outbound_pickup_time": "12:00",
-            "route": {
-                "provider": "google",
-                "selected_route_id": "route_abc123",
-                "selected_route_label": "Fastest via N2",
-                "distance_meters": 35000,
-                "duration_seconds": 1800,
-                "polyline": "abc123polyline",
-                "route_options": [
-                    {
-                        "id": "opt1",
-                        "label": "Avoid tolls",
-                        "distance_meters": 38000,
-                        "duration_seconds": 2100
-                    },
-                    {
-                        "id": "opt2",
-                        "label": "Scenic route",
-                        "distance_meters": 42000,
-                        "duration_seconds": 2400
-                    }
-                ]
-            }
-        }
-    },
-    {
-        "id": "valid-with-validation-flags",
-        "description": "Valid one-way with validation_flags populated (flat field format)",
-        "expected_ok": true,
-        "payload": {
-            "service_group": "transfer",
-            "trip_type": "one_way",
-            "service_type": "city_transfer",
-            "passengers": 3,
-            "outbound_from": "Somerset West",
-            "outbound_to": "Sun City",
-            "outbound_pickup_date": "2026-08-01",
-            "outbound_pickup_time": "08:30",
-            "validation_flags": {
-                "route_verified": true,
-                "price_quoted": true,
-                "google_routes_success": false
-            }
-        }
-    },
-    {
-        "id": "valid-with-charter-scaffold",
-        "description": "Valid charter with charter.enabled: false scaffold (flat field format)",
-        "expected_ok": true,
-        "payload": {
-            "service_group": "charter",
-            "trip_type": "charter",
-            "service_type": "charter_hire",
-            "passengers": 6,
-            "outbound_from": "Hotel",
-            "outbound_to": "Sightseeing Point",
-            "outbound_pickup_date": "2026-07-01",
-            "outbound_pickup_time": "09:00",
-            "charter": {
-                "enabled": true,
-                "type": "same_day",
-                "days": []
-            },
-            "validation_flags": {
-                "charter_availability_confirmed": false
-            },
-            "legs": [
-                {
-                    "type": "charter",
-                    "from": {
-                        "label": "Hotel"
-                    },
-                    "to": {
-                        "label": "Sightseeing Point"
-                    },
-                    "pickup_date": "2026-07-01",
-                    "pickup_time": "09:00",
-                    "dropoff_time": "17:00",
-                    "stops": []
-                }
-            ]
-        }
-    },
-    {
-        "id": "invalid-missing-legs",
-        "description": "Invalid: no legs provided (flat field format with empty legs)",
-        "expected_ok": false,
-        "payload": {
-            "service_group": "transfer",
-            "trip_type": "one_way",
-            "service_type": "city_transfer",
-            "passengers": 1,
-            "legs": []
-        }
-    },
-    {
-        "id": "valid-return-with-return-stop",
-        "description": "Valid return trip with additional stop on return leg only",
-        "expected_ok": true,
-        "payload": {
-            "schema_version": "2.0",
-            "trip_type": "return",
-            "service_type": "city_transfer",
-            "passengers": 2,
-            "customer": {
-                "name": "Jane Return",
-                "email": "return@example.com",
-                "phone": "+27741234567"
-            },
-            "add_ons": {
-                "trailer": false,
-                "oversize_luggage": false
-            },
-            "legs": [
-                {
-                    "type": "outbound",
-                    "from": {
-                        "label": "Stellenbosch"
-                    },
-                    "to": {
-                        "label": "Cape Town International Airport"
-                    },
-                    "pickup_date": "2026-07-15",
-                    "pickup_time": "10:00",
-                    "stops": [],
-                    "route": []
-                },
-                {
-                    "type": "return",
-                    "from": {
-                        "label": "Cape Town International Airport"
-                    },
-                    "to": {
-                        "label": "Stellenbosch"
-                    },
-                    "pickup_date": "2026-07-20",
-                    "pickup_time": "16:00",
-                    "stops": [
-                        {
-                            "type": "additional_stop",
-                            "location": {
-                                "label": "V&A Waterfront Stop"
-                            }
-                        }
-                    ],
-                    "route": []
-                }
-            ]
-        }
-    },
-    {
-        "id": "valid-same-day-charter",
-        "description": "Valid same-day charter payload with pickup and dropoff times",
-        "expected_ok": true,
-        "payload": {
-            "schema_version": "2.0",
-            "source": "marketing_booking_builder",
-            "service_group": "charter",
-            "service_type": "charter_hire",
-            "trip_type": "charter",
-            "passengers": 4,
-            "check_in_bags": 2,
-            "carry_on_bags": 4,
-            "add_ons": {
-                "trailer": false,
-                "oversize_luggage": false
-            },
-            "legs": [
-                {
-                    "type": "charter",
-                    "from": {
-                        "label": "Cape Town International Airport"
-                    },
-                    "to": {
-                        "label": "Winelands Hotel"
-                    },
-                    "pickup_date": "2026-08-15",
-                    "pickup_time": "09:00",
-                    "dropoff_time": "17:00",
-                    "stops": [],
-                    "route": []
-                }
-            ],
-            "charter": {
-                "enabled": true,
-                "type": "same_day",
-                "days": [
-                    {
-                        "day_index": 0,
-                        "date": "2026-08-15",
-                        "start_time": "09:00",
-                        "end_time": "17:00",
-                        "pickup_location": {
-                            "label": "Cape Town International Airport"
-                        },
-                        "dropoff_location": {
-                            "label": "Winelands Hotel"
-                        },
-                        "stops": []
-                    }
-                ]
-            },
-            "validation_flags": [],
-            "meta": {
-                "preview_only": true,
-                "handover_mode": "preview"
-            }
-        }
-    },
-    {
-        "id": "valid-same-day-charter-with-trailer",
-        "description": "Valid same-day charter with trailer option enabled",
-        "expected_ok": true,
-        "payload": {
-            "schema_version": "2.0",
-            "source": "marketing_booking_builder",
-            "service_group": "charter",
-            "service_type": "charter_hire",
-            "trip_type": "charter",
-            "passengers": 6,
-            "check_in_bags": 3,
-            "carry_on_bags": 6,
-            "add_ons": {
-                "trailer": true,
-                "oversize_luggage": false
-            },
-            "legs": [
-                {
-                    "type": "charter",
-                    "from": {
-                        "label": "Hotel Victoria Wharf"
-                    },
-                    "to": {
-                        "label": "Stellenbosch Wine Estate"
-                    },
-                    "pickup_date": "2026-09-20",
-                    "pickup_time": "10:00",
-                    "dropoff_time": "16:00",
-                    "stops": [],
-                    "route": []
-                }
-            ],
-            "charter": {
-                "enabled": true,
-                "type": "same_day",
-                "days": [
-                    {
-                        "day_index": 0,
-                        "date": "2026-09-20",
-                        "start_time": "10:00",
-                        "end_time": "16:00",
-                        "pickup_location": {
-                            "label": "Hotel Victoria Wharf"
-                        },
-                        "dropoff_location": {
-                            "label": "Stellenbosch Wine Estate"
-                        },
-                        "stops": []
-                    }
-                ]
-            },
-            "validation_flags": [],
-            "meta": {
-                "preview_only": true,
-                "handover_mode": "preview"
-            }
-        }
-    },
-    {
-        "id": "invalid-charter-missing-dropoff",
-        "description": "Invalid charter missing dropoff/end time",
-        "expected_ok": false,
-        "payload": {
-            "schema_version": "2.0",
-            "source": "marketing_booking_builder",
-            "service_group": "charter",
-            "service_type": "charter_hire",
-            "trip_type": "charter",
-            "passengers": 4,
-            "legs": [
-                {
-                    "type": "charter",
-                    "from": {
-                        "label": "Cape Town"
-                    },
-                    "to": {
-                        "label": "Stellenbosch"
-                    },
-                    "pickup_date": "2026-08-15",
-                    "pickup_time": "09:00",
-                    "dropoff_time": "",
-                    "stops": [],
-                    "route": []
-                }
-            ],
-            "charter": {
-                "enabled": true,
-                "type": "same_day",
-                "days": []
-            }
-        }
-    },
-    {
-        "id": "invalid-charter-end-time-before-start",
-        "description": "Invalid charter end time before start time",
-        "expected_ok": false,
-        "payload": {
-            "schema_version": "2.0",
-            "source": "marketing_booking_builder",
-            "service_group": "charter",
-            "service_type": "charter_hire",
-            "trip_type": "charter",
-            "passengers": 2,
-            "legs": [
-                {
-                    "type": "charter",
-                    "from": {
-                        "label": "Cape Town"
-                    },
-                    "to": {
-                        "label": "Stellenbosch"
-                    },
-                    "pickup_date": "2026-08-15",
-                    "pickup_time": "17:00",
-                    "dropoff_time": "09:00",
-                    "stops": [],
-                    "route": [],
-                    "place_snapshots": {
-                        "from": {
-                            "provider": null,
-                            "place_id": null,
-                            "label": null,
-                            "formatted_address": null,
-                            "lat": null,
-                            "lng": null
-                        },
-                        "to": {
-                            "provider": null,
-                            "place_id": null,
-                            "label": null,
-                            "formatted_address": null,
-                            "lat": null,
-                            "lng": null
-                        },
-                        "stops": []
-                    }
-                }
-            ],
-            "charter": {
-                "enabled": true,
-                "type": "same_day",
-                "days": []
-            }
-        }
-    },
-    {
-        "id": "valid-with-place-snapshots",
-        "description": "Valid one-way transfer with mock place snapshots for origin and destination",
-        "expected_ok": true,
-        "payload": {
-            "schema_version": "2.0",
-            "source": "marketing_booking_builder",
-            "service_group": "transfer",
-            "service_type": "city_transfer",
-            "trip_type": "one_way",
-            "passengers": 2,
-            "customer": {
-                "name": "Test User",
-                "email": "test@example.com",
-                "phone": "+27710000000"
-            },
-            "add_ons": {
-                "trailer": false,
-                "oversize_luggage": false
-            },
-            "legs": [
-                {
-                    "type": "outbound",
-                    "from": {
-                        "label": "Cape Town Central"
-                    },
-                    "to": {
-                        "label": "Stellenbosch Central"
-                    },
-                    "pickup_date": "2026-08-15",
-                    "pickup_time": "09:00",
-                    "stops": [],
-                    "route": [],
-                    "place_snapshots": {
-                        "from": {
-                            "provider": "google_places",
-                            "place_id": "mock_origin_place_id",
-                            "label": "Cape Town Central",
-                            "formatted_address": "Central Business District, Cape Town, South Africa",
-                            "lat": -33.9249,
-                            "lng": 18.4241
-                        },
-                        "to": {
-                            "provider": "google_places",
-                            "place_id": "mock_destination_place_id",
-                            "label": "Stellenbosch Central",
-                            "formatted_address": "Stellenbosch Central, Stellenbosch, South Africa",
-                            "lat": -33.9333,
-                            "lng": 18.8467
-                        },
-                        "stops": []
-                    }
-                }
-            ]
-        }
-    },
-    {
-        "id": "valid-return-with-place-snapshots",
-        "description": "Valid return trip with place snapshots on both legs",
-        "expected_ok": true,
-        "payload": {
-            "schema_version": "2.0",
-            "source": "marketing_booking_builder",
-            "service_group": "transfer",
-            "service_type": "city_transfer",
-            "trip_type": "return",
-            "passengers": 1,
-            "customer": {
-                "name": "Test Return",
-                "email": "return@example.com",
-                "phone": "+27720000000"
-            },
-            "add_ons": {
-                "trailer": false,
-                "oversize_luggage": false
-            },
-            "legs": [
-                {
-                    "type": "outbound",
-                    "from": {
-                        "label": "Cape Town International Airport"
-                    },
-                    "to": {
-                        "label": "Franschhoek"
-                    },
-                    "pickup_date": "2026-09-01",
-                    "pickup_time": "08:00",
-                    "stops": [],
-                    "route": [],
-                    "place_snapshots": {
-                        "from": {
-                            "provider": "google_places",
-                            "place_id": "mock_airport_place_id",
-                            "label": "Cape Town International Airport",
-                            "formatted_address": "Cape Town International Airport, Cape Town, South Africa",
-                            "lat": -33.9696,
-                            "lng": 18.5978
-                        },
-                        "to": {
-                            "provider": "google_places",
-                            "place_id": "mock_franschhoek_place_id",
-                            "label": "Franschhoek",
-                            "formatted_address": "Franschhoek, Western Cape, South Africa",
-                            "lat": -33.8889,
-                            "lng": 19.0222
-                        },
-                        "stops": []
-                    }
-                },
-                {
-                    "type": "return",
-                    "from": {
-                        "label": "Franschhoek"
-                    },
-                    "to": {
-                        "label": "Cape Town International Airport"
-                    },
-                    "pickup_date": "2026-09-02",
-                    "pickup_time": "17:00",
-                    "stops": [],
-                    "route": [],
-                    "place_snapshots": {
-                        "from": {
-                            "provider": "google_places",
-                            "place_id": "mock_franschhoek_return_place_id",
-                            "label": "Franschhoek",
-                            "formatted_address": "Franschhoek, Western Cape, South Africa",
-                            "lat": -33.8889,
-                            "lng": 19.0222
-                        },
-                        "to": {
-                            "provider": "google_places",
-                            "place_id": "mock_airport_return_place_id",
-                            "label": "Cape Town International Airport",
-                            "formatted_address": "Cape Town International Airport, Cape Town, South Africa",
-                            "lat": -33.9696,
-                            "lng": 18.5978
-                        },
-                        "stops": []
-                    }
-                }
-            ]
-        }
-    },
-    {
-        "id": "invalid-transfer-inside-lead-time",
-        "description": "Invalid: transfer pickup inside minimum lead time window (too soon)",
-        "expected_ok": false,
-        "rationale": "Pickup date/time is before the 300-minute transfer lead time threshold",
-        "payload": {
-            "schema_version": "2.0",
-            "trip_type": "one_way",
-            "service_type": "city_transfer",
-            "passengers": 2,
-            "add_ons": {
-                "trailer": false,
-                "oversize_luggage": false
-            },
-            "legs": [
-                {
-                    "type": "outbound",
-                    "from": {
-                        "label": "Cape Town International Airport"
-                    },
-                    "to": {
-                        "label": "Stellenbosch Central"
-                    },
-                    "pickup_date": "2026-06-29",
-                    "pickup_time": "10:00",
-                    "stops": [],
-                    "route": []
-                }
-            ]
-        }
-    },
-    {
-        "id": "invalid-charter-inside-lead-time",
-        "description": "Invalid: charter pickup inside minimum lead time window (too soon, requires 48 hours)",
-        "expected_ok": false,
-        "rationale": "Charter pickup requires 2880 minutes (48 hours) minimum notice",
-        "payload": {
-            "schema_version": "2.0",
-            "source": "marketing_booking_builder",
-            "service_group": "charter",
-            "service_type": "charter_hire",
-            "trip_type": "charter",
-            "passengers": 4,
-            "add_ons": {
-                "trailer": false,
-                "oversize_luggage": false
-            },
-            "legs": [
-                {
-                    "type": "charter",
-                    "from": {
-                        "label": "Cape Town International Airport"
-                    },
-                    "to": {
-                        "label": "Winelands Hotel"
-                    },
-                    "pickup_date": "2026-06-30",
-                    "pickup_time": "09:00",
-                    "dropoff_time": "17:00",
-                    "stops": [],
-                    "route": []
-                }
-            ],
-            "charter": {
-                "enabled": true,
-                "type": "same_day",
-                "days": [
-                    {
-                        "day_index": 0,
-                        "date": "2026-06-30",
-                        "start_time": "09:00",
-                        "end_time": "17:00",
-                        "pickup_location": {
-                            "label": "Cape Town International Airport"
-                        },
-                        "dropoff_location": {
-                            "label": "Winelands Hotel"
-                        },
-                        "stops": []
-                    }
-                ]
-            }
-        }
-    },
-    {
-        "id": "invalid-pickup-beyond-max-advance",
-        "description": "Invalid: pickup date beyond maximum advance booking window (more than 365 days)",
-        "expected_ok": false,
-        "rationale": "Pickup date exceeds the 365-day maximum advance booking limit",
-        "payload": {
-            "schema_version": "2.0",
-            "trip_type": "one_way",
-            "service_type": "city_transfer",
-            "passengers": 2,
-            "add_ons": {
-                "trailer": false,
-                "oversize_luggage": false
-            },
-            "legs": [
-                {
-                    "type": "outbound",
-                    "from": {
-                        "label": "Cape Town International Airport"
-                    },
-                    "to": {
-                        "label": "Stellenbosch Central"
-                    },
-                    "pickup_date": "2027-07-29",
-                    "pickup_time": "14:00",
-                    "stops": [],
-                    "route": []
-                }
-            ]
-        }
-    },
-    {
-        "id": "invalid-return-inside-lead-time",
-        "description": "Invalid: return leg pickup inside minimum lead time window",
-        "expected_ok": false,
-        "rationale": "Return leg pickup time violates transfer lead time constraint",
-        "payload": {
-            "schema_version": "2.0",
-            "trip_type": "return",
-            "service_type": "city_transfer",
-            "passengers": 2,
-            "add_ons": {
-                "trailer": false,
-                "oversize_luggage": false
-            },
-            "legs": [
-                {
-                    "type": "outbound",
-                    "from": {
-                        "label": "Cape Town International Airport"
-                    },
-                    "to": {
-                        "label": "Franschhoek"
-                    },
-                    "pickup_date": "2026-07-15",
-                    "pickup_time": "10:00",
-                    "stops": [],
-                    "route": []
-                },
-                {
-                    "type": "return",
-                    "from": {
-                        "label": "Franschhoek"
-                    },
-                    "to": {
-                        "label": "Cape Town International Airport"
-                    },
-                    "pickup_date": "2026-06-29",
-                    "pickup_time": "10:00",
-                    "stops": [],
-                    "route": []
-                }
-            ]
-        }
+      ]
     }
+  },
+  {
+    "id": "valid-return-city-transfer",
+    "description": "Valid return city transfer with outbound and return legs",
+    "expected_ok": true,
+    "payload": {
+      "schema_version": "2.0",
+      "trip_type": "return",
+      "service_type": "city_transfer",
+      "passengers": 4,
+      "customer": {
+        "name": "John Smith",
+        "email": "john@example.com",
+        "phone": "+27729876543"
+      },
+      "add_ons": {
+        "trailer": false,
+        "oversize_luggage": false
+      },
+      "legs": [
+        {
+          "type": "outbound",
+          "from": {
+            "label": "Cape Town International Airport"
+          },
+          "to": {
+            "label": "Franschhoek"
+          },
+          "pickup_date": "2026-07-15",
+          "pickup_time": "14:00",
+          "stops": [],
+          "route": []
+        },
+        {
+          "type": "return",
+          "from": {
+            "label": "Franschhoek"
+          },
+          "to": {
+            "label": "Cape Town International Airport"
+          },
+          "pickup_date": "2026-07-20",
+          "pickup_time": "09:00",
+          "stops": [],
+          "route": []
+        }
+      ]
+    }
+  },
+  {
+    "id": "valid-one-way-additional-stop",
+    "description": "Valid one-way transfer with additional stop",
+    "expected_ok": true,
+    "payload": {
+      "schema_version": "2.0",
+      "trip_type": "one_way",
+      "service_type": "city_transfer",
+      "passengers": 3,
+      "customer": {
+        "name": "Alice M",
+        "email": "alice@example.com",
+        "phone": "+27731234567"
+      },
+      "add_ons": {
+        "trailer": false,
+        "oversize_luggage": false
+      },
+      "legs": [
+        {
+          "type": "outbound",
+          "from": {
+            "label": "Somerset West"
+          },
+          "to": {
+            "label": "Sun City"
+          },
+          "pickup_date": "2026-08-01",
+          "pickup_time": "08:30",
+          "stops": [
+            {
+              "type": "additional_stop",
+              "location": {
+                "label": "Engen Winelands 1 Stop"
+              }
+            }
+          ],
+          "route": []
+        }
+      ]
+    }
+  },
+  {
+    "id": "valid-with-trailer-oversize",
+    "description": "Valid transfer with trailer and oversize luggage enabled",
+    "expected_ok": true,
+    "payload": {
+      "schema_version": "2.0",
+      "trip_type": "one_way",
+      "service_type": "city_transfer",
+      "passengers": 1,
+      "customer": {
+        "name": "Bob K",
+        "email": "bob@example.com",
+        "phone": "+27739876543"
+      },
+      "add_ons": {
+        "trailer": true,
+        "oversize_luggage": true
+      },
+      "legs": [
+        {
+          "type": "outbound",
+          "from": {
+            "label": "Paarl"
+          },
+          "to": {
+            "label": "Cape Town Harbour"
+          },
+          "pickup_date": "2026-09-10",
+          "pickup_time": "06:00",
+          "stops": [],
+          "route": []
+        }
+      ]
+    }
+  },
+  {
+    "id": "invalid-missing-outbound-from",
+    "description": "Invalid: outbound leg missing origin label",
+    "expected_ok": false,
+    "payload": {
+      "schema_version": "2.0",
+      "trip_type": "one_way",
+      "service_type": "city_transfer",
+      "passengers": 1,
+      "customer": {
+        "name": "Test",
+        "email": "test@example.com",
+        "phone": "+27730000000"
+      },
+      "add_ons": {
+        "trailer": false,
+        "oversize_luggage": false
+      },
+      "legs": [
+        {
+          "type": "outbound",
+          "from": {
+            "label": ""
+          },
+          "to": {
+            "label": "Cape Town"
+          },
+          "pickup_date": "2026-07-15",
+          "pickup_time": "14:00",
+          "stops": [],
+          "route": []
+        }
+      ]
+    }
+  },
+  {
+    "id": "invalid-missing-outbound-to",
+    "description": "Invalid: outbound leg missing destination label",
+    "expected_ok": false,
+    "payload": {
+      "schema_version": "2.0",
+      "trip_type": "one_way",
+      "service_type": "city_transfer",
+      "passengers": 1,
+      "add_ons": {
+        "trailer": false,
+        "oversize_luggage": false
+      },
+      "legs": [
+        {
+          "type": "outbound",
+          "from": {
+            "label": "Stellenbosch"
+          },
+          "to": {
+            "label": ""
+          },
+          "pickup_date": "2026-07-15",
+          "pickup_time": "14:00",
+          "stops": [],
+          "route": []
+        }
+      ]
+    }
+  },
+  {
+    "id": "invalid-passengers-zero",
+    "description": "Normalizer corrects passengers=0 to fallback 1, so post-normalization this is valid. Tested as expected behaviour.",
+    "expected_ok": true,
+    "rationale": "The normalizer's positive_int() silently upgrades 0 to the fallback (1). The validator sees the corrected value and passes.",
+    "payload": {
+      "schema_version": "2.0",
+      "trip_type": "one_way",
+      "service_type": "city_transfer",
+      "passengers": 0,
+      "add_ons": {
+        "trailer": false,
+        "oversize_luggage": false
+      },
+      "legs": [
+        {
+          "type": "outbound",
+          "from": {
+            "label": "Cape Town"
+          },
+          "to": {
+            "label": "Stellenbosch"
+          },
+          "pickup_date": "2026-07-15",
+          "pickup_time": "14:00",
+          "stops": [],
+          "route": []
+        }
+      ]
+    }
+  },
+  {
+    "id": "invalid-return-missing-return-leg",
+    "description": "Invalid: trip_type is return but only one leg provided",
+    "expected_ok": false,
+    "payload": {
+      "schema_version": "2.0",
+      "trip_type": "return",
+      "service_type": "city_transfer",
+      "passengers": 1,
+      "add_ons": {
+        "trailer": false,
+        "oversize_luggage": false
+      },
+      "legs": [
+        {
+          "type": "outbound",
+          "from": {
+            "label": "Cape Town"
+          },
+          "to": {
+            "label": "Stellenbosch"
+          },
+          "pickup_date": "2026-07-15",
+          "pickup_time": "14:00",
+          "stops": [],
+          "route": []
+        }
+      ]
+    }
+  },
+  {
+    "id": "invalid-passengers-zero-no-legs",
+    "description": "Invalid: passengers=0 and empty legs array",
+    "expected_ok": false,
+    "payload": {
+      "schema_version": "2.0",
+      "trip_type": "one_way",
+      "service_type": "city_transfer",
+      "passengers": 0,
+      "add_ons": {
+        "trailer": false,
+        "oversize_luggage": false
+      },
+      "legs": []
+    }
+  },
+  {
+    "id": "invalid-bad-schema-version",
+    "description": "Normalizer always sets schema_version: 2.0 in output, so post-normalization this passes. Schema version enforcement requires pre-normalizer validation.",
+    "expected_ok": true,
+    "rationale": "The normalizer hardcodes schema_version: 2.0 during normalization. The raw input's schema_version is overwritten. Pre-normalization validation would be a separate layer.",
+    "payload": {
+      "schema_version": "1.5",
+      "trip_type": "one_way",
+      "service_type": "city_transfer",
+      "passengers": 1,
+      "add_ons": {
+        "trailer": false,
+        "oversize_luggage": false
+      },
+      "legs": [
+        {
+          "type": "outbound",
+          "from": {
+            "label": "Cape Town"
+          },
+          "to": {
+            "label": "Stellenbosch"
+          },
+          "pickup_date": "2026-07-15",
+          "pickup_time": "14:00",
+          "stops": [],
+          "route": []
+        }
+      ]
+    }
+  },
+  {
+    "id": "valid-with-route-scaffold",
+    "description": "Valid one-way with empty top-level route scaffold (flat field format)",
+    "expected_ok": true,
+    "payload": {
+      "service_group": "transfer",
+      "trip_type": "one_way",
+      "service_type": "city_transfer",
+      "passengers": 2,
+      "outbound_from": "Cape Town International Airport",
+      "outbound_to": "Stellenbosch Central",
+      "outbound_pickup_date": "2026-07-15",
+      "outbound_pickup_time": "14:00",
+      "route": {
+        "provider": null,
+        "selected_route_id": null,
+        "selected_route_label": null,
+        "distance_meters": null,
+        "duration_seconds": null,
+        "polyline": null,
+        "route_options": []
+      }
+    }
+  },
+  {
+    "id": "valid-with-route-options",
+    "description": "Valid one-way with populated route_options (flat field format)",
+    "expected_ok": true,
+    "payload": {
+      "service_group": "transfer",
+      "trip_type": "one_way",
+      "service_type": "city_transfer",
+      "passengers": 2,
+      "outbound_from": "Airport",
+      "outbound_to": "Hotel",
+      "outbound_pickup_date": "2026-07-20",
+      "outbound_pickup_time": "12:00",
+      "route": {
+        "provider": "google",
+        "selected_route_id": "route_abc123",
+        "selected_route_label": "Fastest via N2",
+        "distance_meters": 35000,
+        "duration_seconds": 1800,
+        "polyline": "abc123polyline",
+        "route_options": [
+          {
+            "id": "opt1",
+            "label": "Avoid tolls",
+            "distance_meters": 38000,
+            "duration_seconds": 2100
+          },
+          {
+            "id": "opt2",
+            "label": "Scenic route",
+            "distance_meters": 42000,
+            "duration_seconds": 2400
+          }
+        ]
+      }
+    }
+  },
+  {
+    "id": "valid-with-validation-flags",
+    "description": "Valid one-way with validation_flags populated (flat field format)",
+    "expected_ok": true,
+    "payload": {
+      "service_group": "transfer",
+      "trip_type": "one_way",
+      "service_type": "city_transfer",
+      "passengers": 3,
+      "outbound_from": "Somerset West",
+      "outbound_to": "Sun City",
+      "outbound_pickup_date": "2026-08-01",
+      "outbound_pickup_time": "08:30",
+      "validation_flags": {
+        "route_verified": true,
+        "price_quoted": true,
+        "google_routes_success": false
+      }
+    }
+  },
+  {
+    "id": "valid-with-charter-scaffold",
+    "description": "Valid charter with charter.enabled: false scaffold (flat field format)",
+    "expected_ok": true,
+    "payload": {
+      "service_group": "charter",
+      "trip_type": "charter",
+      "service_type": "charter_hire",
+      "passengers": 6,
+      "outbound_from": "Hotel",
+      "outbound_to": "Sightseeing Point",
+      "outbound_pickup_date": "2026-08-01",
+      "outbound_pickup_time": "10:00",
+      "charter": {
+        "enabled": true,
+        "type": "same_day",
+        "days": []
+      },
+      "validation_flags": {
+        "charter_availability_confirmed": false
+      },
+      "legs": [
+        {
+          "type": "charter",
+          "from": {
+            "label": "Hotel"
+          },
+          "to": {
+            "label": "Sightseeing Point"
+          },
+          "pickup_date": "2026-08-01",
+          "pickup_time": "10:00",
+          "dropoff_time": "16:00",
+          "stops": []
+        }
+      ]
+    }
+  },
+  {
+    "id": "invalid-missing-legs",
+    "description": "Invalid: no legs provided (flat field format with empty legs)",
+    "expected_ok": false,
+    "payload": {
+      "service_group": "transfer",
+      "trip_type": "one_way",
+      "service_type": "city_transfer",
+      "passengers": 1,
+      "legs": []
+    }
+  },
+  {
+    "id": "valid-return-with-return-stop",
+    "description": "Valid return trip with additional stop on return leg only",
+    "expected_ok": true,
+    "payload": {
+      "schema_version": "2.0",
+      "trip_type": "return",
+      "service_type": "city_transfer",
+      "passengers": 2,
+      "customer": {
+        "name": "Jane Return",
+        "email": "return@example.com",
+        "phone": "+27741234567"
+      },
+      "add_ons": {
+        "trailer": false,
+        "oversize_luggage": false
+      },
+      "legs": [
+        {
+          "type": "outbound",
+          "from": {
+            "label": "Stellenbosch"
+          },
+          "to": {
+            "label": "Cape Town International Airport"
+          },
+          "pickup_date": "2026-07-15",
+          "pickup_time": "10:00",
+          "stops": [],
+          "route": []
+        },
+        {
+          "type": "return",
+          "from": {
+            "label": "Cape Town International Airport"
+          },
+          "to": {
+            "label": "Stellenbosch"
+          },
+          "pickup_date": "2026-07-20",
+          "pickup_time": "16:00",
+          "stops": [
+            {
+              "type": "additional_stop",
+              "location": {
+                "label": "V&A Waterfront Stop"
+              }
+            }
+          ],
+          "route": []
+        }
+      ]
+    }
+  },
+  {
+    "id": "valid-same-day-charter",
+    "description": "Valid same-day charter payload with pickup and dropoff times",
+    "expected_ok": true,
+    "payload": {
+      "schema_version": "2.0",
+      "source": "marketing_booking_builder",
+      "service_group": "charter",
+      "service_type": "charter_hire",
+      "trip_type": "charter",
+      "passengers": 4,
+      "check_in_bags": 2,
+      "carry_on_bags": 4,
+      "add_ons": {
+        "trailer": false,
+        "oversize_luggage": false
+      },
+      "legs": [
+        {
+          "type": "charter",
+          "from": {
+            "label": "Cape Town International Airport"
+          },
+          "to": {
+            "label": "Winelands Hotel"
+          },
+          "pickup_date": "2026-08-15",
+          "pickup_time": "09:00",
+          "dropoff_time": "17:00",
+          "stops": [],
+          "route": []
+        }
+      ],
+      "charter": {
+        "enabled": true,
+        "type": "same_day",
+        "days": [
+          {
+            "day_index": 0,
+            "date": "2026-08-15",
+            "start_time": "09:00",
+            "end_time": "17:00",
+            "pickup_location": {
+              "label": "Cape Town International Airport"
+            },
+            "dropoff_location": {
+              "label": "Winelands Hotel"
+            },
+            "stops": []
+          }
+        ]
+      },
+      "validation_flags": [],
+      "meta": {
+        "preview_only": true,
+        "handover_mode": "preview"
+      }
+    }
+  },
+  {
+    "id": "valid-same-day-charter-with-trailer",
+    "description": "Valid same-day charter with trailer option enabled",
+    "expected_ok": true,
+    "payload": {
+      "schema_version": "2.0",
+      "source": "marketing_booking_builder",
+      "service_group": "charter",
+      "service_type": "charter_hire",
+      "trip_type": "charter",
+      "passengers": 6,
+      "check_in_bags": 3,
+      "carry_on_bags": 6,
+      "add_ons": {
+        "trailer": true,
+        "oversize_luggage": false
+      },
+      "legs": [
+        {
+          "type": "charter",
+          "from": {
+            "label": "Hotel Victoria Wharf"
+          },
+          "to": {
+            "label": "Stellenbosch Wine Estate"
+          },
+          "pickup_date": "2026-09-20",
+          "pickup_time": "10:00",
+          "dropoff_time": "16:00",
+          "stops": [],
+          "route": []
+        }
+      ],
+      "charter": {
+        "enabled": true,
+        "type": "same_day",
+        "days": [
+          {
+            "day_index": 0,
+            "date": "2026-09-20",
+            "start_time": "10:00",
+            "end_time": "16:00",
+            "pickup_location": {
+              "label": "Hotel Victoria Wharf"
+            },
+            "dropoff_location": {
+              "label": "Stellenbosch Wine Estate"
+            },
+            "stops": []
+          }
+        ]
+      },
+      "validation_flags": [],
+      "meta": {
+        "preview_only": true,
+        "handover_mode": "preview"
+      }
+    }
+  },
+  {
+    "id": "invalid-charter-missing-dropoff",
+    "description": "Invalid charter missing dropoff/end time",
+    "expected_ok": false,
+    "payload": {
+      "schema_version": "2.0",
+      "source": "marketing_booking_builder",
+      "service_group": "charter",
+      "service_type": "charter_hire",
+      "trip_type": "charter",
+      "passengers": 4,
+      "legs": [
+        {
+          "type": "charter",
+          "from": {
+            "label": "Cape Town"
+          },
+          "to": {
+            "label": "Stellenbosch"
+          },
+          "pickup_date": "2026-08-15",
+          "pickup_time": "09:00",
+          "dropoff_time": "",
+          "stops": [],
+          "route": []
+        }
+      ],
+      "charter": {
+        "enabled": true,
+        "type": "same_day",
+        "days": []
+      }
+    }
+  },
+  {
+    "id": "invalid-charter-end-time-before-start",
+    "description": "Invalid charter end time before start time",
+    "expected_ok": false,
+    "payload": {
+      "schema_version": "2.0",
+      "source": "marketing_booking_builder",
+      "service_group": "charter",
+      "service_type": "charter_hire",
+      "trip_type": "charter",
+      "passengers": 2,
+      "legs": [
+        {
+          "type": "charter",
+          "from": {
+            "label": "Cape Town"
+          },
+          "to": {
+            "label": "Stellenbosch"
+          },
+          "pickup_date": "2026-08-15",
+          "pickup_time": "17:00",
+          "dropoff_time": "09:00",
+          "stops": [],
+          "route": [],
+          "place_snapshots": {
+            "from": {
+              "provider": null,
+              "place_id": null,
+              "label": null,
+              "formatted_address": null,
+              "lat": null,
+              "lng": null
+            },
+            "to": {
+              "provider": null,
+              "place_id": null,
+              "label": null,
+              "formatted_address": null,
+              "lat": null,
+              "lng": null
+            },
+            "stops": []
+          }
+        }
+      ],
+      "charter": {
+        "enabled": true,
+        "type": "same_day",
+        "days": []
+      }
+    }
+  },
+  {
+    "id": "valid-with-place-snapshots",
+    "description": "Valid one-way transfer with mock place snapshots for origin and destination",
+    "expected_ok": true,
+    "payload": {
+      "schema_version": "2.0",
+      "source": "marketing_booking_builder",
+      "service_group": "transfer",
+      "service_type": "city_transfer",
+      "trip_type": "one_way",
+      "passengers": 2,
+      "customer": {
+        "name": "Test User",
+        "email": "test@example.com",
+        "phone": "+27710000000"
+      },
+      "add_ons": {
+        "trailer": false,
+        "oversize_luggage": false
+      },
+      "legs": [
+        {
+          "type": "outbound",
+          "from": {
+            "label": "Cape Town Central"
+          },
+          "to": {
+            "label": "Stellenbosch Central"
+          },
+          "pickup_date": "2026-08-15",
+          "pickup_time": "09:00",
+          "stops": [],
+          "route": [],
+          "place_snapshots": {
+            "from": {
+              "provider": "google_places",
+              "place_id": "mock_origin_place_id",
+              "label": "Cape Town Central",
+              "formatted_address": "Central Business District, Cape Town, South Africa",
+              "lat": -33.9249,
+              "lng": 18.4241
+            },
+            "to": {
+              "provider": "google_places",
+              "place_id": "mock_destination_place_id",
+              "label": "Stellenbosch Central",
+              "formatted_address": "Stellenbosch Central, Stellenbosch, South Africa",
+              "lat": -33.9333,
+              "lng": 18.8467
+            },
+            "stops": []
+          }
+        }
+      ]
+    }
+  },
+  {
+    "id": "valid-return-with-place-snapshots",
+    "description": "Valid return trip with place snapshots on both legs",
+    "expected_ok": true,
+    "payload": {
+      "schema_version": "2.0",
+      "source": "marketing_booking_builder",
+      "service_group": "transfer",
+      "service_type": "city_transfer",
+      "trip_type": "return",
+      "passengers": 1,
+      "customer": {
+        "name": "Test Return",
+        "email": "return@example.com",
+        "phone": "+27720000000"
+      },
+      "add_ons": {
+        "trailer": false,
+        "oversize_luggage": false
+      },
+      "legs": [
+        {
+          "type": "outbound",
+          "from": {
+            "label": "Cape Town International Airport"
+          },
+          "to": {
+            "label": "Franschhoek"
+          },
+          "pickup_date": "2026-09-01",
+          "pickup_time": "08:00",
+          "stops": [],
+          "route": [],
+          "place_snapshots": {
+            "from": {
+              "provider": "google_places",
+              "place_id": "mock_airport_place_id",
+              "label": "Cape Town International Airport",
+              "formatted_address": "Cape Town International Airport, Cape Town, South Africa",
+              "lat": -33.9696,
+              "lng": 18.5978
+            },
+            "to": {
+              "provider": "google_places",
+              "place_id": "mock_franschhoek_place_id",
+              "label": "Franschhoek",
+              "formatted_address": "Franschhoek, Western Cape, South Africa",
+              "lat": -33.8889,
+              "lng": 19.0222
+            },
+            "stops": []
+          }
+        },
+        {
+          "type": "return",
+          "from": {
+            "label": "Franschhoek"
+          },
+          "to": {
+            "label": "Cape Town International Airport"
+          },
+          "pickup_date": "2026-09-02",
+          "pickup_time": "17:00",
+          "stops": [],
+          "route": [],
+          "place_snapshots": {
+            "from": {
+              "provider": "google_places",
+              "place_id": "mock_franschhoek_return_place_id",
+              "label": "Franschhoek",
+              "formatted_address": "Franschhoek, Western Cape, South Africa",
+              "lat": -33.8889,
+              "lng": 19.0222
+            },
+            "to": {
+              "provider": "google_places",
+              "place_id": "mock_airport_return_place_id",
+              "label": "Cape Town International Airport",
+              "formatted_address": "Cape Town International Airport, Cape Town, South Africa",
+              "lat": -33.9696,
+              "lng": 18.5978
+            },
+            "stops": []
+          }
+        }
+      ]
+    }
+  },
+  {
+    "id": "invalid-transfer-inside-lead-time",
+    "description": "Invalid: transfer pickup inside minimum lead time window (too soon)",
+    "expected_ok": false,
+    "rationale": "Pickup date/time is before the 300-minute transfer lead time threshold",
+    "payload": {
+      "schema_version": "2.0",
+      "trip_type": "one_way",
+      "service_type": "city_transfer",
+      "passengers": 2,
+      "add_ons": {
+        "trailer": false,
+        "oversize_luggage": false
+      },
+      "legs": [
+        {
+          "type": "outbound",
+          "from": {
+            "label": "Cape Town International Airport"
+          },
+          "to": {
+            "label": "Stellenbosch Central"
+          },
+          "pickup_date": "2026-06-29",
+          "pickup_time": "10:00",
+          "stops": [],
+          "route": []
+        }
+      ]
+    }
+  },
+  {
+    "id": "invalid-charter-inside-lead-time",
+    "description": "Invalid: charter pickup inside minimum lead time window (too soon, requires 48 hours)",
+    "expected_ok": false,
+    "rationale": "Charter pickup requires 2880 minutes (48 hours) minimum notice",
+    "payload": {
+      "schema_version": "2.0",
+      "source": "marketing_booking_builder",
+      "service_group": "charter",
+      "service_type": "charter_hire",
+      "trip_type": "charter",
+      "passengers": 4,
+      "add_ons": {
+        "trailer": false,
+        "oversize_luggage": false
+      },
+      "legs": [
+        {
+          "type": "charter",
+          "from": {
+            "label": "Cape Town International Airport"
+          },
+          "to": {
+            "label": "Winelands Hotel"
+          },
+          "pickup_date": "2026-06-30",
+          "pickup_time": "09:00",
+          "dropoff_time": "17:00",
+          "stops": [],
+          "route": []
+        }
+      ],
+      "charter": {
+        "enabled": true,
+        "type": "same_day",
+        "days": [
+          {
+            "day_index": 0,
+            "date": "2026-06-30",
+            "start_time": "09:00",
+            "end_time": "17:00",
+            "pickup_location": {
+              "label": "Cape Town International Airport"
+            },
+            "dropoff_location": {
+              "label": "Winelands Hotel"
+            },
+            "stops": []
+          }
+        ]
+      }
+    }
+  },
+  {
+    "id": "invalid-pickup-beyond-max-advance",
+    "description": "Invalid: pickup date beyond maximum advance booking window (more than 365 days)",
+    "expected_ok": false,
+    "rationale": "Pickup date exceeds the 365-day maximum advance booking limit",
+    "payload": {
+      "schema_version": "2.0",
+      "trip_type": "one_way",
+      "service_type": "city_transfer",
+      "passengers": 2,
+      "add_ons": {
+        "trailer": false,
+        "oversize_luggage": false
+      },
+      "legs": [
+        {
+          "type": "outbound",
+          "from": {
+            "label": "Cape Town International Airport"
+          },
+          "to": {
+            "label": "Stellenbosch Central"
+          },
+          "pickup_date": "2027-07-29",
+          "pickup_time": "14:00",
+          "stops": [],
+          "route": []
+        }
+      ]
+    }
+  },
+  {
+    "id": "invalid-return-inside-lead-time",
+    "description": "Invalid: return leg pickup inside minimum lead time window",
+    "expected_ok": false,
+    "rationale": "Return leg pickup time violates transfer lead time constraint",
+    "payload": {
+      "schema_version": "2.0",
+      "trip_type": "return",
+      "service_type": "city_transfer",
+      "passengers": 2,
+      "add_ons": {
+        "trailer": false,
+        "oversize_luggage": false
+      },
+      "legs": [
+        {
+          "type": "outbound",
+          "from": {
+            "label": "Cape Town International Airport"
+          },
+          "to": {
+            "label": "Franschhoek"
+          },
+          "pickup_date": "2026-07-15",
+          "pickup_time": "10:00",
+          "stops": [],
+          "route": []
+        },
+        {
+          "type": "return",
+          "from": {
+            "label": "Franschhoek"
+          },
+          "to": {
+            "label": "Cape Town International Airport"
+          },
+          "pickup_date": "2026-06-29",
+          "pickup_time": "10:00",
+          "stops": [],
+          "route": []
+        }
+      ]
+    }
+  }
 ]

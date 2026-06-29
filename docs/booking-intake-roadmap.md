@@ -269,3 +269,23 @@ Each feature should plug into a pricing pipeline rather than being hardcoded int
 - All 26 payload fixtures pass.
 - Global blockouts still pending (no implementation yet).
 - Vehicle-scoped blockouts still do not affect marketing picker.
+
+### Phase 2S status (completed)
+
+- Date/time picker parity pass completed.
+- Legacy jQuery UI Datepicker styling replaced with branded native `<input type="date">` CSS.
+- Legacy jQuery ClockTimePicker replaced with native `<input type="time" step="300">`.
+- Plugin-owned CSS added:
+  - Custom calendar icon (masked SVG) for date inputs.
+  - Blocked/out-of-range date state styling (`.wsb-date-blocked`).
+  - AM/PM visual badge (`.wsb-time-ampm-badge`) for legacy-style time labels.
+  - Picker status messages and blockout legend UI.
+- Plugin-owned JS added:
+  - Default date selection (tomorrow) for all date fields.
+  - Charter default times (08:00 pickup, 17:00 dropoff).
+  - AM/PM badge injection/update on time input changes.
+  - Live picker status messages for lead-time and blockout violations.
+  - `blocked_dates` scaffold from `bookingSiteConfig.blockouts`.
+- Updated `render_date_field()` to include status containers for outbound/return pickers.
+- No third-party picker library added; no CDN or npm dependencies.
+- Company-profile max values remain future booking-site config work (not implemented in this phase).

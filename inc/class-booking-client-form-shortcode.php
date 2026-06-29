@@ -146,6 +146,9 @@ class BookingClientFormShortcode {
                                 <?php echo self::render_date_field($fields['outbound_pickup_date']); ?>
                                 <?php echo self::render_time_field($fields['outbound_pickup_time']); ?>
                             </div>
+                            <p class="wsb-booking-client-picker-legend">
+                                <?php echo esc_html__('Blocked dates are shown and cannot be selected.', 'wsb'); ?>
+                            </p>
                         </section>
 
                         <section class="wsb-booking-client-card wsb-booking-client-return wsb-booking-client-hidden" data-wsb-return-section>
@@ -166,6 +169,9 @@ class BookingClientFormShortcode {
                                 <?php echo self::render_date_field($fields['return_pickup_date'], false); ?>
                                 <?php echo self::render_time_field($fields['return_pickup_time'], false); ?>
                             </div>
+                            <p class="wsb-booking-client-picker-legend wsb-booking-client-picker-legend--time">
+                                <?php echo esc_html__('Return transfer uses the same 5-hour lead time.', 'wsb'); ?>
+                            </p>
                         </section>
 
                         <div class="wsb-booking-client-actions">
@@ -281,15 +287,22 @@ class BookingClientFormShortcode {
 
         $date_min = !empty($field['date_min_attr']) ? ' min="' . esc_attr($field['date_min_attr']) . '"' : '';
         $date_max = !empty($field['date_max_attr']) ? ' max="' . esc_attr($field['date_max_attr']) . '"' : '';
+        $status_attr = '';
+        if (false !== strpos($field['key'], 'outbound')) {
+            $status_attr = ' data-wsb-outbound-picker-status';
+        } elseif (false !== strpos($field['key'], 'return')) {
+            $status_attr = ' data-wsb-return-picker-status';
+        }
 
         return sprintf(
-            '<div class="wsb-booking-client-field"><label class="wsb-form__label" for="%1$s">%2$s</label><input class="wsb-form__input" type="date" id="%1$s" name="%1$s" placeholder="%3$s" %4$s%5$s%6$s /></div>',
+            '<div class="wsb-booking-client-picker-group"><div class="wsb-booking-client-picker-wrapper"><label class="wsb-form__label" for="%1$s">%2$s</label><input class="wsb-form__input" type="date" id="%1$s" name="%1$s" placeholder="%3$s" %4$s%5$s%6$s /><div class="wsb-picker-status"%7$s></div></div></div>',
             esc_attr($field['key']),
             esc_html($field['label']),
             esc_attr($field['placeholder'] ?? ''),
             $required ? 'required' : '',
             $date_min,
-            $date_max
+            $date_max,
+            $status_attr
         );
     }
 
@@ -355,6 +368,10 @@ class BookingClientFormShortcode {
                 'fixtureDrawerHandoverUnavailable' => __('Handover preview endpoint unavailable.', 'wsb'),
                 'fixtureDrawerOpen' => __('Fixture drawer opened.', 'wsb'),
                 'fixtureDrawerClosed' => __('Fixture drawer closed.', 'wsb'),
+                'pickerDateBeforeMin' => __('Date is before the earliest allowed date.', 'wsb'),
+                'pickerDateAfterMax' => __('Date exceeds the maximum advance booking window.', 'wsb'),
+                'pickerTimeBeforeMin' => __('Time is inside the lead-time window.', 'wsb'),
+                'pickerDateBlocked' => __('Selected date is blocked for bookings.', 'wsb'),
             ),
         );
 

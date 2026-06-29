@@ -648,6 +648,11 @@
             }
         }
 
+        setDateDefaults(root);
+        setCharterTimeDefaults(root);
+        updateAmPmLabels(root);
+        refreshPickerStatusMessages(root);
+
         return null;
     }
 
@@ -759,6 +764,201 @@
         }
     }
 
+    /* ---------- Date/Time Picker Parity Helpers ---------- */
+
+    function formatTodayPlusDays(days) {
+        var d = new Date();
+        d.setDate(d.getDate() + days);
+        var yyyy = d.getFullYear();
+        var mm = ('0' + (d.getMonth() + 1)).slice(-2);
+        var dd = ('0' + d.getDate()).slice(-2);
+        return yyyy + '-' + mm + '-' + dd;
+    }
+
+    function getTomorrowDateString() {
+        return formatTodayPlusDays(1);
+    }
+
+    function setDateDefaults(root) {
+        var outboundDate = root.querySelector('input[name="outbound_pickup_date"]');
+        var charterDate = root.querySelector('input[name="outbound_pickup_date"]');
+        var returnDate = root.querySelector('input[name="return_pickup_date"]');
+
+        if (outboundDate && !outboundDate.value) {
+            outboundDate.value = getTomorrowDateString();
+        }
+        if (charterDate && !charterDate.value) {
+            charterDate.value = getTomorrowDateString();
+        }
+        if (returnDate && !returnDate.value) {
+            returnDate.value = getTomorrowDateString();
+        }
+    }
+
+    function setCharterTimeDefaults(root) {
+        var pickupTime = root.querySelector('input[name="charter_pickup_time"]');
+        var dropoffTime = root.querySelector('input[name="charter_dropoff_time"]');
+
+        if (pickupTime && !pickupTime.value) {
+            pickupTime.value = '08:00';
+        }
+        if (dropoffTime && !dropoffTime.value) {
+            dropoffTime.value = '17:00';
+        }
+    }
+
+    function clearCharterTimeDefaults(root) {
+        var pickupTime = root.querySelector('input[name="charter_pickup_time"]');
+        var dropoffTime = root.querySelector('input[name="charter_dropoff_time"]');
+
+        if (pickupTime && pickupTime.value === '08:00') {
+            pickupTime.value = '';
+        }
+        if (dropoffTime && dropoffTime.value === '17:00') {
+            dropoffTime.value = '';
+        }
+    }
+
+    function deriveAmPmLabel(timeValue) {
+        if (!timeValue) {
+            return '';
+        }
+        var parts = timeValue.split(':');
+        if (parts.length < 2) {
+            return '';
+        }
+        var h = parseInt(parts[0], 10);
+        if (isNaN(h)) {
+            return '';
+        }
+        if (h >= 12) {
+            return 'PM';
+        }
+        return 'AM';
+    }
+
+    function updateAmPmLabels(root) {
+        var timeInputs = root.querySelectorAll('input[type="time"]');
+        forEachNode(timeInputs, function (input) {
+            var wrapper = input.closest('.wsb-booking-client-field');
+            if (!wrapper) {
+                return;
+            }
+            var existingBadge = wrapper.querySelector('.wsb-time-ampm-badge');
+            var label = deriveAmPmLabel(input.value);
+            if (label) {
+                if (!existingBadge) {
+                    existingBadge = document.createElement('span');
+                    existingBadge.className = 'wsb-time-ampm-badge';
+                    input.parentNode.insertBefore(existingBadge, input.nextSibling);
+                    wrapper.classList.add('wsb-booking-client-field--time');
+                }
+                existingBadge.textContent = label;
+                wrapper.classList.add('wsb-booking-client-field--time');
+            } else if (existingBadge) {
+                existingBadge.remove();
+            }
+            // Clean up class if no badge remains
+            if (!wrapper.querySelector('.wsb-time-ampm-badge')) {
+                wrapper.classList.remove('wsb-booking-client-field--time');
+            }
+        });
+    }
+
+    function getBlockedDatesFromConfig() {
+        var config = BOOKING_SITE_CONFIG || {};
+        var blockouts = (config.blockouts || {});
+        // Scaffold only: live fetch not implemented yet.
+        // blockouts may contain a static blocked_dates map for future global blockouts.
+        return blockouts.blocked_dates || [];
+    }
+
+    function validateDateAgainstBlockouts(dateInput) {
+        if (!dateInput) {
+            return true;
+        }
+        var value = dateInput.value;
+        if (!value) {
+            return true;
+        }
+        var blocked = getBlockedDatesFromConfig();
+        if (!blocked.length) {
+            return true;
+        }
+        return blocked.indexOf(value) === -1;
+    }
+
+    function markBlockedDateState(dateInput, isBlocked) {
+        if (!dateInput) {
+            return;
+        }
+        if (isBlocked) {
+            dateInput.classList.add('wsb-date-blocked');
+        } else {
+            dateInput.classList.remove('wsb-date-blocked');
+        }
+    }
+
+    function refreshPickerStatusMessages(root) {
+        var outboundDate = root.querySelector('input[name="outbound_pickup_date"]');
+        var outboundTime = root.querySelector('input[name="outbound_pickup_time"]');
+        var returnDate = root.querySelector('input[name="return_pickup_date"]');
+        var returnTime = root.querySelector('input[name="return_pickup_time"]');
+
+        function updateStatus(dateInput, timeInput, statusSelector) {
+            if (!dateInput || !timeInput) {
+                return;
+            }
+            var wrapper = dateInput.closest('.wsb-booking-client-picker-group') || dateInput.closest('.wsb-booking-client-grid');
+            if (!wrapper) {
+                return;
+            }
+            var statusEl = wrapper.querySelector(statusSelector);
+            if (!statusEl) {
+                return;
+            }
+            if (!dateInput.value || !timeInput.value) {
+                statusEl.textContent = '';
+                statusEl.className = 'wsb-picker-status';
+                return;
+            }
+            var dateValue = dateInput.value;
+            var minDate = dateInput.getAttribute('min');
+            var maxDate = dateInput.getAttribute('max');
+            var timeValue = timeInput.value;
+            var minTime = timeInput.getAttribute('min');
+
+            if (minDate && dateValue < minDate) {
+                statusEl.textContent = (STRINGS.pickerDateBeforeMin || STRINGS.serverValidationFailed || 'Date is before the earliest allowed date.');
+                statusEl.className = 'wsb-picker-status';
+                dateInput.classList.add('wsb-date-blocked');
+                return;
+            }
+            if (maxDate && dateValue > maxDate) {
+                statusEl.textContent = (STRINGS.pickerDateAfterMax || STRINGS.serverValidationFailed || 'Date exceeds the maximum advance booking window.');
+                statusEl.className = 'wsb-picker-status';
+                dateInput.classList.add('wsb-date-blocked');
+                return;
+            }
+            if (minTime && timeValue < minTime) {
+                statusEl.textContent = (STRINGS.pickerTimeBeforeMin || STRINGS.serverValidationFailed || 'Time is inside the lead-time window.');
+                statusEl.className = 'wsb-picker-status';
+                return;
+            }
+            if (!validateDateAgainstBlockouts(dateInput)) {
+                statusEl.textContent = (STRINGS.pickerDateBlocked || STRINGS.serverValidationFailed || 'Selected date is blocked for bookings.');
+                statusEl.className = 'wsb-picker-status';
+                return;
+            }
+            statusEl.textContent = '';
+            statusEl.className = 'wsb-picker-status wsb-picker-status--ok';
+            dateInput.classList.remove('wsb-date-blocked');
+        }
+
+        updateStatus(outboundDate, outboundTime, '[data-wsb-outbound-picker-status]');
+        updateStatus(returnDate, returnTime, '[data-wsb-return-picker-status]');
+    }
+
     function initBookingBuilder(root) {
         var form = root.querySelector('[data-wsb-booking-form]');
         var returnSection = root.querySelector('[data-wsb-return-section]');
@@ -836,6 +1036,11 @@
                     root.dataset.wsbServiceGroup = serviceGroup;
                     state.serviceType = serviceGroup === 'charter' ? 'charter_hire' : 'city_transfer';
                     root.dataset.wsbServiceType = state.serviceType;
+                    if (serviceGroup === 'charter') {
+                        setCharterTimeDefaults(root);
+                    } else {
+                        clearCharterTimeDefaults(root);
+                    }
                     updateServiceMode(root, serviceGroup);
                     refreshPreview('');
                 }
@@ -861,6 +1066,8 @@
         if (outboundDateInput && outboundTimeInput) {
             outboundDateInput.addEventListener('change', function () {
                 constrainTimeByDate(outboundDateInput, outboundTimeInput, constraints);
+                updateAmPmLabels(root);
+                refreshPickerStatusMessages(root);
                 refreshPreview('');
             });
         }
@@ -870,6 +1077,8 @@
         if (charterDateInput && charterTimeInput) {
             charterDateInput.addEventListener('change', function () {
                 constrainTimeByDate(charterDateInput, charterTimeInput, constraints);
+                updateAmPmLabels(root);
+                refreshPickerStatusMessages(root);
                 refreshPreview('');
             });
         }
@@ -924,6 +1133,9 @@
         updateReturnVisibility(returnSection, tripTypeInputs);
         updateAdditionalStop(outboundAdditionalStopToggle, outboundAdditionalStopField);
         updateAdditionalStop(returnAdditionalStopToggle, returnAdditionalStopField);
+        setDateDefaults(root);
+        updateAmPmLabels(root);
+        refreshPickerStatusMessages(root);
         refreshPreview('Live payload preview initialised');
         if (fixtureStatus && fixtures.length) {
             updateFixtureDrawerStatus(

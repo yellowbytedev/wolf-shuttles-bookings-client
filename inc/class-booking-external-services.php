@@ -158,6 +158,7 @@ if ( ! class_exists( 'WSB_Client_Booking_External_Services' ) ) {
                     'global_blockouts_supported' => true,
                     'vehicle_scoped_blockouts_supported' => true,
                     'vehicle_scoped_blockouts_affect_marketing_picker' => false,
+                    'blocked_dates' => array(),
                 ),
                 'cache' => array(
                     'status' => 'default',

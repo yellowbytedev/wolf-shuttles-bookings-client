@@ -326,3 +326,14 @@ Each feature should plug into a pricing pipeline rather than being hardcoded int
 - All 29 payload fixtures pass.
 - All 18 valid handover fixtures pass.
 
+## AI Handoff Pack & Next Steps
+
+The Phase 2 marketing foundation is complete and reviewed. The following documentation pack is available for continuing the work elsewhere or handing off to another AI/developer:
+
+- `START-HERE.md` — canonical entry point
+- `docs/AI-CONTEXT-HANDOFF.md` — full context, terminology, architecture, roadmap
+- `docs/AI-HANDOFF-MANIFEST.md` — exact files to paste or zip
+- `docs/booking-site-v2-receiver-plan.md` — proposed booking-site dry-run receiver plan
+
+**Next recommended task:** Implement the booking-site v2 dry-run receiver in `ws-bookings` as outlined in `docs/booking-site-v2-receiver-plan.md`.
+

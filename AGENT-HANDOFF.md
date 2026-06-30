@@ -46,6 +46,12 @@ If a task needs context outside the repo, read only. Do not write outside `ws-bo
 
 The roadmap lives in `docs/booking-intake-roadmap.md` and the phase log lives in `docs/phase-2-progress.md`.
 
+The AI handoff pack lives at:
+- `START-HERE.md` — canonical entry point
+- `docs/AI-CONTEXT-HANDOFF.md` — full AI/developer handoff context
+- `docs/AI-HANDOFF-MANIFEST.md` — what to send to another AI chat
+- `docs/booking-site-v2-receiver-plan.md` — proposed booking-site dry-run receiver
+
 - Phase 2E complete: realtime local payload preview.
 - Phase 2F complete: server-side payload preview validation.
 - Phase 2G complete: payload fixture runner.
@@ -78,7 +84,7 @@ If roadmap or phase status changes, update this file at the same time.
 - Realtime BookingPayload v2 preview works in the browser.
 - The server-side preview endpoint works at `POST /wp-json/ws-bookings-client/v1/payload-preview`.
 - The payload fixture runner passes (29 fixtures).
-- The handover preview fixture runner passes (15 passed, 11 skipped as invalid).
+- The handover preview fixture runner passes (18 valid pass, 11 skipped as invalid).
 - The normalizer now preserves `service_group`, top-level `route`, `validation_flags`, and `charter` scaffolds.
 - Meta fields are aligned: both `meta.preview_only` and `meta.handover_mode` are set in JS and PHP.
 - The developer fixture drawer loads fixtures from `tests/fixtures/booking-payload-v2-fixtures.json`, populates the form, and re-runs preview checks.
@@ -124,7 +130,7 @@ If roadmap or phase status changes, update this file at the same time.
 - `inc/class-booking-external-services.php` - no-op adapter scaffold for Google/HERE/route/toll integrations.
 - `assets/js/booking-client-form.js` - lightweight UI state, preview rendering, and REST preview submission.
 - `assets/css/booking-client-form.css` - Booking Builder styling.
-- `tests/fixtures/booking-payload-v2-fixtures.json` - canonical v2 fixture corpus (22 fixtures).
+- `tests/fixtures/booking-payload-v2-fixtures.json` - canonical v2 fixture corpus (29 fixtures).
 - `tests/fixtures/booking-intake-fixtures.v2.seed.json` - legacy seed fixture reference.
 - `scripts/run-booking-payload-fixtures.php` - terminal v2 payload fixture runner.
 - `scripts/run-booking-handover-preview-fixtures.php` - terminal dry-run handover fixture runner.
@@ -171,7 +177,7 @@ See `AGENTS.md` for specialist agent roles and sub-agent rules.
 
 ## 11. Next Recommended Tasks
 
-1. Prepare the booking-site v2 receiver plan in `ws-bookings`.
+1. Implement the booking-site v2 dry-run receiver as documented in `docs/booking-site-v2-receiver-plan.md`.
 2. Design the itinerary parent table and trip linkage for Phase 4.
 3. Prepare the booking token flow for the future v2 handover path.
 4. Wire a real v2 receiver in the booking plugin when that repo is ready.

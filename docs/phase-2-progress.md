@@ -1,8 +1,18 @@
 # Phase 2 Progress
 
+## AI Handoff Pack
+
+This phase includes a complete AI/developer handoff pack:
+- `START-HERE.md` — canonical entry point
+- `docs/AI-CONTEXT-HANDOFF.md` — full project context, terminology, architecture, roadmap
+- `docs/AI-HANDOFF-MANIFEST.md` — what to send to another AI chat
+- `docs/booking-site-v2-receiver-plan.md` — proposed booking-site dry-run receiver plan
+
+The next major task is the **booking-site v2 dry-run receiver** implementation in `ws-bookings`.
+
 ## Current Status Summary
 
-- Fixture corpus at 20 fixtures.
+- Fixture corpus at 29 fixtures.
 - Leg-scoped additional stops implemented (outbound and return legs each have their own stop controls).
 - Blockouts diagnostic scaffold added; marketing payload always includes scaffold with `authority: "booking_site"`.
 - Route scaffold preserved; charter preview mode added.
@@ -112,7 +122,7 @@
 ### Phase 2H verification check
 
 - Verified the current `feature/phase-2h-v2-handover-foundation` branch with lint, fixture runners, page smoke tests, REST preview tests, and debug-log inspection.
-- `php scripts/run-booking-payload-fixtures.php` passed: 20/20 fixtures matched expectations.
+- `php scripts/run-booking-payload-fixtures.php` passed: 29/29 fixtures matched expectations.
 - `php scripts/run-booking-handover-preview-fixtures.php` passed: 13 valid fixtures passed, 7 invalid fixtures skipped, 0 failures.
 - `/booking-builder/` returned HTTP 200.
 - `/booking-builder/?debug=1` returned HTTP 200.
@@ -282,7 +292,7 @@
   - Removed stops from both legs and charter.days arrays
   - Added trailer: true for the new fixture
 - Updated `docs/booking-payload-v2.md` to clarify stop rules.
-- All fixture runners still pass (20 fixtures).
+- All fixture runners still pass (29 fixtures).
 ## Phase 2R — Booking-site config date/time constraints (completed)
 
 - Added date constraints to `inc/class-booking-field-registry.php`:

@@ -93,11 +93,14 @@ Avoid the term `service_family`.
 
 ## Documentation files to read first
 
+- `START-HERE.md` — canonical entry point for new agents/AI chats
+- `docs/AI-CONTEXT-HANDOFF.md` — full project context, terminology, architecture, and roadmap
 - `docs/booking-intake-current-flow.md`
 - `docs/booking-payload-v2.md`
 - `docs/booking-intake-roadmap.md`
 - `docs/testing-engine-plan.md`
 - `docs/known-issues-debug-log.md`
+- `docs/AI-HANDOFF-MANIFEST.md` — what to send to another AI chat if continuing elsewhere
 
 Before starting substantial work, read `AGENT-HANDOFF.md` as well. It is the canonical current-state document for this repo.
 

@@ -158,4 +158,7 @@ The fixture corpus in `tests/fixtures/booking-payload-v2-fixtures.json` includes
 - `invalid-charter-missing-dropoff` — missing dropoff_time
 - `invalid-charter-end-time-before-start` — end time before start time
 
-Total fixtures: 22
+Total fixtures: 29
+
+Valid fixtures (pass validation): 18
+Invalid fixtures (intentionally fail validation): 11

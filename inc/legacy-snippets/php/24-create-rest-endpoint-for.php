@@ -59,6 +59,30 @@ function ws_verify_signed_request( WP_REST_Request $req ): bool {
     return hash_equals($calc, (string)$sig);
 }
 
+/**
+ * Purge LiteSpeed cache after traveler count update.
+ * Defensive: checks function exists, logs on failure, filterable URLs.
+ *
+ * @param int $display_total Current display total (for logging).
+ * @return void
+ */
+function ws_travelers_purge_count_cache($display_total) {
+    $urls = apply_filters('ws_travelers_count_purge_urls', ['/']);
+    
+    if (!is_array($urls) || empty($urls)) {
+        return;
+    }
+    
+    if (class_exists('\\LiteSpeed\\Purge') && method_exists('\\LiteSpeed\\Purge', 'purge_url')) {
+        foreach ($urls as $url) {
+            \LiteSpeed\Purge::purge_url(home_url($url));
+        }
+        error_log('[WS Travelers] Cache purge triggered for URLs: ' . implode(', ', $urls));
+    } else {
+        error_log('[WS Travelers] LiteSpeed Purge class not available for cache purge');
+    }
+}
+
 /** Register secure POST endpoint */
 add_action('rest_api_init', function () {
     register_rest_route('ws/v1', '/traveler-count', [
@@ -84,6 +108,9 @@ add_action('rest_api_init', function () {
             $display = ws_get_traveler_baseline() + $shop_total;
             update_option('ws_traveler_display_total', (int)$display, false);
 
+            // Purge cache after successful update
+            ws_travelers_purge_count_cache((int)$display);
+
             // Respond with what we stored
             return rest_ensure_response([
                 'ok'            => true,
@@ -102,6 +129,10 @@ add_action('rest_api_init', function () {
     'methods'  => 'GET',
     'permission_callback' => '__return_true',
     'callback' => function () {
+      // Add no-cache headers to prevent caching stale data
+      header('Cache-Control: no-store, no-cache, must-revalidate, max-age=0');
+      header('Pragma: no-cache');
+      
       return [
         'baseline'      => ws_get_traveler_baseline(),
         'display_total' => (int) get_option('ws_traveler_display_total', 0),

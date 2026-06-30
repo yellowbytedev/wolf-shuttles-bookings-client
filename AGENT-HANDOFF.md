@@ -106,7 +106,6 @@ If roadmap or phase status changes, update this file at the same time.
 - No real booking-site call.
 - No booking token creation.
 - No WooCommerce/cart item creation.
-- No Google autocomplete yet.
 - No route, distance, or toll integration yet in the new intake layer.
 - No itinerary database table yet.
 - No multi-trip cart yet.
@@ -178,11 +177,10 @@ See `AGENTS.md` for specialist agent roles and sub-agent rules.
 ## 11. Next Recommended Tasks
 
 1. Implement the booking-site v2 dry-run receiver as documented in `docs/booking-site-v2-receiver-plan.md`.
-2. Design the itinerary parent table and trip linkage for Phase 4.
-3. Prepare the booking token flow for the future v2 handover path.
-4. Wire a real v2 receiver in the booking plugin when that repo is ready.
-5. Revisit Google autocomplete and route / toll / distance integration later.
-6. Consider charter pricing integration once booking-site v2 endpoint is ready.
+2. Monitor the traveler count cache fix in production.
+3. Consider adding cache tags to the traveler count for more granular invalidation.
+4. Revisit Google autocomplete and route / toll / distance integration later.
+5. Consider charter pricing integration once booking-site v2 endpoint is ready.
 
 ## 12. Standard Agent Completion Report
 

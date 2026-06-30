@@ -20,9 +20,9 @@ Currently the marketing plugin produces a validated `BookingPayload v2` with `sc
 
 - `BookingPayload v2` canonical shape (legs-based trip model, `one_way` / `return` / `charter`)
 - PHP normaliser + validator with lead-time and capacity rules
-- Dry-run handover envelope (`HMAC-SHA256`, deterministic signing, 1-hour expiry)
+- HMAC-signed handover envelope (deterministic signing, 1-hour expiry)
 - 29 payload fixtures (all passing), 18 valid handover fixtures (all passing), 11 invalid intentionally skipped
-- Google Places Autocomplete + place snapshots per leg
+- Google Places Autocomplete + place snapshots per leg (active when Google API key is configured)
 - Legacy clock-timepicker restored (5-min precision, AM/PM badges)
 - Fixture drawer / payload test lab (debug-only)
 - Charter preview mode + additional stop support (leg-scoped)

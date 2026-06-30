@@ -444,3 +444,14 @@ The next major task is the **booking-site v2 dry-run receiver** implementation i
 - No booking-site/API behaviour change.
 - All 29 payload fixtures pass.
 - All 18 valid handover fixtures pass (11 invalid skipped as expected).
+
+## Traveller Count Cache Fix (completed)
+
+- Added `ws_travelers_purge_count_cache()` helper in `inc/legacy-snippets/php/24-create-rest-endpoint-for.php`.
+- Function purges LiteSpeed cache URLs after successful traveler count POST update.
+- Defensive implementation: checks class/method existence, uses filterable URL list.
+- Default purge URL: homepage `/` — configurable via `apply_filters('ws_travelers_count_purge_urls', ['/'])`.
+- Added no-cache headers to `GET /wp-json/ws/v1/travelers` endpoint.
+- Created documentation in `docs/traveller-count-cache-investigation.md`.
+- Investigation found no second writer; likely cause is stale HTML cache with 12-hour TTL.
+- No changes to traveler calculation logic or booking-side sync.

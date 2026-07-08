@@ -44,7 +44,7 @@ No critical issues found. One medium-severity JS console error was observed duri
 ### Tests / Fixtures
 - `tests/fixtures/booking-payload-v2-fixtures.json`
 - `scripts/run-booking-payload-fixtures.php`
-- `scripts/run-booking-handover-preview-fixtures.php`
+- `scripts/run-booking-handover-fixtures.php` (was `run-booking-handover-preview-fixtures.php`)
 
 ---
 
@@ -429,7 +429,7 @@ node --check assets/js/booking-client-form.js
 
 # Fixture runners
 php scripts/run-booking-payload-fixtures.php
-php scripts/run-booking-handover-preview-fixtures.php
+php scripts/run-booking-handover-fixtures.php
 
 # Smoke tests
 curl -k -s -o /tmp/wsb-booking-builder.html -w "%{http_code}\n" https://wolfshuttles.local/booking-builder/

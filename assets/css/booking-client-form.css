@@ -132,6 +132,10 @@
 
 .wsb-booking-client-card-copy {
   margin: 0;
+  color: var(--base);
+}
+
+.wsb-booking-client-card--hero .wsb-booking-client-card-copy {
   color: rgba(255,255,255,0.85);
 }
 
@@ -209,6 +213,11 @@
   gap: 6px;
 }
 
+.wsb-booking-client-field--textarea textarea {
+  min-height: 96px;
+  resize: vertical;
+}
+
 .wsb-form__label {
   display: block;
   color: var(--base);
@@ -234,6 +243,82 @@
   display: grid;
   gap: 10px;
   margin-top: 10px;
+}
+
+.wsb-booking-client-charter-same-day-panel {
+  display: grid;
+  gap: var(--space-s);
+  margin-top: var(--space-m);
+}
+
+.wsb-booking-client-charter-multiday-shell {
+  display: grid;
+  gap: var(--space-s);
+  margin-top: var(--space-m);
+  border-color: var(--base-ultra-dark-trans-16);
+  background: linear-gradient(180deg, rgba(192, 57, 43, 0.03), rgba(255, 255, 255, 1) 28%);
+}
+
+.wsb-booking-client-charter-multiday-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.wsb-booking-client-charter-action,
+.wsb-booking-client-charter-day-toggle,
+.wsb-booking-client-charter-day-duplicate,
+.wsb-booking-client-charter-day-delete {
+  border: 1px solid var(--base-ultra-dark-trans-20);
+  border-radius: 999px;
+  background: var(--white);
+  color: var(--base-ultra-dark);
+  padding: 8px 12px;
+  font: inherit;
+  font-size: 0.88rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 120ms ease, border-color 120ms ease, color 120ms ease, opacity 120ms ease;
+}
+
+.wsb-booking-client-charter-action:hover,
+.wsb-booking-client-charter-day-toggle:hover,
+.wsb-booking-client-charter-day-duplicate:hover,
+.wsb-booking-client-charter-day-delete:hover {
+  border-color: var(--primary);
+  color: var(--primary);
+}
+
+.wsb-booking-client-charter-day-list {
+  display: grid;
+  gap: var(--space-s);
+}
+
+.wsb-booking-client-charter-day-card {
+  display: grid;
+  gap: var(--space-s);
+  border-color: var(--base-ultra-dark-trans-16);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 1), rgba(248, 248, 248, 1));
+}
+
+.wsb-booking-client-charter-day-header {
+  align-items: flex-start;
+}
+
+.wsb-booking-client-charter-day-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: flex-end;
+}
+
+.wsb-booking-client-charter-day-card--collapsed {
+  border-style: dashed;
+}
+
+.wsb-booking-client-charter-day-body {
+  display: grid;
+  gap: var(--space-s);
 }
 
 .wsb-booking-client-checkbox-label {

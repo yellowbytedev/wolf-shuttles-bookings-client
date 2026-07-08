@@ -50,12 +50,12 @@ The AI handoff pack lives at:
 - `START-HERE.md` — canonical entry point
 - `docs/AI-CONTEXT-HANDOFF.md` — full AI/developer handoff context
 - `docs/AI-HANDOFF-MANIFEST.md` — what to send to another AI chat
-- `docs/booking-site-v2-receiver-plan.md` — proposed booking-site dry-run receiver
+- `docs/booking-site-v2-receiver-plan.md` — proposed booking-site v2 intake endpoint
 
 - Phase 2E complete: realtime local payload preview.
 - Phase 2F complete: server-side payload preview validation.
 - Phase 2G complete: payload fixture runner.
-- Phase 2H complete: v2 handover foundation, dry-run only.
+- Phase 2H complete: v2 handover foundation.
 - Phase 2I complete: developer fixture drawer / payload test lab.
 - Phase 2J complete: schema extension scaffolds (route, validation_flags, charter, blockouts, leg-scoped stops).
 - Phase 2K complete: charter preview mode (Shuttle Hire tab enabled, canonical charter payload shape, trip_type: "charter" fix applied).
@@ -122,17 +122,17 @@ If roadmap or phase status changes, update this file at the same time.
 - `inc/class-booking-payload-v2-normalizer.php` - canonical v2 normaliser for flat form data or structured legs payloads.
 - `inc/class-booking-payload-v2-validator.php` - v2 validation rules.
 - `inc/class-booking-payload-preview-controller.php` - REST preview endpoint for validation-only payload inspection.
-- `inc/class-booking-payload-v2-handover-service.php` - deterministic dry-run envelope builder and signing logic.
-- `inc/class-booking-payload-handover-preview-controller.php` - dry-run handover preview REST endpoint.
+- `inc/class-booking-payload-v2-handover-service.php` - HMAC-signed envelope builder and signing logic.
+- `inc/class-booking-payload-handover-preview-controller.php` - handover preview REST endpoint.
 - `inc/class-booking-handover-v2-service.php` - scaffold for future `legacy_hash` / `v2_token` handover branching.
 - `inc/class-booking-intake-fixture-loader.php` - WP-CLI fixture loader stub.
 - `inc/class-booking-external-services.php` - no-op adapter scaffold for Google/HERE/route/toll integrations.
-- `assets/js/booking-client-form.js` - lightweight UI state, preview rendering, and REST preview submission.
+- `assets/js/booking-client-form.js` - lightweight UI state, Google Places selection, preview rendering, and REST preview submission.
 - `assets/css/booking-client-form.css` - Booking Builder styling.
 - `tests/fixtures/booking-payload-v2-fixtures.json` - canonical v2 fixture corpus (29 fixtures).
 - `tests/fixtures/booking-intake-fixtures.v2.seed.json` - legacy seed fixture reference.
 - `scripts/run-booking-payload-fixtures.php` - terminal v2 payload fixture runner.
-- `scripts/run-booking-handover-preview-fixtures.php` - terminal dry-run handover fixture runner.
+- `scripts/run-booking-handover-fixtures.php` - terminal handover fixture runner.
 
 ## 8. Testing Requirements
 
@@ -142,7 +142,7 @@ Before finishing any shortcode, UI, or page-facing PHP change, run the smoke-tes
 find inc scripts -name '*.php' -print0 | xargs -0 -n1 php -l
 node --check assets/js/booking-client-form.js
 php scripts/run-booking-payload-fixtures.php
-php scripts/run-booking-handover-preview-fixtures.php
+php scripts/run-booking-handover-fixtures.php
 curl -i https://wolfshuttles.local/booking-builder/
 curl -i "https://wolfshuttles.local/booking-builder/?debug=1"
 tail -n 200 wp-content/debug.log
@@ -176,11 +176,11 @@ See `AGENTS.md` for specialist agent roles and sub-agent rules.
 
 ## 11. Next Recommended Tasks
 
-1. Implement the booking-site v2 dry-run receiver as documented in `docs/booking-site-v2-receiver-plan.md`.
-2. Monitor the traveler count cache fix in production.
-3. Consider adding cache tags to the traveler count for more granular invalidation.
-4. Revisit Google autocomplete and route / toll / distance integration later.
-5. Consider charter pricing integration once booking-site v2 endpoint is ready.
+1. Implement the booking-site v2 intake endpoint as documented in `docs/booking-site-v2-receiver-plan.md`.
+2. Prepare the itinerary parent table and trip linkage for Phase 3.
+3. Prepare the booking token flow for the future v2 handover path.
+4. Wire a real v2 receiver in the booking plugin when that repo is ready.
+5. Implement the Booking Test Engine per `docs/testing-engine.md`.
 
 ## 12. Standard Agent Completion Report
 

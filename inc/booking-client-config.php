@@ -52,16 +52,17 @@ if ( ! defined( 'WSB_CLIENT_V2_HANDOVER_SECRET' ) ) {
  * @return string
  */
 function wsb_client_v2_handover_secret(): string {
-    if ( defined( 'WSB_CLIENT_V2_HANDOVER_SECRET' ) && WSB_CLIENT_V2_HANDOVER_SECRET !== '' ) {
-        return WSB_CLIENT_V2_HANDOVER_SECRET;
-    }
+	if ( defined( 'WSB_CLIENT_V2_HANDOVER_SECRET' ) && WSB_CLIENT_V2_HANDOVER_SECRET !== '' ) {
+		return WSB_CLIENT_V2_HANDOVER_SECRET;
+	}
 
-    // Developer-only local fallback — do NOT use in production.
-    if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
-        return 'local_v2_handover_preview_secret';
-    }
+	// Local/development environment fallback only.
+	// Uses wp_get_environment_type() to ensure staging/production never fall back.
+	if ( function_exists( 'wp_get_environment_type' ) && wp_get_environment_type() === 'local' ) {
+		return 'local_v2_handover_secret';
+	}
 
-    return '';
+	return '';
 }
 
 /**

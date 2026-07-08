@@ -109,13 +109,13 @@ The next major task is the **booking-site v2 dry-run receiver** implementation i
   - Deterministic canonical signing: recursive key sort + stable JSON encode.
   - Secret from `wsb_client_v2_handover_secret()` never exposed to JS.
 - HMAC signing support added.
-  - Secret resolved: constructor param → `WSB_CLIENT_V2_HANDOVER_SECRET` → `local_v2_handover_preview_secret` fallback (WP_DEBUG) → empty string.
+  - Secret resolved: constructor param → `WSB_CLIENT_V2_HANDOVER_SECRET` → `local_v2_handover_secret` fallback (WP environment type) → empty string.
   - Empty secret intentionally produces empty `integrity.signature` for local/terminal tests.
 - Dry-run handover preview REST endpoint: `POST /wp-json/ws-bookings-client/v1/handover-preview`.
   - Requires `X-WP-Nonce` (`wp_rest`).
   - Validates payload, returns `handover_envelope` only on valid payloads.
   - Never calls the booking site, never creates a token, never writes DB records.
-- Handover preview fixture runner: `php scripts/run-booking-handover-preview-fixtures.php`.
+- Handover fixture runner: `php scripts/run-booking-handover-fixtures.php`.
   - Valid fixtures only, asserts envelope structure and signing fields.
 - All Phase 2G fixtures still pass; existing legacy flow unchanged.
 
@@ -123,7 +123,7 @@ The next major task is the **booking-site v2 dry-run receiver** implementation i
 
 - Verified the current `feature/phase-2h-v2-handover-foundation` branch with lint, fixture runners, page smoke tests, REST preview tests, and debug-log inspection.
 - `php scripts/run-booking-payload-fixtures.php` passed: 29/29 fixtures matched expectations.
-- `php scripts/run-booking-handover-preview-fixtures.php` passed: 13 valid fixtures passed, 7 invalid fixtures skipped, 0 failures.
+- `php scripts/run-booking-handover-fixtures.php` passed: 13 valid fixtures passed, 7 invalid fixtures skipped, 0 failures.
 - `/booking-builder/` returned HTTP 200.
 - `/booking-builder/?debug=1` returned HTTP 200.
 - Valid handover preview request returned `200 OK`, `ok: true`, and a dry-run handover envelope.

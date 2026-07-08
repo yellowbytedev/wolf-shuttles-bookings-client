@@ -218,10 +218,161 @@ if ( ! class_exists( 'WSB_Client_Booking_Payload_V2_Validator' ) ) {
                 }
             }
 
-            // Quote-ready diagnostic: warn if Google place IDs are missing when enabled
+            // Google Places enforcement authority: Server-side feature gates control whether snapshots are required.
+            // Payload validation_flags.google_place_snapshots_ready is diagnostic only, not enforcement authority.
             $validation_flags = is_array( $payload['validation_flags'] ?? null ) ? $payload['validation_flags'] : array();
-            if ( empty( $validation_flags['google_place_snapshots_ready'] ) ) {
-                $warnings[] = $this->warning( 'validation_flags', 'place_snapshots_missing', 'Google place snapshots are not quote-ready. Origin/destination place IDs are required for pricing.' );
+            $is_diagnostic_ready = ! empty( $validation_flags['google_place_snapshots_ready'] );
+            $enforce_place_snapshots = class_exists( 'WSB_Booking_Client\Booking_Feature_Gates' )
+                && WSB_Booking_Client\Booking_Feature_Gates::is_enabled( 'enable_google_places_required' );
+            $google_places_ready = true;
+            $missing_place_ids = array();
+
+            foreach ( $legs as $leg_index => $leg ) {
+                if ( ! is_array( $leg ) ) {
+                    continue;
+                }
+
+                $leg_prefix = 'legs.' . $leg_index;
+                $place_snapshots = is_array( $leg['place_snapshots'] ?? null ) ? $leg['place_snapshots'] : array();
+
+                // Validate from location snapshot
+                $from_snapshot = $place_snapshots['from'] ?? array();
+                if ( empty( $leg['from']['label'] ?? '' ) ) {
+                    // Already covered by required label validation
+                } elseif ( ! $this->has_valid_place_snapshot( $from_snapshot ) ) {
+                    $google_places_ready = false;
+                    $missing_place_ids[] = $leg_prefix . '.from';
+                }
+
+                // Validate to location snapshot
+                $to_snapshot = $place_snapshots['to'] ?? array();
+                if ( empty( $leg['to']['label'] ?? '' ) ) {
+                    // Already covered by required label validation
+                } elseif ( ! $this->has_valid_place_snapshot( $to_snapshot ) ) {
+                    $google_places_ready = false;
+                    $missing_place_ids[] = $leg_prefix . '.to';
+                }
+
+                // Validate additional stop snapshots (if present)
+                $stops = is_array( $leg['stops'] ?? null ) ? $leg['stops'] : array();
+                foreach ( $stops as $stop_index => $stop ) {
+                    if ( ! is_array( $stop ) ) {
+                        continue;
+                    }
+                    $stop_location = $stop['location'] ?? array();
+                    if ( empty( $stop_location['label'] ?? '' ) ) {
+                        continue;
+                    }
+                    $stop_snapshot = $place_snapshots['stops'][$stop_index] ?? array();
+                    if ( ! $this->has_valid_place_snapshot( $stop_snapshot ) ) {
+                        $google_places_ready = false;
+                        $missing_place_ids[] = $leg_prefix . '.stops[' . $stop_index . ']';
+                    }
+                }
+            }
+
+            $route = is_array( $payload['route'] ?? null ) ? $payload['route'] : array();
+            $route_authority_messages = array(
+                'distance_meters' => 'Route distance is advisory only and must not be authoritative.',
+                'duration_seconds' => 'Route duration is advisory only and must not be authoritative.',
+                'price_quoted'    => 'Route price is advisory only and must not be authoritative.',
+                'polyline'        => 'Route polyline is advisory only and must not be authoritative.',
+            );
+            foreach ( $route_authority_messages as $field => $message ) {
+                if ( array_key_exists( $field, $route ) && null !== $route[ $field ] && '' !== $route[ $field ] ) {
+                    $errors[] = $this->error( 'route.' . $field, 'authoritative_not_allowed', $message );
+                }
+            }
+
+            $charter = is_array( $payload['charter'] ?? null ) ? $payload['charter'] : array();
+            if ( 'reserved' === (string) ( $charter['type'] ?? '' ) ) {
+                $charter_days = is_array( $charter['days'] ?? null ) ? $charter['days'] : array();
+                foreach ( $charter_days as $day_index => $day ) {
+                    if ( ! is_array( $day ) ) {
+                        continue;
+                    }
+
+                    $day_prefix = 'charter.days.' . $day_index;
+                    $day_place_snapshots = is_array( $day['place_snapshots'] ?? null ) ? $day['place_snapshots'] : array();
+                    $pickup_location = is_array( $day['pickup_location'] ?? null ) ? $day['pickup_location'] : array();
+                    $dropoff_location = is_array( $day['dropoff_location'] ?? null ) ? $day['dropoff_location'] : array();
+
+                    if ( ! empty( $pickup_location['label'] ?? '' ) ) {
+                        $pickup_snapshot = $day_place_snapshots['from'] ?? array();
+                        if ( ! $this->has_valid_place_snapshot( $pickup_snapshot ) ) {
+                            $google_places_ready = false;
+                            $missing_place_ids[] = $day_prefix . '.pickup_location';
+                        }
+                    }
+
+                    if ( ! empty( $dropoff_location['label'] ?? '' ) ) {
+                        $dropoff_snapshot = $day_place_snapshots['to'] ?? array();
+                        if ( ! $this->has_valid_place_snapshot( $dropoff_snapshot ) ) {
+                            $google_places_ready = false;
+                            $missing_place_ids[] = $day_prefix . '.dropoff_location';
+                        }
+                    }
+                }
+            }
+
+            $itinerary = is_array( $payload['itinerary'] ?? null ) ? $payload['itinerary'] : array();
+            $trips = is_array( $itinerary['trips'] ?? null ) ? $itinerary['trips'] : array();
+            foreach ( $trips as $trip_index => $trip ) {
+                if ( ! is_array( $trip ) ) {
+                    continue;
+                }
+
+                $trip_legs = is_array( $trip['legs'] ?? null ) ? $trip['legs'] : array();
+                foreach ( $trip_legs as $trip_leg_index => $trip_leg ) {
+                    if ( ! is_array( $trip_leg ) ) {
+                        continue;
+                    }
+
+                    $trip_leg_prefix = 'itinerary.trips.' . $trip_index . '.legs.' . $trip_leg_index;
+                    $trip_place_snapshots = is_array( $trip_leg['place_snapshots'] ?? null ) ? $trip_leg['place_snapshots'] : array();
+
+                    $trip_from_snapshot = $trip_place_snapshots['from'] ?? array();
+                    if ( empty( $trip_leg['from']['label'] ?? '' ) ) {
+                        // Already covered by endpoint validation.
+                    } elseif ( ! $this->has_valid_place_snapshot( $trip_from_snapshot ) ) {
+                        $google_places_ready = false;
+                        $missing_place_ids[] = $trip_leg_prefix . '.from';
+                    }
+
+                    $trip_to_snapshot = $trip_place_snapshots['to'] ?? array();
+                    if ( empty( $trip_leg['to']['label'] ?? '' ) ) {
+                        // Already covered by endpoint validation.
+                    } elseif ( ! $this->has_valid_place_snapshot( $trip_to_snapshot ) ) {
+                        $google_places_ready = false;
+                        $missing_place_ids[] = $trip_leg_prefix . '.to';
+                    }
+
+                    $trip_stops = is_array( $trip_leg['stops'] ?? null ) ? $trip_leg['stops'] : array();
+                    foreach ( $trip_stops as $trip_stop_index => $trip_stop ) {
+                        if ( ! is_array( $trip_stop ) ) {
+                            continue;
+                        }
+
+                        $trip_stop_location = $trip_stop['location'] ?? array();
+                        if ( empty( $trip_stop_location['label'] ?? '' ) ) {
+                            continue;
+                        }
+
+                        $trip_stop_snapshot = $trip_place_snapshots['stops'][ $trip_stop_index ] ?? array();
+                        if ( ! $this->has_valid_place_snapshot( $trip_stop_snapshot ) ) {
+                            $google_places_ready = false;
+                            $missing_place_ids[] = $trip_leg_prefix . '.stops[' . $trip_stop_index . ']';
+                        }
+                    }
+                }
+            }
+
+            // Only add error when enforcement is active AND snapshots are missing
+            if ( $enforce_place_snapshots && ! $google_places_ready ) {
+                $errors[] = $this->error( 'place_snapshots', 'missing_required', 'Google place snapshots are required for production quote-ready handoff. Origin and destination must be selected from the address dropdown.' );
+            } elseif ( ! $google_places_ready ) {
+                // Diagnostic warning when not enforcing (payload may have diagnostic flag set)
+                $warnings[] = $this->warning( 'place_snapshots', 'not_quote_ready', 'Google place snapshots are not quote-ready. Origin/destination place IDs are required for pricing.' );
             }
 
             /**
@@ -257,6 +408,27 @@ if ( ! class_exists( 'WSB_Client_Booking_Payload_V2_Validator' ) ) {
                 'code'    => $code,
                 'message' => $message,
             );
+        }
+
+        /**
+         * Check if a place snapshot has valid required fields for quote-ready handoff.
+         * A valid snapshot must have: place_id, lat, lng, and provider = google_places.
+         * Stale snapshots are considered invalid.
+         *
+         * @param mixed $snapshot
+         * @return bool
+         */
+        private function has_valid_place_snapshot( $snapshot ) : bool {
+            if ( ! is_array( $snapshot ) ) {
+                return false;
+            }
+
+            $has_place_id = ! empty( $snapshot['place_id'] );
+            $has_coords   = isset( $snapshot['lat'] ) && isset( $snapshot['lng'] ) && $snapshot['lat'] !== null && $snapshot['lng'] !== null;
+            $is_google    = isset( $snapshot['provider'] ) && $snapshot['provider'] === 'google_places';
+            $is_stale     = ! empty( $snapshot['stale'] );
+
+            return $has_place_id && $has_coords && $is_google && ! $is_stale;
         }
     }
 }

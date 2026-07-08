@@ -14,7 +14,7 @@ Wolf Shuttles is rebuilding its booking system across two WordPress sites:
 | `wolfshuttlescoza` | `ws-bookings-client` | **Marketing intake** — captures booking intent, normalises to `BookingPayload v2`, validates, and hands off |
 | `wolf-shuttles-booking-site` | `ws-bookings` | **Booking authority** — owns pricing, availability, routes, tolls, blockouts, vehicle selection, WooCommerce cart/orders |
 
-Currently the marketing plugin produces a validated `BookingPayload v2` with `schema_version: "2.0"` and a dry-run HMAC-signed handover envelope. No booking is created yet.
+Currently the marketing plugin produces a validated `BookingPayload v2` with `schema_version: "2.0"` and an HMAC-signed handover envelope. No booking is created yet.
 
 ## What has been completed
 
@@ -40,7 +40,7 @@ Currently the marketing plugin produces a validated `BookingPayload v2` with `sc
 
 ## Next recommended step
 
-**Booking-site v2 receiver dry-run implementation in `ws-bookings`.**
+**Booking-site v2 intake endpoint implementation in `ws-bookings`.**
 
 See `docs/AI-CONTEXT-HANDOFF.md` → "Next roadmap steps" for the full roadmap.
 
@@ -51,7 +51,7 @@ See `docs/AI-CONTEXT-HANDOFF.md` → "Next roadmap steps" for the full roadmap.
 3. **`AGENT-HANDOFF.md`** — canonical current-state document for this repo.
 4. **`docs/booking-intake-roadmap.md`** — Phase 1–9 roadmap.
 5. **`docs/phase-2-progress.md`** — detailed Phase 2 milestone log.
-6. **`docs/booking-site-v2-receiver-plan.md`** — proposed booking-site receiver endpoint and dry-run plan.
+6. **`docs/booking-site-v2-receiver-plan.md`** — proposed booking-site v2 intake endpoint.
 
 ## Quick orientation for a new AI
 

@@ -174,6 +174,12 @@ if ( ! class_exists( 'WSB_Client_Booking_Payload_V2_Handover_Service' ) ) {
 			return WSB_CLIENT_V2_HANDOVER_SECRET;
 		}
 
+		// Local/development environment fallback only.
+		// Uses wp_get_environment_type() to ensure staging/production never fall back.
+		if ( function_exists( 'wp_get_environment_type' ) && wp_get_environment_type() === 'local' ) {
+			return 'local_v2_handover_secret';
+		}
+
 		return '';
 	}
 
@@ -202,5 +208,5 @@ if ( ! class_exists( 'WSB_Client_Booking_Payload_V2_Handover_Service' ) ) {
 	private function is_associative( array $array ) : bool {
 		return array_keys( $array ) !== range( 0, count( $array ) - 1 );
 	}
-}
+    }
 }

@@ -82,7 +82,7 @@ tests/
     booking-payload-v2-fixtures.json
 scripts/
   run-booking-payload-fixtures.php
-  run-booking-handover-preview-fixtures.php
+  run-booking-handover-fixtures.php
 ```
 
 ## What Can Be Safely Ignored Initially

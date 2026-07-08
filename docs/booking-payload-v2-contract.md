@@ -162,3 +162,46 @@ Total fixtures: 29
 
 Valid fixtures (pass validation): 18
 Invalid fixtures (intentionally fail validation): 11
+
+---
+
+## Shared Contract Between ws-bookings-client and ws-bookings
+
+This contract prevents drift between the marketing-side and booking-side plugins.
+
+### Required Place Snapshot Expectations
+
+Per-leg place snapshots must include:
+- `provider`: `"google_places"`
+- `place_id`: Google place ID (required for production quotes)
+- `label`: Display label
+- `formatted_address`: Full address
+- `lat`, `lng`: Coordinates
+
+### Transfer vs Charter Rules
+
+- **Transfer**: `service_group: "transfer"`, `trip_type: "one_way"` or `"return"`
+- **Charter**: `service_group: "charter"`, `trip_type: "charter"`, `action: "charter_hire"`
+- Charter legs always have `stops: []` (no additional stops)
+
+### Return Trip and Additional Stop Handling
+
+- Return trips have 2+ legs with `type: "outbound"` and `type: "return"`
+- Additional stops are leg-scoped (`outbound_additional_stop`, `return_additional_stop`)
+- Stops are stored in `legs[].stops[]` array
+
+### Charter/Multi-Day Handling
+
+- Multi-day charters use `charter.enabled: true` with `charter.days[]` array
+- Each day has `day_index`, `date`, `start_time`, `end_time`, `pickup_location`, `dropoff_location`, `stops`
+
+### Booking-Site Authority Boundaries
+
+The booking site owns:
+- Route distance/duration (Google Distance Matrix)
+- Toll detection (HERE Maps)
+- Direction classification (toward/away/lateral)
+- Vehicle selection and availability
+- Pricing (Zone, Tariffs v2, Charter)
+- Blockouts validation
+- WooCommerce cart/order integration

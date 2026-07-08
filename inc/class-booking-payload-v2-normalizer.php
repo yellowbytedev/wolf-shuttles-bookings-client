@@ -40,6 +40,7 @@ if ( ! class_exists( 'WSB_Client_Booking_Payload_V2_Normalizer' ) ) {
                 'route'             => $this->normalize_route( $raw['route'] ?? array() ),
                 'charter'           => $this->normalize_charter( $raw['charter'] ?? array(), $raw, $trip_type ),
                 'validation_flags'  => is_array( $raw['validation_flags'] ?? null ) ? $raw['validation_flags'] : array(),
+                'itinerary'         => is_array( $raw['itinerary'] ?? null ) ? $raw['itinerary'] : array(),
                 'legs'              => $this->normalize_legs( $raw, $trip_type ),
                 'blockouts'         => $this->normalize_blockouts( $raw['blockouts'] ?? array() ),
                 'tracking'          => is_array( $raw['tracking'] ?? null ) ? $raw['tracking'] : array(),
@@ -145,7 +146,10 @@ if ( ! class_exists( 'WSB_Client_Booking_Payload_V2_Normalizer' ) ) {
                 'distance_meters'     => isset( $route['distance_meters'] ) && '' !== $route['distance_meters'] ? (float) $route['distance_meters'] : null,
                 'duration_seconds'    => isset( $route['duration_seconds'] ) && '' !== $route['duration_seconds'] ? (float) $route['duration_seconds'] : null,
                 'polyline'            => isset( $route['polyline'] ) ? sanitize_text_field( $route['polyline'] ) : null,
+                'price_quoted'        => isset( $route['price_quoted'] ) && '' !== $route['price_quoted'] ? (float) $route['price_quoted'] : null,
                 'route_options'       => is_array( $route['route_options'] ?? null ) ? $route['route_options'] : array(),
+                'route_preferences'   => is_array( $route['route_preferences'] ?? null ) ? $route['route_preferences'] : array(),
+                'route_details'       => is_array( $route['route_details'] ?? null ) ? $route['route_details'] : array(),
             );
         }
 
@@ -162,18 +166,29 @@ if ( ! class_exists( 'WSB_Client_Booking_Payload_V2_Normalizer' ) ) {
 
             if ( ! is_array( $charter ) ) {
                 return array(
-                    'enabled' => $is_charter,
-                    'type'    => $is_charter ? 'same_day' : null,
-                    'days'    => array(),
+                    'enabled'        => $is_charter,
+                    'type'           => $is_charter ? 'same_day' : null,
+                    'days'           => array(),
+                    'additional_stop' => null,
+                    'notes'          => null,
                 );
             }
 
             $enabled = $this->to_bool( $charter['enabled'] ?? $is_charter );
+            $additional_stop = $this->normalize_location( $charter['additional_stop'] ?? $raw['charter_additional_stop'] ?? array() );
+            if ( '' === $additional_stop['label'] && '' === $additional_stop['place_id'] && null === $additional_stop['lat'] && null === $additional_stop['lng'] && '' === $additional_stop['formatted_address'] ) {
+                $additional_stop = null;
+            }
+            $poi = sanitize_text_field( $charter['poi'] ?? $raw['charter_poi'] ?? '' );
+            $notes = sanitize_text_field( $charter['notes'] ?? $raw['charter_notes'] ?? '' );
 
             return array(
-                'enabled' => $enabled,
-                'type'    => $enabled ? ( ! empty( $charter['type'] ) ? sanitize_key( $charter['type'] ) : 'same_day' ) : null,
-                'days'    => $enabled && is_array( $charter['days'] ?? null ) ? $charter['days'] : array(),
+                'enabled'        => $enabled,
+                'type'           => $enabled ? ( ! empty( $charter['type'] ) ? sanitize_key( $charter['type'] ) : 'same_day' ) : null,
+                'days'           => $enabled && is_array( $charter['days'] ?? null ) ? $charter['days'] : array(),
+                'additional_stop' => $additional_stop,
+                'poi'            => '' !== $poi ? $poi : null,
+                'notes'          => '' !== $notes ? $notes : null,
             );
         }
 
@@ -304,6 +319,7 @@ if ( $type === 'charter' || ( $trip_type === 'charter' && count( $normalized ) =
         private function normalize_charter_leg_from_flat_fields( array $raw ) : array {
             $from = $this->normalize_location( $raw['charter_pickup_location'] ?? $raw['charter_from'] ?? array() );
             $to   = $this->normalize_location( $raw['charter_dropoff_location'] ?? $raw['charter_to'] ?? array() );
+            $place_snapshots = $this->normalize_place_snapshots( $raw['charter_place_snapshots'] ?? null );
 
             $date = sanitize_text_field( $raw['outbound_pickup_date'] ?? '' );
             $pickup_time = sanitize_text_field( $raw['charter_pickup_time'] ?? '' );
@@ -322,7 +338,7 @@ if ( $type === 'charter' || ( $trip_type === 'charter' && count( $normalized ) =
                 'pickup_datetime' => trim( $date . ' ' . $pickup_time ),
                 'stops'           => $stops,
                 'route'           => array(),
-                'place_snapshots' => $this->normalize_place_snapshots( null ),
+                'place_snapshots' => $place_snapshots,
             );
         }
 
@@ -339,6 +355,7 @@ if ( $type === 'charter' || ( $trip_type === 'charter' && count( $normalized ) =
 
             $date = sanitize_text_field( $raw[ $prefix . 'pickup_date' ] ?? '' );
             $time = sanitize_text_field( $raw[ $prefix . 'pickup_time' ] ?? '' );
+            $place_snapshots = $this->normalize_place_snapshots( $raw[ $prefix . 'place_snapshots' ] ?? null );
 
             $stops = array();
             $additionalStopEnabled = $this->to_bool( $raw[ $prefix . 'additional_stop_enabled' ] ?? false );
@@ -359,7 +376,7 @@ if ( $type === 'charter' || ( $trip_type === 'charter' && count( $normalized ) =
                 'pickup_datetime' => trim( $date . ' ' . $time ),
                 'stops'           => $stops,
                 'route'           => array(),
-                'place_snapshots' => $this->normalize_place_snapshots( null ),
+                'place_snapshots' => $place_snapshots,
             );
         }
 
@@ -382,69 +399,77 @@ if ( $type === 'charter' || ( $trip_type === 'charter' && count( $normalized ) =
             );
         }
 
-        /**
-         * Normalize place snapshots with safe empty scaffold.
-         *
-         * @param mixed $snapshots
-         * @return array<string,mixed>
-         */
-        private function normalize_place_snapshots( $snapshots ) : array {
-            if ( ! is_array( $snapshots ) ) {
-                return array(
-                    'from'  => array(
-                        'provider'          => null,
-                        'place_id'          => null,
-                        'label'             => null,
-                        'formatted_address' => null,
-                        'lat'               => null,
-                        'lng'               => null,
-                    ),
-                    'to'    => array(
-                        'provider'          => null,
-                        'place_id'          => null,
-                        'label'             => null,
-                        'formatted_address' => null,
-                        'lat'               => null,
-                        'lng'               => null,
-                    ),
-                    'stops'   => array(),
-                );
-            }
+/**
+          * Normalize place snapshots with safe empty scaffold.
+          *
+          * @param mixed $snapshots
+          * @return array<string,mixed>
+          */
+         private function normalize_place_snapshots( $snapshots ) : array {
+             if ( ! is_array( $snapshots ) ) {
+                 return array(
+                     'from'  => array(
+                         'provider'          => null,
+                         'place_id'          => null,
+                         'label'             => null,
+                         'formatted_address' => null,
+                         'lat'               => null,
+                         'lng'               => null,
+                         'captured_at'       => null,
+                         'stale'             => false,
+                     ),
+                     'to'    => array(
+                         'provider'          => null,
+                         'place_id'          => null,
+                         'label'             => null,
+                         'formatted_address' => null,
+                         'lat'               => null,
+                         'lng'               => null,
+                         'captured_at'       => null,
+                         'stale'             => false,
+                     ),
+                     'stops'   => array(),
+                 );
+             }
 
-            return array(
-                'from'  => $this->normalize_place_snapshot_entry( $snapshots['from'] ?? null ),
-                'to'    => $this->normalize_place_snapshot_entry( $snapshots['to'] ?? null ),
-                'stops' => is_array( $snapshots['stops'] ?? null ) ? $this->normalize_place_snapshot_stops( $snapshots['stops'] ) : array(),
-            );
-        }
+             return array(
+                 'from'  => $this->normalize_place_snapshot_entry( $snapshots['from'] ?? null ),
+                 'to'    => $this->normalize_place_snapshot_entry( $snapshots['to'] ?? null ),
+                 'stops' => is_array( $snapshots['stops'] ?? null ) ? $this->normalize_place_snapshot_stops( $snapshots['stops'] ) : array(),
+             );
+         }
 
-        /**
-         * Normalize a single place snapshot entry (from/to).
-         *
-         * @param mixed $entry
-         * @return array<string,mixed>
-         */
-        private function normalize_place_snapshot_entry( $entry ) : array {
-            if ( ! is_array( $entry ) ) {
-                return array(
-                    'provider'          => null,
-                    'place_id'          => null,
-                    'label'             => null,
-                    'formatted_address' => null,
-                    'lat'               => null,
-                    'lng'               => null,
-                );
-            }
+/**
+          * Normalize a single place snapshot entry (from/to).
+          *
+          * @param mixed $entry
+          * @return array<string,mixed>
+          */
+         private function normalize_place_snapshot_entry( $entry ) : array {
+             if ( ! is_array( $entry ) ) {
+                 return array(
+                     'provider'          => null,
+                     'place_id'          => null,
+                     'label'             => null,
+                     'formatted_address' => null,
+                     'lat'               => null,
+                     'lng'               => null,
+                     'captured_at'       => null,
+                     'stale'             => false,
+                 );
+             }
 
-            return array(
-                'provider'          => isset( $entry['provider'] ) ? sanitize_text_field( $entry['provider'] ) : null,
-                'place_id'          => isset( $entry['place_id'] ) ? sanitize_text_field( $entry['place_id'] ) : null,
-                'label'             => isset( $entry['label'] ) ? sanitize_text_field( $entry['label'] ) : null,
-                'formatted_address' => isset( $entry['formatted_address'] ) ? sanitize_text_field( $entry['formatted_address'] ) : null,
-                'lat'               => isset( $entry['lat'] ) && '' !== $entry['lat'] ? (float) $entry['lat'] : null,
-                'lng'               => isset( $entry['lng'] ) && '' !== $entry['lng'] ? (float) $entry['lng'] : null,
-            );
-        }
+             return array(
+                 'provider'          => isset( $entry['provider'] ) ? sanitize_text_field( $entry['provider'] ) : null,
+                 'place_id'          => isset( $entry['place_id'] ) ? sanitize_text_field( $entry['place_id'] ) : null,
+                 'label'             => isset( $entry['label'] ) ? sanitize_text_field( $entry['label'] ) : null,
+                 'formatted_address' => isset( $entry['formatted_address'] ) ? sanitize_text_field( $entry['formatted_address'] ) : null,
+                 'lat'               => isset( $entry['lat'] ) && '' !== $entry['lat'] ? (float) $entry['lat'] : null,
+                 'lng'               => isset( $entry['lng'] ) && '' !== $entry['lng'] ? (float) $entry['lng'] : null,
+                 'captured_at'       => isset( $entry['captured_at'] ) ? sanitize_text_field( $entry['captured_at'] ) : gmdate( 'c' ),
+                 'stale'             => isset( $entry['stale'] ) && $entry['stale'] === true,
+             );
+         }
 
         /**
          * Normalize stops array within place_snapshots.

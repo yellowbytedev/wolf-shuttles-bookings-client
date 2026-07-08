@@ -164,7 +164,7 @@ function wsb_ms_normalize_latlng($val): string {
 function wsb_ms_get_poi_reference(string $selected_poi, array $form_fields): array {
   $selected_poi = trim($selected_poi);
 
-  error_log('####### $selected_poi: ' . $selected_poi);
+  error_log('[WSB] poi_selected=1');
   $map = apply_filters('wsb_ms_poi_reference_map', wsb_ms_poi_reference_map());
 
   if ($selected_poi === 'Other') {
@@ -506,7 +506,7 @@ function process_charter_data($form, $form_fields, array $raw = [] ) {
         'tollGates'         => $form_fields['charter_toll_gates'] ?? '',
         ];
 
-     error_log('$data: '. print_r($data, true));
+error_log('[WSB] data_structure_processed=1');
 
     return $data;
 }
@@ -798,7 +798,7 @@ function custom_booking_form_action( $form ) {
     $booking_type = $form_id === 'qlwoyv' ? 'charter' : 'point_to_point_transfer';
     // error_log('$bookingType: ' . $booking_type);
 
-     error_log('$form_fields: ' . print_r($form_fields, true));
+     error_log('[WSB] form_fields_received=1');
 
     // Now you can simply check against $bookingType in your logic
     if ( 'charter' === $booking_type ) {
@@ -825,7 +825,7 @@ function custom_booking_form_action( $form ) {
     
     // Generate a hash for the booking data
     $secret_key = BOOKING_HASH_SECRET;
-    error_log(' $secret_key: ' .  $secret_key);
+    error_log('[WSB] secret_configured=1');
     $hash = send_booking_data( $data, $secret_key );
 
     if ( $hash ) {
@@ -846,12 +846,12 @@ function custom_booking_form_action( $form ) {
 function send_booking_data( $data, $secret_key ) {
     $hash = hash_hmac( 'sha256', json_encode( $data ), $secret_key );
 
-    error_log('$hash: ' . $hash);
+    error_log('[WSB] handover_hash_generated=1');
 
     // API URL of the booking system
     $api_url = get_booking_url( '/wp-json/booking-api/v1/receive-booking' );
      
-    error_log(' $api_url: ' .  $api_url);
+    error_log('[WSB] handover_endpoint_configured=1');
 
     // Send data and hash to the booking system
     $response = wp_remote_post( $api_url, [
@@ -882,8 +882,7 @@ function send_booking_data( $data, $secret_key ) {
 
 function validate_trip_distances($trip_distance, $type) {
     // error_log('$trip_distance: ' . print_r($trip_distance));
-      error_log('count($trip_distance)  ' . count($trip_distance) );
-     error_log('$trip_distance: ' . $type);
+      error_log('[WSB] trip_distance_validated=1');
     // Check if $trip_distance is actually an array
     if (!is_array($trip_distance)) {
         return null;

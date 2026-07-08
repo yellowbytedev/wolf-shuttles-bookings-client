@@ -19,26 +19,34 @@ if ( ! class_exists( 'WSB_Client_Booking_Payload_V2_Normalizer' ) ) {
          */
         public function normalize( array $raw ) : array {
             $trip_type = $this->sanitize_enum( $raw['trip_type'] ?? 'one_way', array( 'one_way', 'return', 'charter' ), 'one_way' );
-            $service_type = $this->sanitize_enum( $raw['service_type'] ?? 'city_transfer', array( 'city_transfer', 'airport_pickup', 'airport_dropoff', 'charter' ), 'city_transfer' );
+            $service_type = $this->sanitize_enum( $raw['service_type'] ?? 'city_transfer', array( 'city_transfer', 'airport_pickup', 'airport_dropoff', 'charter_hire' ), 'city_transfer' );
+            $service_group = $this->normalize_service_group( $raw );
 
             $payload = array(
-                'schema_version' => '2.0',
-                'source'         => sanitize_key( $raw['source'] ?? 'marketing_booking_builder' ),
-                'service_type'   => $service_type,
-                'trip_type'      => $trip_type,
-                'customer'       => $this->normalize_customer( $raw['customer'] ?? array() ),
-                'passengers'     => $this->positive_int( $raw['passengers'] ?? 1, 1 ),
-                'baby_seats'     => $this->non_negative_int( $raw['baby_seats'] ?? 0 ),
-                'check_in_bags'  => $this->non_negative_int( $raw['check_in_bags'] ?? $raw['luggage']['check_in_bags'] ?? 0 ),
-                'carry_on_bags'  => $this->non_negative_int( $raw['carry_on_bags'] ?? $raw['luggage']['carry_on_bags'] ?? 0 ),
-                'add_ons'        => array(
-                    'trailer'          => $this->to_bool( $raw['trailer'] ?? ( $raw['add_ons']['trailer'] ?? false ) ),
-                    'oversize_luggage' => $this->to_bool( $raw['oversize_luggage'] ?? ( $raw['add_ons']['oversize_luggage'] ?? false ) ),
+                'schema_version'  => '2.0',
+                'source'          => sanitize_key( $raw['source'] ?? 'marketing_booking_builder' ),
+                'service_group'     => $service_group,
+                'service_type'      => $service_type,
+                'trip_type'         => $trip_type,
+                'customer'        => $this->normalize_customer( $raw['customer'] ?? array() ),
+                'passengers'        => $this->positive_int( $raw['passengers'] ?? 1, 1 ),
+                'baby_seats'        => $this->non_negative_int( $raw['baby_seats'] ?? 0 ),
+                'check_in_bags'     => $this->non_negative_int( $raw['check_in_bags'] ?? $raw['luggage']['check_in_bags'] ?? 0 ),
+                'carry_on_bags'     => $this->non_negative_int( $raw['carry_on_bags'] ?? $raw['luggage']['carry_on_bags'] ?? 0 ),
+                'add_ons'           => array(
+                    'trailer'           => $this->to_bool( $raw['trailer'] ?? ( $raw['add_ons']['trailer'] ?? false ) ),
+                    'oversize_luggage'  => $this->to_bool( $raw['oversize_luggage'] ?? ( $raw['add_ons']['oversize_luggage'] ?? false ) ),
                 ),
-                'legs'           => $this->normalize_legs( $raw, $trip_type ),
-                'tracking'       => is_array( $raw['tracking'] ?? null ) ? $raw['tracking'] : array(),
-                'meta'           => array(
-                    'handover_mode' => sanitize_key( $raw['handover_mode'] ?? 'preview_only' ),
+                'route'             => $this->normalize_route( $raw['route'] ?? array() ),
+                'charter'           => $this->normalize_charter( $raw['charter'] ?? array(), $raw, $trip_type ),
+                'validation_flags'  => is_array( $raw['validation_flags'] ?? null ) ? $raw['validation_flags'] : array(),
+                'itinerary'         => is_array( $raw['itinerary'] ?? null ) ? $raw['itinerary'] : array(),
+                'legs'              => $this->normalize_legs( $raw, $trip_type ),
+                'blockouts'         => $this->normalize_blockouts( $raw['blockouts'] ?? array() ),
+                'tracking'          => is_array( $raw['tracking'] ?? null ) ? $raw['tracking'] : array(),
+                'meta'              => array(
+                    'preview_only'  => true,
+                    'handover_mode' => sanitize_key( $raw['handover_mode'] ?? 'preview' ),
                     'created_at'    => gmdate( 'c' ),
                 ),
             );
@@ -99,19 +107,141 @@ if ( ! class_exists( 'WSB_Client_Booking_Payload_V2_Normalizer' ) ) {
         }
 
         /**
+         * Normalize service_group from raw input or infer from service_type.
+         *
+         * @param array<string,mixed> $raw
+         * @return string
+         */
+        private function normalize_service_group( array $raw ) : string {
+            if ( ! empty( $raw['service_group'] ) ) {
+                $group = sanitize_key( $raw['service_group'] );
+                if ( in_array( $group, array( 'transfer', 'charter' ), true ) ) {
+                    return $group;
+                }
+            }
+
+            $type = $raw['service_type'] ?? '';
+            if ( 'charter_hire' === $type || 'charter' === $type ) {
+                return 'charter';
+            }
+
+            return 'transfer';
+        }
+
+        /**
+         * Normalize top-level route block with safe empty scaffold.
+         *
+         * @param mixed $route
+         * @return array<string,mixed>
+         */
+        private function normalize_route( $route ) : array {
+            if ( ! is_array( $route ) ) {
+                $route = array();
+            }
+
+            return array(
+                'provider'            => isset( $route['provider'] ) ? sanitize_text_field( $route['provider'] ) : null,
+                'selected_route_id'   => isset( $route['selected_route_id'] ) ? sanitize_text_field( $route['selected_route_id'] ) : null,
+                'selected_route_label'=> isset( $route['selected_route_label'] ) ? sanitize_text_field( $route['selected_route_label'] ) : null,
+                'distance_meters'     => isset( $route['distance_meters'] ) && '' !== $route['distance_meters'] ? (float) $route['distance_meters'] : null,
+                'duration_seconds'    => isset( $route['duration_seconds'] ) && '' !== $route['duration_seconds'] ? (float) $route['duration_seconds'] : null,
+                'polyline'            => isset( $route['polyline'] ) ? sanitize_text_field( $route['polyline'] ) : null,
+                'price_quoted'        => isset( $route['price_quoted'] ) && '' !== $route['price_quoted'] ? (float) $route['price_quoted'] : null,
+                'route_options'       => is_array( $route['route_options'] ?? null ) ? $route['route_options'] : array(),
+                'route_preferences'   => is_array( $route['route_preferences'] ?? null ) ? $route['route_preferences'] : array(),
+                'route_details'       => is_array( $route['route_details'] ?? null ) ? $route['route_details'] : array(),
+            );
+        }
+
+        /**
+         * Normalize charter block with safe disabled-by-default scaffold.
+         *
+         * @param mixed $charter
+         * @param array<string,mixed> $raw
+         * @param string $trip_type
+         * @return array<string,mixed>
+         */
+        private function normalize_charter( $charter, array $raw, string $trip_type ) : array {
+            $is_charter = $trip_type === 'charter';
+
+            if ( ! is_array( $charter ) ) {
+                return array(
+                    'enabled'        => $is_charter,
+                    'type'           => $is_charter ? 'same_day' : null,
+                    'days'           => array(),
+                    'additional_stop' => null,
+                    'notes'          => null,
+                );
+            }
+
+            $enabled = $this->to_bool( $charter['enabled'] ?? $is_charter );
+            $additional_stop = $this->normalize_location( $charter['additional_stop'] ?? $raw['charter_additional_stop'] ?? array() );
+            if ( '' === $additional_stop['label'] && '' === $additional_stop['place_id'] && null === $additional_stop['lat'] && null === $additional_stop['lng'] && '' === $additional_stop['formatted_address'] ) {
+                $additional_stop = null;
+            }
+            $poi = sanitize_text_field( $charter['poi'] ?? $raw['charter_poi'] ?? '' );
+            $notes = sanitize_text_field( $charter['notes'] ?? $raw['charter_notes'] ?? '' );
+
+            return array(
+                'enabled'        => $enabled,
+                'type'           => $enabled ? ( ! empty( $charter['type'] ) ? sanitize_key( $charter['type'] ) : 'same_day' ) : null,
+                'days'           => $enabled && is_array( $charter['days'] ?? null ) ? $charter['days'] : array(),
+                'additional_stop' => $additional_stop,
+                'poi'            => '' !== $poi ? $poi : null,
+                'notes'          => '' !== $notes ? $notes : null,
+            );
+        }
+
+        /**
+         * Normalize blockouts block with safe diagnostic scaffold.
+         *
+         * @param mixed $blockouts
+         * @return array<string,mixed>
+         */
+        private function normalize_blockouts( $blockouts ) : array {
+            if ( ! is_array( $blockouts ) ) {
+                return array(
+                    'version'                        => 2,
+                    'authority'                    => 'booking_site',
+                    'marketing_evaluates_vehicle_availability' => false,
+                    'vehicle_scoped_blockouts_supported' => true,
+                    'global_picker_blockouts_supported'  => true,
+                    'config_hash'                  => null,
+                    'marketing_evaluated_at'         => null,
+                    'notes'                        => array(),
+                );
+            }
+
+            return array(
+                'version'                        => (int) ( $blockouts['version'] ?? 2 ),
+                'authority'                    => sanitize_text_field( $blockouts['authority'] ?? 'booking_site' ),
+                'marketing_evaluates_vehicle_availability' => $this->to_bool( $blockouts['marketing_evaluates_vehicle_availability'] ?? false ),
+                'vehicle_scoped_blockouts_supported' => $this->to_bool( $blockouts['vehicle_scoped_blockouts_supported'] ?? true ),
+                'global_picker_blockouts_supported'  => $this->to_bool( $blockouts['global_picker_blockouts_supported'] ?? true ),
+                'config_hash'                  => isset( $blockouts['config_hash'] ) && '' !== $blockouts['config_hash'] ? sanitize_text_field( $blockouts['config_hash'] ) : null,
+                'marketing_evaluated_at'         => isset( $blockouts['marketing_evaluated_at'] ) && '' !== $blockouts['marketing_evaluated_at'] ? sanitize_text_field( $blockouts['marketing_evaluated_at'] ) : null,
+                'notes'                        => is_array( $blockouts['notes'] ?? null ) ? $blockouts['notes'] : array(),
+            );
+        }
+
+        /**
          * @param array<string,mixed> $raw
          * @return array<int,array<string,mixed>>
          */
         private function normalize_legs( array $raw, string $trip_type ) : array {
             if ( is_array( $raw['legs'] ?? null ) && ! empty( $raw['legs'] ) ) {
-                return $this->normalize_legs_from_payload( $raw['legs'] );
+                return $this->normalize_legs_from_payload( $raw['legs'], $trip_type );
             }
 
             $legs = array();
-            $legs[] = $this->normalize_leg_from_flat_fields( 'outbound', $raw );
 
-            if ( 'return' === $trip_type ) {
-                $legs[] = $this->normalize_leg_from_flat_fields( 'return', $raw );
+            if ( $trip_type === 'charter' ) {
+                $legs[] = $this->normalize_charter_leg_from_flat_fields( $raw );
+            } else {
+                $legs[] = $this->normalize_leg_from_flat_fields( 'outbound', $raw );
+                if ( 'return' === $trip_type ) {
+                    $legs[] = $this->normalize_leg_from_flat_fields( 'return', $raw );
+                }
             }
 
             return $legs;
@@ -119,9 +249,10 @@ if ( ! class_exists( 'WSB_Client_Booking_Payload_V2_Normalizer' ) ) {
 
         /**
          * @param array<int,mixed> $legs
+         * @param string $trip_type
          * @return array<int,array<string,mixed>>
          */
-        private function normalize_legs_from_payload( array $legs ) : array {
+        private function normalize_legs_from_payload( array $legs, string $trip_type ) : array {
             $normalized = array();
 
             foreach ( $legs as $raw_leg ) {
@@ -129,7 +260,7 @@ if ( ! class_exists( 'WSB_Client_Booking_Payload_V2_Normalizer' ) ) {
                     continue;
                 }
 
-                $type = $this->sanitize_enum( $raw_leg['type'] ?? 'outbound', array( 'outbound', 'return' ), 'outbound' );
+                $type = $this->sanitize_enum( $raw_leg['type'] ?? ($trip_type === 'charter' ? 'charter' : 'outbound'), array( 'outbound', 'return', 'charter' ), 'outbound' );
                 $from = $this->normalize_location( $raw_leg['from'] ?? array() );
                 $to   = $this->normalize_location( $raw_leg['to'] ?? array() );
 
@@ -157,7 +288,7 @@ if ( ! class_exists( 'WSB_Client_Booking_Payload_V2_Normalizer' ) ) {
                     }
                 }
 
-                $normalized[] = array(
+                $normalized_leg = array(
                     'type'            => $type,
                     'from'            => $from,
                     'to'              => $to,
@@ -166,7 +297,16 @@ if ( ! class_exists( 'WSB_Client_Booking_Payload_V2_Normalizer' ) ) {
                     'pickup_datetime' => $pickup_datetime,
                     'stops'           => $stops,
                     'route'           => is_array( $raw_leg['route'] ?? null ) ? $raw_leg['route'] : array(),
+                    'place_snapshots' => $this->normalize_place_snapshots( $raw_leg['place_snapshots'] ?? null ),
                 );
+
+if ( $type === 'charter' || ( $trip_type === 'charter' && count( $normalized ) === 0 ) ) {
+                     $normalized_leg['dropoff_time'] = sanitize_text_field( $raw_leg['dropoff_time'] ?? '' );
+                     // Charter legs do not support additional stops per business rules
+                     $normalized_leg['stops'] = array();
+                 }
+
+                 $normalized[] = $normalized_leg;
             }
 
             return $normalized;
@@ -174,6 +314,37 @@ if ( ! class_exists( 'WSB_Client_Booking_Payload_V2_Normalizer' ) ) {
 
         /**
          * @param array<string,mixed> $raw
+         * @return array<string,mixed>
+         */
+        private function normalize_charter_leg_from_flat_fields( array $raw ) : array {
+            $from = $this->normalize_location( $raw['charter_pickup_location'] ?? $raw['charter_from'] ?? array() );
+            $to   = $this->normalize_location( $raw['charter_dropoff_location'] ?? $raw['charter_to'] ?? array() );
+            $place_snapshots = $this->normalize_place_snapshots( $raw['charter_place_snapshots'] ?? null );
+
+            $date = sanitize_text_field( $raw['outbound_pickup_date'] ?? '' );
+            $pickup_time = sanitize_text_field( $raw['charter_pickup_time'] ?? '' );
+            $dropoff_time = sanitize_text_field( $raw['charter_dropoff_time'] ?? '' );
+
+            // Charter legs do not support additional stops per business rules
+            $stops = array();
+
+            return array(
+                'type'            => 'charter',
+                'from'            => $from,
+                'to'              => $to,
+                'pickup_date'     => $date,
+                'pickup_time'     => $pickup_time,
+                'dropoff_time'    => $dropoff_time,
+                'pickup_datetime' => trim( $date . ' ' . $pickup_time ),
+                'stops'           => $stops,
+                'route'           => array(),
+                'place_snapshots' => $place_snapshots,
+            );
+        }
+
+        /**
+         * @param array<string,mixed> $raw
+         * @param string $type
          * @return array<string,mixed>
          */
         private function normalize_leg_from_flat_fields( string $type, array $raw ) : array {
@@ -184,16 +355,16 @@ if ( ! class_exists( 'WSB_Client_Booking_Payload_V2_Normalizer' ) ) {
 
             $date = sanitize_text_field( $raw[ $prefix . 'pickup_date' ] ?? '' );
             $time = sanitize_text_field( $raw[ $prefix . 'pickup_time' ] ?? '' );
+            $place_snapshots = $this->normalize_place_snapshots( $raw[ $prefix . 'place_snapshots' ] ?? null );
 
             $stops = array();
-            if ( 'outbound' === $type && $this->to_bool( $raw['additional_stop_enabled'] ?? false ) ) {
-                $stop = $this->normalize_location( $raw['additional_stop'] ?? array() );
-                if ( ! empty( $stop['label'] ) ) {
-                    $stops[] = array(
-                        'type'     => 'additional_stop',
-                        'location' => $stop,
-                    );
-                }
+            $additionalStopEnabled = $this->to_bool( $raw[ $prefix . 'additional_stop_enabled' ] ?? false );
+            $additionalStop = $this->normalize_location( $raw[ $prefix . 'additional_stop' ] ?? array() );
+            if ( ! empty( $additionalStop['label'] ) ) {
+                $stops[] = array(
+                    'type'     => 'additional_stop',
+                    'location' => $additionalStop,
+                );
             }
 
             return array(
@@ -205,6 +376,7 @@ if ( ! class_exists( 'WSB_Client_Booking_Payload_V2_Normalizer' ) ) {
                 'pickup_datetime' => trim( $date . ' ' . $time ),
                 'stops'           => $stops,
                 'route'           => array(),
+                'place_snapshots' => $place_snapshots,
             );
         }
 
@@ -225,6 +397,95 @@ if ( ! class_exists( 'WSB_Client_Booking_Payload_V2_Normalizer' ) ) {
                 'lng'               => isset( $location['lng'] ) && '' !== $location['lng'] ? (float) $location['lng'] : null,
                 'formatted_address' => sanitize_text_field( $location['formatted_address'] ?? '' ),
             );
+        }
+
+/**
+          * Normalize place snapshots with safe empty scaffold.
+          *
+          * @param mixed $snapshots
+          * @return array<string,mixed>
+          */
+         private function normalize_place_snapshots( $snapshots ) : array {
+             if ( ! is_array( $snapshots ) ) {
+                 return array(
+                     'from'  => array(
+                         'provider'          => null,
+                         'place_id'          => null,
+                         'label'             => null,
+                         'formatted_address' => null,
+                         'lat'               => null,
+                         'lng'               => null,
+                         'captured_at'       => null,
+                         'stale'             => false,
+                     ),
+                     'to'    => array(
+                         'provider'          => null,
+                         'place_id'          => null,
+                         'label'             => null,
+                         'formatted_address' => null,
+                         'lat'               => null,
+                         'lng'               => null,
+                         'captured_at'       => null,
+                         'stale'             => false,
+                     ),
+                     'stops'   => array(),
+                 );
+             }
+
+             return array(
+                 'from'  => $this->normalize_place_snapshot_entry( $snapshots['from'] ?? null ),
+                 'to'    => $this->normalize_place_snapshot_entry( $snapshots['to'] ?? null ),
+                 'stops' => is_array( $snapshots['stops'] ?? null ) ? $this->normalize_place_snapshot_stops( $snapshots['stops'] ) : array(),
+             );
+         }
+
+/**
+          * Normalize a single place snapshot entry (from/to).
+          *
+          * @param mixed $entry
+          * @return array<string,mixed>
+          */
+         private function normalize_place_snapshot_entry( $entry ) : array {
+             if ( ! is_array( $entry ) ) {
+                 return array(
+                     'provider'          => null,
+                     'place_id'          => null,
+                     'label'             => null,
+                     'formatted_address' => null,
+                     'lat'               => null,
+                     'lng'               => null,
+                     'captured_at'       => null,
+                     'stale'             => false,
+                 );
+             }
+
+             return array(
+                 'provider'          => isset( $entry['provider'] ) ? sanitize_text_field( $entry['provider'] ) : null,
+                 'place_id'          => isset( $entry['place_id'] ) ? sanitize_text_field( $entry['place_id'] ) : null,
+                 'label'             => isset( $entry['label'] ) ? sanitize_text_field( $entry['label'] ) : null,
+                 'formatted_address' => isset( $entry['formatted_address'] ) ? sanitize_text_field( $entry['formatted_address'] ) : null,
+                 'lat'               => isset( $entry['lat'] ) && '' !== $entry['lat'] ? (float) $entry['lat'] : null,
+                 'lng'               => isset( $entry['lng'] ) && '' !== $entry['lng'] ? (float) $entry['lng'] : null,
+                 'captured_at'       => isset( $entry['captured_at'] ) ? sanitize_text_field( $entry['captured_at'] ) : gmdate( 'c' ),
+                 'stale'             => isset( $entry['stale'] ) && $entry['stale'] === true,
+             );
+         }
+
+        /**
+         * Normalize stops array within place_snapshots.
+         *
+         * @param array<int,mixed> $stops
+         * @return array<int,array<string,mixed>>
+         */
+        private function normalize_place_snapshot_stops( array $stops ) : array {
+            $normalized = array();
+            foreach ( $stops as $stop ) {
+                if ( ! is_array( $stop ) ) {
+                    continue;
+                }
+                $normalized[] = $this->normalize_place_snapshot_entry( $stop );
+            }
+            return $normalized;
         }
     }
 }

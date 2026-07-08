@@ -66,7 +66,49 @@ if ( ! function_exists( 'sanitize_email' ) ) {
 }
 
 if ( ! function_exists( 'apply_filters' ) ) {
+    function wsb_client_fixture_gate_mode(): string {
+        $mode = getenv( 'WSB_CLIENT_FIXTURE_GATE_MODE' );
+
+        if ( false === $mode || '' === trim( (string) $mode ) ) {
+            $mode = 'enforced';
+        }
+
+        return strtolower( trim( (string) $mode ) );
+    }
+
+    function wsb_client_fixture_gate_overrides(): array {
+        $mode = wsb_client_fixture_gate_mode();
+
+        if ( in_array( $mode, array( 'enforced', 'production' ), true ) ) {
+            return array(
+                'enable_google_places_required'              => true,
+                'enable_debug_free_text_locations_local_only' => false,
+            );
+        }
+
+        if ( in_array( $mode, array( 'local', 'development', 'dev' ), true ) ) {
+            return array(
+                'enable_google_places_required'              => false,
+                'enable_debug_free_text_locations_local_only' => true,
+            );
+        }
+
+        return array();
+    }
+
     function apply_filters( $hook_name, $value, ...$args ) {
+        if ( 'ws_bookings_client_feature_gates' === $hook_name ) {
+            $overrides = wsb_client_fixture_gate_overrides();
+
+            if ( is_array( $value ) && $overrides ) {
+                foreach ( $overrides as $gate => $gate_value ) {
+                    if ( array_key_exists( $gate, $value ) ) {
+                        $value[ $gate ] = (bool) $gate_value;
+                    }
+                }
+            }
+        }
+
         return $value;
     }
 }
@@ -76,6 +118,23 @@ if ( ! function_exists( 'gmdate' ) ) {
         return date( $format, $timestamp ?? time() );
     }
 }
+
+if ( ! function_exists( 'wp_timezone' ) ) {
+    function wp_timezone() {
+        // Return UTC timezone as fallback
+        return new DateTimeZone('UTC');
+    }
+}
+
+if ( ! function_exists( '__' ) ) {
+    function __( $text, $domain = '' ) {
+        return $text;
+    }
+}
+
+// ---- Load external services (with config scaffold) ----
+require_once dirname( __DIR__ ) . '/inc/class-booking-external-services.php';
+require_once dirname( __DIR__ ) . '/inc/class-booking-feature-gates.php';
 
 // ---- Load plugin classes ----
 $plugin_root = dirname( __DIR__ );
@@ -107,18 +166,38 @@ $validator  = new WSB_Client_Booking_Payload_V2_Validator();
 
 // ---- Run fixtures ----
 $total     = count( $fixtures );
-$passed    = 0;
-$failed    = 0;
+$valid_pass = 0;
+$invalid_expected_fail = 0;
+$skipped_unsupported = 0;
 $failures  = array();
+$unexpected_fails = 0;
+$unexpected_passes = 0;
 
 $header = sprintf( "\n=== BookingPayload v2 Fixture Runner ===\nTotal fixtures: %d\n\n", $total );
 echo $header;
+echo 'Gate override mode: ' . wsb_client_fixture_gate_mode() . "\n";
+echo "Forced gates: enable_google_places_required=true, enable_debug_free_text_locations_local_only=false\n\n";
 
 foreach ( $fixtures as $i => $fixture ) {
     $id          = $fixture['id'] ?? "fixture-{$i}";
     $description = $fixture['description'] ?? '';
     $expected_ok = (bool) ( $fixture['expected_ok'] ?? false );
+    $skip        = (bool) ( $fixture['skip'] ?? false );
     $raw_payload = $fixture['payload'] ?? array();
+
+    // Skip unsupported fixtures
+    if ( $skip ) {
+        $skipped_unsupported++;
+        echo "  [SKIP] {$id}\n";
+        if ( $description ) {
+            printf( "    Description: %s\n", $description );
+        }
+        if ( ! empty( $fixture['skip_reason'] ) ) {
+            printf( "    Skip reason: %s\n", $fixture['skip_reason'] );
+        }
+        echo "\n";
+        continue;
+    }
 
     // Normalize
     $normalized = $normalizer->normalize( $raw_payload );
@@ -126,14 +205,29 @@ foreach ( $fixtures as $i => $fixture ) {
     // Validate
     $validation = $validator->validate( $normalized );
     $actual_ok  = ! empty( $validation['valid'] );
-    $match      = ( $actual_ok === $expected_ok );
 
-    if ( $match ) {
-        $passed++;
+    if ( $expected_ok && $actual_ok ) {
+        $valid_pass++;
         $status = 'PASS';
+        $symbol = '✓';
+    } elseif ( ! $expected_ok && ! $actual_ok ) {
+        $invalid_expected_fail++;
+        $status = 'EXPECTED_FAIL';
+        $symbol = '✓';
+    } elseif ( $expected_ok && ! $actual_ok ) {
+        $unexpected_fails++;
+        $status = 'UNEXPECTED_FAIL';
+        $symbol = '✗';
+        $failures[] = array(
+            'id'          => $id,
+            'expected_ok' => $expected_ok,
+            'actual_ok'   => $actual_ok,
+            'errors'      => $validation['errors'] ?? array(),
+        );
     } else {
-        $failed++;
-        $status = 'FAIL';
+        $unexpected_passes++;
+        $status = 'UNEXPECTED_PASS';
+        $symbol = '✗';
         $failures[] = array(
             'id'          => $id,
             'expected_ok' => $expected_ok,
@@ -142,7 +236,6 @@ foreach ( $fixtures as $i => $fixture ) {
         );
     }
 
-    $symbol = $match ? '✓' : '✗';
     printf( "  %s [%s] %s\n", $symbol, $status, $id );
     if ( $description ) {
         printf( "    Description: %s\n", $description );
@@ -159,8 +252,13 @@ foreach ( $fixtures as $i => $fixture ) {
         $warn_count
     );
 
-    if ( ! $match && $error_count > 0 ) {
-        foreach ( $validation['errors'] as $err ) {
+    if ( ( $expected_ok && ! $actual_ok ) || ( ! $expected_ok && $actual_ok ) ) {
+        $error_label = $actual_ok ? 'unexpected pass' : 'unexpected fail';
+        printf( "    Result: %s\n", $error_label );
+    }
+
+    if ( ( $expected_ok && ! $actual_ok ) || ( ! $expected_ok && $actual_ok ) ) {
+        foreach ( $validation['errors'] ?? array() as $err ) {
             printf( "      - [%s] %s: %s\n", $err['field'] ?? '?', $err['code'] ?? '?', $err['message'] ?? '?' );
         }
     }
@@ -170,16 +268,19 @@ foreach ( $fixtures as $i => $fixture ) {
 
 // ---- Summary ----
 echo "=== Results ===\n";
-printf( "  Total:  %d\n", $total );
-printf( "  Passed: %d\n", $passed );
-printf( "  Failed: %d\n", $failed );
+printf( "  total: %d\n", $total );
+printf( "  valid_pass: %d\n", $valid_pass );
+printf( "  invalid_expected_fail: %d\n", $invalid_expected_fail );
+printf( "  skipped_unsupported: %d\n", $skipped_unsupported );
+printf( "  unexpected_fail: %d\n", $unexpected_fails );
+printf( "  unexpected_pass: %d\n", $unexpected_passes );
 
-if ( $failed > 0 ) {
-    echo "\n=== Failed fixtures ===\n";
+if ( $unexpected_fails > 0 || $unexpected_passes > 0 ) {
+    echo "\n=== Unexpected fixtures ===\n";
     foreach ( $failures as $f ) {
         printf( "  %s (expected_ok=%s, actual_ok=%s)\n", $f['id'], $f['expected_ok'] ? 'true' : 'false', $f['actual_ok'] ? 'true' : 'false' );
     }
 }
 
 echo "\n";
-exit( $failed > 0 ? 1 : 0 );
+exit( ( $unexpected_fails > 0 || $unexpected_passes > 0 ) ? 1 : 0 );

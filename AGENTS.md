@@ -41,6 +41,29 @@ Any task that changes shortcode rendering, frontend form output, WooCommerce hoo
 Every phase task must update `docs/booking-intake-roadmap.md` and `docs/phase-2-progress.md` when roadmap state changes.
 Any UI/shortcode task must run the page smoke-test workflow before completion.
 
+## Browser MCP visual QA for UI changes
+
+Any task that changes shortcode markup, Booking Builder UI, CSS, frontend JS, fixture drawer UI, charter UI, additional stop UI, preview panels, or form layout must run browser/Playwright MCP visual QA when available.
+
+When browser/Playwright MCP is available, the agent must:
+- Open `https://wolfshuttles.local/booking-builder/` in the browser
+- Open `https://wolfshuttles.local/booking-builder/?debug=1` in the browser
+- Inspect the rendered page visually, not only the HTML response
+- Check browser console errors
+- Interact with the changed UI (click buttons, toggle controls, submit forms)
+- Check for visual regressions such as:
+  - overlapping fixed buttons
+  - hidden controls
+  - duplicate sections
+  - broken drawers
+  - unreachable fields
+  - confusing layout
+
+If browser/Playwright MCP is unavailable, the agent must:
+- Explicitly report that visual QA could not be run
+- Still run curl smoke tests plus debug-log checks
+- Not report a UI task complete if the page is visually broken or the changed UI cannot be used
+
 ## Architecture direction
 
 The desired direction is:
@@ -70,11 +93,18 @@ Avoid the term `service_family`.
 
 ## Documentation files to read first
 
+- `START-HERE.md` — canonical entry point for new agents/AI chats
+- `docs/AI-CONTEXT-HANDOFF.md` — full project context, terminology, architecture, and roadmap
 - `docs/booking-intake-current-flow.md`
 - `docs/booking-payload-v2.md`
 - `docs/booking-intake-roadmap.md`
 - `docs/testing-engine-plan.md`
 - `docs/known-issues-debug-log.md`
+- `docs/AI-HANDOFF-MANIFEST.md` — what to send to another AI chat if continuing elsewhere
+
+Before starting substantial work, read `AGENT-HANDOFF.md` as well. It is the canonical current-state document for this repo.
+
+If roadmap or phase progress changes, update `AGENT-HANDOFF.md` in the same change so the handoff stays current.
 
 ## Repository boundary and Git safety
 
@@ -111,6 +141,26 @@ ws-bookings-client
 
 If a task requires looking outside `ws-bookings-client`, the agent may only read files. It must not write, move, delete, stash, clean, reset, or initialise Git outside `ws-bookings-client`.
 
-## First deliverable target
+## Specialist Agent Usage
+
+### Specialist roles
+- **Documentation Specialist**: Audits, roadmap docs, handoff docs, legacy-snippet mapping, decisions logs
+- **Code**: Normal implementation tasks
+- **Frontend Specialist**: UI/CSS/frontend tasks; must use Browser MCP visual QA where available
+- **Code Reviewer**: Senior review checkpoints and risky review passes
+- **Debug**: Bug isolation, console errors, PHP fatals, failing fixtures
+- **Code Simplifier**: Refactors and extraction after behaviour is stable
+- **Plan**: Planning only; no application-code edits
+- **Ask**: Quick explanations or read-only inspection
+
+### Sub-agent rules
+- Main agent may use sub-agents for focused inspection, documentation, review, or debugging.
+- Sub-agents must not broaden scope.
+- Sub-agents must follow repo boundary rules (read-only outside `ws-bookings-client`).
+- Main agent remains responsible for final validation and completion report.
+- Completion report must mention whether sub-agents were used and what they checked.
+
+### Deprecated roles
+- **Orchestrator**: Do not use; deprecated.
 
 Create a new shortcode-rendered booking builder form that can submit one-way and return transfer payloads in v2 format while leaving the existing Bricks form untouched.

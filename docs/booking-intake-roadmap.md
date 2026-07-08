@@ -50,7 +50,7 @@ Milestones:
 - Booking-site handover is still pending.
 - Google autocomplete is still pending.
 
-### Phase 2G status (in progress / completed)
+### Phase 2G status (completed)
 
 - Repeatable BookingPayload v2 fixture runner added.
 - Fixture JSON (`tests/fixtures/booking-payload-v2-fixtures.json`) with 10 test cases:
@@ -60,9 +60,84 @@ Milestones:
 - Runner normalises each payload through `WSB_Client_Booking_Payload_V2_Normalizer`, validates through `WSB_Client_Booking_Payload_V2_Validator`, and compares `expected_ok` vs actual result.
 - Exit code 0 when all expectations match; exit code 1 on mismatch.
 - No database records, no bookings created, no external API calls.
-- Booking-site handover is still pending.
+- Booking-site v2 intake endpoint is still pending (Phase 3).
 - Google autocomplete is still pending.
 - Legacy Bricks/Fluent form untouched.
+
+### Phase 2H status (completed)
+
+- V2 handover envelope service added (`WSB_Client_Booking_Payload_V2_Handover_Service`).
+- Deterministic canonical signing helper implemented: recursively sorts associative keys, encodes with `json_encode(JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES)`, then `hash_hmac('sha256', ...)`.
+- HMAC signing config helper `wsb_client_v2_handover_secret()` added.
+- Config placeholder `WSB_CLIENT_V2_HANDOVER_SECRET` added to `inc/booking-client-config.php`.
+- Dev-only local fallback secret `local_v2_handover_preview_secret` (documented, not for production).
+- Dry-run handover preview REST endpoint added: `POST /wp-json/ws-bookings-client/v1/handover-preview`.
+- Handover preview fixture runner added.
+- All Phase 2G fixtures still pass; handover runner covers valid fixtures only.
+
+### Phase 2I status (completed)
+
+- Added a debug-only developer fixture drawer / payload test lab behind `?debug=1`.
+
+### Phase 2J status (completed)
+
+- Schema extension scaffolds:
+  - `route` scaffold (provider, selected_route_id, distance_meters, etc.)
+  - `validation_flags` preservation
+  - `charter` placeholder scaffold
+  - `blockouts` diagnostic scaffold for vehicle-scoped blockout support
+- Fixed BookingPayload v2 normaliser data loss by adding preservation of `service_group`, top-level `route`, `validation_flags`, and `charter`.
+- Leg-scoped additional stops implemented.
+
+### Phase 2K status (completed)
+
+- Basic Shuttle Hire / Charter preview mode added to Booking Builder.
+- Charter tab enabled (labelled "Shuttle Hire (preview)").
+- Charter form fields added: passengers, baby_seats, check_in_bags, carry_on_bags, trailer, oversize_luggage, charter_pickup_location, charter_dropoff_location, charter_pickup_time, charter_dropoff_time, charter_additional_stop.
+- Service mode toggle: transfer-only fields hidden when charter active; return leg hidden when charter active.
+- Canonical charter payload shape implemented:
+  - `trip_type: "charter"`
+  - `service_group: "charter"`
+  - `service_type: "charter_hire"`
+  - `legs[0].type: "charter"` with `dropoff_time`
+  - `charter.enabled: true`
+  - `charter.type: "same_day"`
+  - `charter.days[]` with day_index, date, times, locations, stops
+- Normalizer updated for charter leg type and flat field support.
+- Validator updated for charter-specific validation (dropoff_time required, time order check).
+- Four new charter fixtures added (4 valid, 0 invalid — updated existing charter scaffold + 3 new).
+- All 20 payload fixtures pass.
+- All 13 valid handover fixtures pass (7 invalid skipped as expected).
+- Dry-run handover preserves charter payloads.
+
+### Phase 2K+ status (completed)
+
+- UI interaction scaffold added: `WSB_BOOKING_UI_INTERACTIONS` JS adapter (no-op until library loaded).
+- CSS hooks added: `.wsb-sortable-list`, `.wsb-sortable-item`, `.wsb-drag-handle`, `.wsb-sortable-placeholder`, `.wsb-sortable-chosen`.
+- No third-party library installed; drag/drop is inactive.
+- Future use cases documented: ordered stops, charter day segments, itinerary trip ordering.
+
+### Phase 2N status (completed)
+
+- Place snapshot scaffolding added to `legs[].place_snapshots`.
+- Per-leg `place_snapshots.from`, `place_snapshots.to`, `place_snapshots.stops` scaffolded.
+- No live Google API calls; placeholder/mock place IDs only.
+- Labels are abstract; no client details exposed.
+
+### Phase 2O status (completed)
+
+- Booking-site config contract defined in `docs/booking-site-config-contract.md`.
+- No live endpoint implemented; marketing-side config consumer scaffold planned for Phase 2?.
+
+### Phase 2P status (completed)
+
+- Quote preflight/draft itinerary concept documented.
+- Booking-site config consumer scaffold added to `inc/class-booking-external-services.php`.
+- Config fetch disabled by default; safe defaults exposed to frontend.
+- Max attributes and time step applied to Booking Builder inputs.
+- Google Places autocomplete must be mandatory for final production form.
+- No route-cache reliance for pricing.
+- Not implemented yet; follows booking-site v2 receiver foundations.
 
 ## Phase 3 — Booking-site v2 intake
 
@@ -173,3 +248,92 @@ Once the data model is clean, add modular pricing features:
 - additional stops
 
 Each feature should plug into a pricing pipeline rather than being hardcoded into form snippets.
+### Phase 2Q status (completed)
+
+- Booking-site config consumer scaffold added.
+- `get_booking_site_config_scaffold()`, `get_cached_booking_site_config()`, `get_default_booking_site_config()`, and `is_booking_site_config_fetch_enabled()` methods added.
+- Config fetch disabled by default; safe defaults used.
+- No live HTTP calls; no booking data exposed.
+
+### Phase 2R status (completed)
+
+- Date constraints applied using config lead times.
+- `outbound_pickup_date` and `return_pickup_date` include min/max attributes.
+- Minimum date calculated from `transfer_min_notice_minutes` (300 minutes / 5 hours).
+- Maximum date calculated from `max_advance_booking_days` (365 days).
+- Time step constraint (`step="300"`) applied to time inputs.
+- Frontend `constrainTimeByDate()` sets min time when minimum date is selected.
+- Server-side lead-time validation added for transfer and charter legs.
+- Max advance booking window validation added.
+- 4 new lead-time violation fixtures added (total 26 fixtures).
+- All 26 payload fixtures pass.
+- Global blockouts still pending (no implementation yet).
+- Vehicle-scoped blockouts still do not affect marketing picker.
+
+### Phase 2S status (completed)
+
+- Date/time picker parity pass completed.
+- Legacy jQuery UI Datepicker styling replaced with branded native `<input type="date">` CSS.
+- Legacy jQuery ClockTimePicker replaced with native `<input type="time" step="300">`.
+- Plugin-owned CSS added:
+  - Custom calendar icon (masked SVG) for date inputs.
+  - Blocked/out-of-range date state styling (`.wsb-date-blocked`).
+  - AM/PM visual badge (`.wsb-time-ampm-badge`) for legacy-style time labels.
+  - Picker status messages and blockout legend UI.
+- Plugin-owned JS added:
+  - Default date selection (tomorrow) for all date fields.
+  - Charter default times (08:00 pickup, 17:00 dropoff).
+  - AM/PM badge injection/update on time input changes.
+  - Live picker status messages for lead-time and blockout violations.
+  - `blocked_dates` scaffold from `bookingSiteConfig.blockouts`.
+- Updated `render_date_field()` to include status containers for outbound/return pickers.
+- No third-party picker library added; no CDN or npm dependencies.
+- Company-profile max values remain future booking-site config work (not implemented in this phase).
+
+### Phase 2T status (completed)
+
+- Google Places Autocomplete scaffolded and active on Booking Builder.
+- Plugin-owned PHP enqueue loads Google Maps JS API with Places library only when `GOOGLE_API_KEY` is available.
+- Plugin-owned JS attaches `google.maps.places.Autocomplete` to all location fields.
+- Place snapshots captured into `legs[].place_snapshots` (from/to).
+- Stale-edit detection: user edits after selection mark snapshot stale.
+- `validation_flags.google_place_snapshots_ready` added for quote-ready diagnostic.
+- No route/distance/toll/classification calls yet.
+- No booking-site API calls.
+- 3 new fixtures added (total 29).
+- All 29 payload fixtures pass.
+
+### Phase 2U status (completed)
+
+- Booking Builder UI polished to closer match legacy booking form.
+- Tabs renamed to "Book a Ride" / "Shuttle Hire" with active red style.
+- Developer preview copy removed from normal page; debug-only content scoped to `?debug=1`.
+- CTA changed to "Check Pricing & Availability".
+- Google place display string improved: builds clean readable address from components, removes trailing "South Africa".
+- Date picker icon overlap fixed by hiding native browser indicator.
+- Time picker uses native input with 5-minute step; opens on click/focus.
+- Fixture drawer and raw preview panels remain on debug page.
+
+### Phase 2X status (completed)
+
+- Additional stop control reordered: now appears between origin (From) and destination (To) fields on both outbound and return legs.
+- Charter/Shuttle Hire section does not include additional stops.
+- AM/PM badge repositioned: now renders inside the time input (absolutely positioned, right-aligned, subtle grey).
+- Time inputs given extra right padding to prevent overlap with badge.
+- Badge updates dynamically via `updateAmPmLabels()` on time changes.
+- No payload contract change.
+- No booking-site/API behaviour change.
+- All 29 payload fixtures pass.
+- All 18 valid handover fixtures pass.
+
+## AI Handoff Pack & Next Steps
+
+The Phase 2 marketing foundation is complete and reviewed. The following documentation pack is available for continuing the work elsewhere or handing off to another AI/developer:
+
+- `START-HERE.md` — canonical entry point
+- `docs/AI-CONTEXT-HANDOFF.md` — full context, terminology, architecture, roadmap
+- `docs/AI-HANDOFF-MANIFEST.md` — exact files to paste or zip
+- `docs/booking-site-v2-receiver-plan.md` — proposed booking-site dry-run receiver plan
+
+**Next recommended task:** Implement the booking-site v2 dry-run receiver in `ws-bookings` as outlined in `docs/booking-site-v2-receiver-plan.md`.
+

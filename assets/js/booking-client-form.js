@@ -85,6 +85,36 @@ var GOOGLE_PLACES = (CONFIG.googlePlaces || {
         return Boolean(getFieldValue(form, selector, false));
     }
 
+    function getActiveSharedScope(form, serviceGroup) {
+        if (!form) {
+            return null;
+        }
+        if (serviceGroup === 'charter') {
+            return form.querySelector('[data-wsb-charter-section]');
+        }
+        return form.querySelector('[data-wsb-transfer-fields]') || form;
+    }
+
+    function getSharedField(form, serviceGroup, name) {
+        var scope = getActiveSharedScope(form, serviceGroup);
+        var selector = '[name="' + name + '"]';
+        return (scope && scope.querySelector(selector)) || (form ? form.querySelector(selector) : null);
+    }
+
+    function getSharedNumberValue(form, serviceGroup, name, fallback) {
+        var input = getSharedField(form, serviceGroup, name);
+        if (!input) {
+            return fallback;
+        }
+        var parsed = parseInt(input.value, 10);
+        return Number.isFinite(parsed) ? parsed : fallback;
+    }
+
+    function getSharedBooleanValue(form, serviceGroup, name) {
+        var input = getSharedField(form, serviceGroup, name);
+        return Boolean(input && input.checked);
+    }
+
     function textLocation(label) {
         var text = trimValue(label);
         return {
@@ -311,12 +341,14 @@ var GOOGLE_PLACES = (CONFIG.googlePlaces || {
 
         card.setAttribute('data-wsb-charter-day-collapsed', collapsed ? 'true' : 'false');
         card.setAttribute('aria-expanded', collapsed ? 'false' : 'true');
+        card.classList.toggle('wsb-booking-client-charter-day-card--collapsed', collapsed);
 
-        var toggle = card.querySelector('[data-wsb-charter-day-toggle]');
-        if (toggle) {
+        forEachNode(card.querySelectorAll('[data-wsb-charter-day-toggle]'), function (toggle) {
             toggle.setAttribute('aria-expanded', collapsed ? 'false' : 'true');
-            toggle.textContent = collapsed ? 'Open' : 'Close';
-        }
+            if (toggle.classList.contains('wsb-icon-action--toggle')) {
+                toggle.setAttribute('aria-label', collapsed ? 'Open day details' : 'Close day details');
+            }
+        });
 
         var body = card.querySelector('[data-wsb-charter-day-body]');
         if (body) {
@@ -328,13 +360,13 @@ var GOOGLE_PLACES = (CONFIG.googlePlaces || {
         var cards = getCharterDayCards(root);
         var visibleCards = getVisibleCharterDayCards(root);
         var visibleCount = visibleCards.length;
-        var addButton = root.querySelector('[data-wsb-charter-add-day]');
+        var addButtons = root.querySelectorAll('[data-wsb-charter-add-day]');
         var collapseAll = root.querySelector('[data-wsb-charter-collapse-all]');
         var expandAll = root.querySelector('[data-wsb-charter-expand-all]');
 
-        if (addButton) {
+        forEachNode(addButtons, function (addButton) {
             addButton.disabled = visibleCount >= cards.length;
-        }
+        });
         if (collapseAll) {
             collapseAll.disabled = visibleCount === 0;
         }
@@ -426,14 +458,13 @@ var GOOGLE_PLACES = (CONFIG.googlePlaces || {
         var cards = getCharterDayCards(root);
         var days = [];
 
-        cards.forEach(function (card, index) {
+        cards.forEach(function (card) {
             var isVisible = card.getAttribute('data-wsb-charter-day-visible') === 'true' && !card.classList.contains('wsb-booking-client-hidden');
             if (!isVisible) {
                 return;
             }
 
-            var slotIndex = parseInt(card.getAttribute('data-wsb-charter-day-slot') || String(index + 1), 10) - 1;
-            days.push(buildCharterDayPayload(card, Number.isFinite(slotIndex) && slotIndex >= 0 ? slotIndex : index));
+            days.push(buildCharterDayPayload(card, days.length));
         });
 
         return days;
@@ -475,8 +506,8 @@ var GOOGLE_PLACES = (CONFIG.googlePlaces || {
 
     function buildLeg(form, type) {
         var prefix = type === 'return' ? 'return_' : 'outbound_';
-        var fromLabel = getFieldValue(form, 'input[name="' + prefix + 'from"]', '');
-        var toLabel = getFieldValue(form, 'input[name="' + prefix + 'to"]', '');
+        var fromLabel = getFieldValue(form, 'input[name$="-from"], input[name$="_from"]', '');
+        var toLabel = getFieldValue(form, 'input[name$="-to"], input[name$="_to"]', '');
         var fromSnapshot = placeSnapshots[prefix + 'from'] || clonePlaceSnapshot(PLACE_SNAPSHOT_EMPTY);
         var toSnapshot = placeSnapshots[prefix + 'to'] || clonePlaceSnapshot(PLACE_SNAPSHOT_EMPTY);
 
@@ -516,9 +547,9 @@ var GOOGLE_PLACES = (CONFIG.googlePlaces || {
                 },
                 formatted_address: toSnapshot.formatted_address || toLabel
             },
-            pickup_date: getFieldValue(form, 'input[name="' + prefix + 'pickup_date"]', ''),
-            pickup_time: getFieldValue(form, 'input[name="' + prefix + 'pickup_time"]', ''),
-            pickup_datetime: trimValue(getFieldValue(form, 'input[name="' + prefix + 'pickup_date"]', '') + ' ' + getFieldValue(form, 'input[name="' + prefix + 'pickup_time"]', '')),
+            pickup_date: getFieldValue(form, 'input[name$="-pickup-date"], input[name$="-pickup_date"]', ''),
+            pickup_time: getFieldValue(form, 'input[name$="-pickup-time"], input[name$="-pickup_time"]', ''),
+            pickup_datetime: trimValue(getFieldValue(form, 'input[name$="-pickup-date"], input[name$="-pickup_date"]', '') + ' ' + getFieldValue(form, 'input[name$="-pickup-time"], input[name$="-pickup_time"]', '')),
             stops: [],
             route: {},
             place_snapshots: {
@@ -528,8 +559,8 @@ var GOOGLE_PLACES = (CONFIG.googlePlaces || {
             }
         };
 
-var additionalStopEnabled = getBooleanValue(form, 'input[name="' + prefix + 'additional_stop_enabled"]');
-         var additionalStop = trimValue(getFieldValue(form, 'input[name="' + prefix + 'additional_stop"]', ''));
+var additionalStopEnabled = getBooleanValue(form, 'input[name$="-additional-stop-enabled"], input[name$="_additional_stop_enabled"]');
+         var additionalStop = trimValue(getFieldValue(form, 'input[name$="-additional-stop"], input[name$="_additional_stop"]', ''));
          if (additionalStopEnabled && additionalStop) {
              var stopSnapshot = placeSnapshots[prefix + 'additional_stop'] || clonePlaceSnapshot(PLACE_SNAPSHOT_EMPTY);
              leg.stops.push({
@@ -551,8 +582,8 @@ var additionalStopEnabled = getBooleanValue(form, 'input[name="' + prefix + 'add
      }
 
      function buildCharterLeg(form, state) {
-        var fromLabel = getFieldValue(form, 'input[name="charter_pickup_location"]', '');
-        var toLabel = getFieldValue(form, 'input[name="charter_dropoff_location"]', '');
+        var fromLabel = getFieldValue(form, 'input[name$="-pickup-location"], input[name$="_pickup_location"]', '');
+        var toLabel = getFieldValue(form, 'input[name$="-dropoff-location"], input[name$="_dropoff_location"]', '');
         var fromSnapshot = placeSnapshots['charter_pickup_location'] || clonePlaceSnapshot(PLACE_SNAPSHOT_EMPTY);
         var toSnapshot = placeSnapshots['charter_dropoff_location'] || clonePlaceSnapshot(PLACE_SNAPSHOT_EMPTY);
 
@@ -591,9 +622,11 @@ var additionalStopEnabled = getBooleanValue(form, 'input[name="' + prefix + 'add
                 },
                 formatted_address: toSnapshot.formatted_address || toLabel
             },
-            pickup_date: getFieldValue(form, 'input[name="outbound_pickup_date"]', ''),
-            pickup_time: getFieldValue(form, 'input[name="charter_pickup_time"]', ''),
-            dropoff_time: getFieldValue(form, 'input[name="charter_dropoff_time"]', ''),
+            pickup_date: getFieldValue(form, 'input[name$="-pickup-date"], input[name$="_pickup_date"]', ''),
+            pickup_time: getFieldValue(form, 'input[name$="-pickup-time"], input[name$="_pickup_time"]', ''),
+            dropoff_time: getFieldValue(form, 'input[name$="-dropoff-time"], input[name$="_dropoff_time"]', ''),
+            poi_intent: trimValue(getFieldValue(form, 'input[name="charter_poi"]', '')),
+            notes: trimValue(getFieldValue(form, 'textarea[name="charter_notes"], input[name="charter_notes"]', '')),
             stops: [],
             route: {},
             place_snapshots: {
@@ -618,7 +651,7 @@ var additionalStopEnabled = getBooleanValue(form, 'input[name="' + prefix + 'add
             serviceType = 'charter_hire';
         }
 
-        var passengers = getNumberValue(form, 'input[name="passengers"]', 1);
+        var passengers = getSharedNumberValue(form, serviceGroup, 'passengers', 1);
         var legs = [];
 
         if (passengers < 1) {
@@ -654,6 +687,8 @@ var additionalStopEnabled = getBooleanValue(form, 'input[name="' + prefix + 'add
                             end_time: charterLeg.dropoff_time,
                             pickup_location: charterLeg.from,
                             dropoff_location: charterLeg.to,
+                            poi_intent: charterLeg.poi_intent || '',
+                            notes: charterLeg.notes || '',
                             stops: []
                         }
                     ]
@@ -729,12 +764,12 @@ var additionalStopEnabled = getBooleanValue(form, 'input[name="' + prefix + 'add
                  phone: ''
              },
              passengers: passengers,
-             baby_seats: getNumberValue(form, 'input[name="baby_seats"]', 0),
-             check_in_bags: getNumberValue(form, 'input[name="check_in_bags"]', 0),
-             carry_on_bags: getNumberValue(form, 'input[name="carry_on_bags"]', 0),
+             baby_seats: getSharedNumberValue(form, serviceGroup, 'baby_seats', 0),
+             check_in_bags: getSharedNumberValue(form, serviceGroup, 'check_in_bags', 0),
+             carry_on_bags: getSharedNumberValue(form, serviceGroup, 'carry_on_bags', 0),
              add_ons: {
-                 trailer: getBooleanValue(form, 'input[name="trailer"]'),
-                 oversize_luggage: getBooleanValue(form, 'input[name="oversize_luggage"]')
+                 trailer: getSharedBooleanValue(form, serviceGroup, 'trailer'),
+                 oversize_luggage: getSharedBooleanValue(form, serviceGroup, 'oversize_luggage')
              },
              legs: legs,
              charter: charterBlock,
@@ -810,7 +845,7 @@ validation_flags: {
         var stopLabel = outboundStops ? 'Additional stop: included' : (returnStops ? 'Additional stop: included' : 'Additional stop: not included');
         var charterLabel = '';
         if (payload.charter && payload.charter.enabled) {
-            charterLabel = ((payload.charter.days || []).length > 1 ? ('Multi-day hire · ' + (payload.charter.days || []).length + ' days') : 'Same-day hire');
+            charterLabel = ((payload.charter.days || []).length > 1 ? ('Multi-day hire · ' + (payload.charter.days || []).length + ' days') : 'Single-day hire');
         }
         var summary = [
             'Booking summary ready',
@@ -1027,6 +1062,7 @@ validation_flags: {
     function updateServiceMode(root, serviceGroup, charterMode) {
         var transferFields = root.querySelector('[data-wsb-transfer-fields]');
         var charterSection = root.querySelector('[data-wsb-charter-section]');
+        var planSection = root.querySelector('[data-wsb-plan-section]');
         var outboundSection = root.querySelector('[data-wsb-outbound-section]');
         var returnSection = root.querySelector('[data-wsb-return-section]');
         var serviceTabs = root.querySelectorAll('[data-wsb-service-tab]');
@@ -1040,7 +1076,25 @@ validation_flags: {
             activeTab.classList.add('wsb-booking-client-service-tab--active');
         }
 
-        if (serviceGroup === 'charter') {
+        if (planSection) {
+            planSection.classList.toggle('wsb-booking-client-hidden', serviceGroup !== 'plan');
+        }
+
+        if (serviceGroup === 'plan') {
+            if (transferFields) {
+                transferFields.classList.add('wsb-booking-client-hidden');
+            }
+            if (charterSection) {
+                charterSection.classList.add('wsb-booking-client-hidden');
+            }
+            if (outboundSection) {
+                outboundSection.classList.add('wsb-booking-client-hidden');
+            }
+            if (returnSection) {
+                returnSection.classList.add('wsb-booking-client-hidden');
+            }
+            updateCharterMode(root, 'same_day');
+        } else if (serviceGroup === 'charter') {
             if (transferFields) {
                 transferFields.classList.add('wsb-booking-client-hidden');
             }
@@ -1074,6 +1128,7 @@ validation_flags: {
         var shell = root.querySelector('[data-wsb-charter-multiday-shell]');
         var dayToolbar = root.querySelector('[data-wsb-charter-day-toolbar]');
         var dayList = root.querySelector('[data-wsb-charter-day-list]');
+        var addDayRow = root.querySelector('[data-wsb-charter-add-day-row]');
         var isMultiDay = trimValue(charterMode) === 'multi_day';
         var activeMode = isMultiDay ? 'multi_day' : 'same_day';
 
@@ -1092,8 +1147,8 @@ validation_flags: {
             sameDayPanel.classList.toggle('wsb-booking-client-hidden', isMultiDay);
         }
 
-        if (shell && !shell.classList.contains('wsb-booking-client-hidden')) {
-            shell.classList.remove('wsb-booking-client-hidden');
+        if (shell) {
+            shell.classList.toggle('wsb-booking-client-hidden', !isMultiDay);
         }
 
         if (dayList) {
@@ -1110,8 +1165,12 @@ validation_flags: {
         if (dayToolbar) {
             dayToolbar.classList.toggle('wsb-booking-client-hidden', !isMultiDay);
         }
+        if (addDayRow) {
+            addDayRow.classList.toggle('wsb-booking-client-hidden', !isMultiDay);
+        }
 
         updateCharterDayButtons(root);
+        document.dispatchEvent(new CustomEvent('wsb:charter-days-updated'));
     }
 
     function applyFixtureToForm(form, root, fixture, state) {
@@ -1254,8 +1313,29 @@ validation_flags: {
 
         if (hasReturn) {
             returnSection.classList.remove('wsb-booking-client-hidden');
+            returnSection.classList.add('wsb-booking-client-return--visible');
+            if (!returnSection.hasAttribute('data-wsb-return-accordion-ready')) {
+                returnSection.setAttribute('data-wsb-return-accordion-ready', 'true');
+                setReturnAccordionOpen(returnSection, true);
+            }
         } else {
             returnSection.classList.add('wsb-booking-client-hidden');
+            returnSection.classList.remove('wsb-booking-client-return--visible');
+        }
+    }
+
+    function setReturnAccordionOpen(returnSection, open) {
+        if (!returnSection) {
+            return;
+        }
+        var body = returnSection.querySelector('[data-wsb-return-body]');
+        var toggle = returnSection.querySelector('[data-wsb-return-accordion-toggle]');
+        returnSection.classList.toggle('wsb-booking-client-return--collapsed', !open);
+        if (body) {
+            body.classList.toggle('wsb-booking-client-hidden', !open);
+        }
+        if (toggle) {
+            toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
         }
     }
 
@@ -1264,18 +1344,60 @@ validation_flags: {
             return;
         }
 
+        var toggleLabel = toggle.closest('.wsb-booking-client-additional-toggle-label');
+        var path = section.closest('[data-wsb-location-path]');
+        var input = section.querySelector('input');
+
         if (toggle.checked) {
             section.classList.remove('wsb-booking-client-hidden');
-            var input = section.querySelector('input');
+            section.setAttribute('data-wsb-additional-stop-open', 'true');
+            if (toggleLabel) {
+                toggleLabel.classList.add('wsb-booking-client-hidden');
+            }
+            if (path) {
+                path.classList.add('wsb-location-path--has-stop');
+            }
             if (input) {
                 input.disabled = false;
+                updateLocationFieldState(input, !!input.value);
+                if (!input.value) {
+                    window.setTimeout(function () { input.focus(); }, 30);
+                }
             }
         } else {
             section.classList.add('wsb-booking-client-hidden');
-            var input = section.querySelector('input');
+            section.removeAttribute('data-wsb-additional-stop-open');
+            if (toggleLabel) {
+                toggleLabel.classList.remove('wsb-booking-client-hidden');
+            }
+            if (path) {
+                path.classList.remove('wsb-location-path--has-stop');
+            }
             if (input) {
+                clearLocationField(input);
                 input.disabled = true;
             }
+        }
+    }
+
+    function resetAdditionalStopClosed(toggle, section) {
+        if (!toggle || !section || toggle.checked) {
+            return;
+        }
+        section.classList.add('wsb-booking-client-hidden');
+        section.removeAttribute('data-wsb-additional-stop-open');
+        var input = section.querySelector('input');
+        if (input) {
+            input.disabled = true;
+            updateLocationFieldState(input, false);
+        }
+        var toggleLabel = toggle.closest('.wsb-booking-client-additional-toggle-label');
+        if (toggleLabel && !toggle.disabled) {
+            toggleLabel.classList.remove('wsb-booking-client-hidden');
+        }
+        var path = section.closest('[data-wsb-location-path]');
+        if (path) {
+            path.classList.remove('wsb-location-path--has-stop');
         }
     }
 
@@ -1375,9 +1497,9 @@ validation_flags: {
     }
 
     function setDateDefaults(root) {
-        var outboundDate = root.querySelector('input[name="outbound_pickup_date"]');
-        var charterDate = root.querySelector('input[name="outbound_pickup_date"]');
-        var returnDate = root.querySelector('input[name="return_pickup_date"]');
+        var outboundDate = root.querySelector('input[name$="-pickup-date"], input[name$="_pickup_date"]');
+        var charterDate = root.querySelector('input[name$="-pickup-date"], input[name$="_pickup_date"]');
+        var returnDate = root.querySelector('input[name$="-return-pickup-date"], input[name$="_return_pickup_date"]');
 
         if (outboundDate && !outboundDate.value) {
             outboundDate.value = getTomorrowDateString();
@@ -1391,8 +1513,8 @@ validation_flags: {
     }
 
     function setCharterTimeDefaults(root) {
-        var pickupTime = root.querySelector('input[name="charter_pickup_time"]');
-        var dropoffTime = root.querySelector('input[name="charter_dropoff_time"]');
+        var pickupTime = root.querySelector('input[name$="-pickup-time"], input[name$="_pickup_time"]');
+        var dropoffTime = root.querySelector('input[name$="-dropoff-time"], input[name$="_dropoff_time"]');
 
         if (pickupTime && !pickupTime.value) {
             pickupTime.value = '08:00';
@@ -1403,8 +1525,8 @@ validation_flags: {
     }
 
     function clearCharterTimeDefaults(root) {
-        var pickupTime = root.querySelector('input[name="charter_pickup_time"]');
-        var dropoffTime = root.querySelector('input[name="charter_dropoff_time"]');
+        var pickupTime = root.querySelector('input[name$="-pickup-time"], input[name$="_pickup_time"]');
+        var dropoffTime = root.querySelector('input[name$="-dropoff-time"], input[name$="_dropoff_time"]');
 
         if (pickupTime && pickupTime.value === '08:00') {
             pickupTime.value = '';
@@ -1433,13 +1555,13 @@ validation_flags: {
     }
 
     function updateAmPmLabels(root) {
-        var timeInputs = root.querySelectorAll('input[name="outbound_pickup_time"], input[name="return_pickup_time"], input[name="charter_pickup_time"], input[name="charter_dropoff_time"], input[data-wsb-charter-day-field="start_time"], input[data-wsb-charter-day-field="end_time"]');
+        var timeInputs = root.querySelectorAll('input[name$="-pickup-time"], input[name$="-dropoff-time"], input[name$="_pickup_time"], input[name$="_dropoff_time"], input[name$="_start_time"], input[name$="_end_time"], input[data-wsb-charter-day-field="start_time"], input[data-wsb-charter-day-field="end_time"]');
         forEachNode(timeInputs, function (input) {
             var wrapper = input.closest('.wsb-booking-client-field');
             if (!wrapper) {
                 return;
             }
-            var existingBadge = wrapper.querySelector('.wsb-time-ampm-badge');
+            var existingBadge = wrapper.querySelector('.wsb-time-ampm-badge, .wsb-booking-client-ampm');
             var label = deriveAmPmLabel(input.value);
             if (label) {
                 if (!existingBadge) {
@@ -1454,7 +1576,7 @@ validation_flags: {
                 existingBadge.remove();
             }
             // Clean up class if no badge remains
-            if (!wrapper.querySelector('.wsb-time-ampm-badge')) {
+            if (!wrapper.querySelector('.wsb-time-ampm-badge, .wsb-booking-client-ampm')) {
                 wrapper.classList.remove('wsb-booking-client-field--time');
             }
         });
@@ -1594,6 +1716,8 @@ function clonePlaceSnapshot(snapshot) {
         }
         wrapper.classList.add('wsb-booking-client-field--place-selected');
         wrapper.classList.remove('wsb-booking-client-field--place-stale');
+        wrapper.classList.add('wsb-booking-client-field--place-confirmed');
+        wrapper.classList.add('wsb-booking-client-field--has-value');
     }
 
     function markPlaceFieldStale(input) {
@@ -1604,8 +1728,9 @@ function clonePlaceSnapshot(snapshot) {
         if (!wrapper) {
             return;
         }
-        wrapper.classList.remove('wsb-booking-client-field--place-selected');
+        wrapper.classList.remove('wsb-booking-client-field--place-selected', 'wsb-booking-client-field--place-confirmed');
         wrapper.classList.add('wsb-booking-client-field--place-stale');
+        wrapper.classList.add('wsb-booking-client-field--has-value');
     }
 
     function clearPlaceFieldState(input) {
@@ -1616,19 +1741,190 @@ function clonePlaceSnapshot(snapshot) {
         if (!wrapper) {
             return;
         }
-        wrapper.classList.remove('wsb-booking-client-field--place-selected', 'wsb-booking-client-field--place-stale');
+        wrapper.classList.remove('wsb-booking-client-field--place-selected', 'wsb-booking-client-field--place-confirmed', 'wsb-booking-client-field--place-stale', 'wsb-booking-client-field--has-value');
+    }
+
+    function updateLocationFieldState(input, hasValue) {
+        var wrapper = input.closest('.wsb-booking-client-field');
+        if (!wrapper) {
+            return;
+        }
+        if (hasValue && input.value) {
+            wrapper.classList.add('wsb-booking-client-field--has-value');
+        } else {
+            wrapper.classList.remove('wsb-booking-client-field--has-value');
+        }
+    }
+
+    function clearLocationField(input) {
+        if (!input) {
+            return;
+        }
+        input.value = '';
+        clearPlaceFieldState(input);
+        updateLocationFieldState(input, false);
+    }
+
+    function getLocationSnapshotKey(input) {
+        if (!input) {
+            return '';
+        }
+
+        if (input.hasAttribute('data-wsb-charter-day-field')) {
+            var card = input.closest('[data-wsb-charter-day-card]');
+            var fieldAttr = input.getAttribute('data-wsb-charter-day-field');
+            return card && fieldAttr ? getCharterDaySnapshotKey(card, fieldAttr) : (input.getAttribute('name') || '');
+        }
+
+        return input.getAttribute('name') || '';
+    }
+
+    function isCurrentLocationSupported() {
+        return Boolean(window.navigator && navigator.geolocation && typeof google !== 'undefined' && google.maps && typeof google.maps.Geocoder === 'function');
+    }
+
+    function initCurrentLocationButtons(root, refreshCallback) {
+        forEachNode(root.querySelectorAll('[data-wsb-place-current]'), function (btn) {
+            if (btn.dataset.wsbCurrentLocationBound === 'true') {
+                return;
+            }
+
+            btn.dataset.wsbCurrentLocationBound = 'true';
+
+            var wrapper = btn.closest('.wsb-booking-client-field');
+            var input = wrapper ? wrapper.querySelector('input[type="text"]') : null;
+
+            if (!input) {
+                btn.disabled = true;
+                return;
+            }
+
+            if (!isCurrentLocationSupported()) {
+                btn.disabled = true;
+                btn.setAttribute('aria-disabled', 'true');
+                btn.title = 'Current location unavailable in this browser';
+                return;
+            }
+
+            btn.addEventListener('click', function () {
+                if (!navigator.geolocation || typeof google === 'undefined' || !google.maps || typeof google.maps.Geocoder !== 'function') {
+                    return;
+                }
+
+                var originalLabel = btn.getAttribute('aria-label') || 'Use current location';
+                var snapshotKey = getLocationSnapshotKey(input);
+
+                btn.disabled = true;
+                btn.classList.add('wsb-booking-client-place-current--loading');
+                btn.setAttribute('aria-label', 'Fetching current location');
+                btn.title = 'Fetching current location';
+
+                navigator.geolocation.getCurrentPosition(function (position) {
+                    var geocoder = new google.maps.Geocoder();
+                    var location = {
+                        lat: position.coords.latitude,
+                        lng: position.coords.longitude
+                    };
+
+                    geocoder.geocode({ location: location }, function (results) {
+                        var result = results && results.length ? results[0] : null;
+                        var snapshot = result ? extractPlaceDetails(result, result.formatted_address || result.name || input.value) : clonePlaceSnapshot(PLACE_SNAPSHOT_EMPTY);
+
+                        if (!snapshot.label) {
+                            snapshot.label = (result && result.formatted_address) ? result.formatted_address : 'Current location';
+                        }
+                        if (!snapshot.formatted_address) {
+                            snapshot.formatted_address = snapshot.label;
+                        }
+                        if (snapshot.place_id == null) {
+                            snapshot.place_id = result && result.place_id ? result.place_id : null;
+                        }
+                        if (!Number.isFinite(snapshot.lat) && result && result.geometry && result.geometry.location && typeof result.geometry.location.lat === 'function') {
+                            snapshot.lat = result.geometry.location.lat();
+                        }
+                        if (!Number.isFinite(snapshot.lng) && result && result.geometry && result.geometry.location && typeof result.geometry.location.lng === 'function') {
+                            snapshot.lng = result.geometry.location.lng();
+                        }
+                        snapshot.provider = snapshot.provider || 'browser_geolocation';
+
+                        if (snapshotKey) {
+                            placeSnapshots[snapshotKey] = snapshot;
+                        }
+
+                        input.value = snapshot.label || snapshot.formatted_address || 'Current location';
+                        markPlaceFieldSelected(input);
+                        updateLocationFieldState(input, true);
+                        btn.disabled = false;
+                        btn.classList.remove('wsb-booking-client-place-current--loading');
+                        btn.setAttribute('aria-label', originalLabel);
+                        btn.title = originalLabel;
+
+                        if (typeof refreshCallback === 'function') {
+                            refreshCallback('');
+                        }
+                    });
+                }, function () {
+                    btn.disabled = false;
+                    btn.classList.remove('wsb-booking-client-place-current--loading');
+                    btn.setAttribute('aria-label', originalLabel);
+                    btn.title = originalLabel;
+                }, { enableHighAccuracy: true, timeout: 10000, maximumAge: 30000 });
+            });
+        });
+    }
+
+    function initClearButtons(root, refreshCallback) {
+        forEachNode(root.querySelectorAll('[data-wsb-place-clear]'), function (btn) {
+            if (btn.dataset.wsbClearBound === 'true') {
+                return;
+            }
+            btn.dataset.wsbClearBound = 'true';
+            btn.addEventListener('click', function () {
+                var wrapper = btn.closest('.wsb-booking-client-field');
+                if (!wrapper) {
+                    return;
+                }
+                var input = wrapper.querySelector('input[type="text"]');
+                if (!input) {
+                    return;
+                }
+                var fieldKey = input.name;
+                var snapshotKey = null;
+                if (fieldKey) {
+                    if (input.hasAttribute('data-wsb-charter-day-field')) {
+                        var card = input.closest('[data-wsb-charter-day-card]');
+                        var fieldAttr = input.getAttribute('data-wsb-charter-day-field');
+                        snapshotKey = card && fieldAttr ? getCharterDaySnapshotKey(card, fieldAttr) : fieldKey;
+                    } else {
+                        snapshotKey = fieldKey;
+                    }
+                }
+                clearLocationField(input);
+                if (snapshotKey && snapshotKey in placeSnapshots) {
+                    placeSnapshots[snapshotKey] = clonePlaceSnapshot(PLACE_SNAPSHOT_EMPTY);
+                }
+                if (typeof refreshCallback === 'function') {
+                    refreshCallback('');
+                }
+            });
+        });
     }
 
     function initGooglePlacesAutocomplete(root, refreshCallback) {
+        initCurrentLocationButtons(root, refreshCallback);
+
         if (!GOOGLE_PLACES.enabled || typeof google === 'undefined' || typeof google.maps === 'undefined' || typeof google.maps.places === 'undefined') {
+            initClearButtons(root, refreshCallback);
             return;
         }
 
         var autocompleteFields = [
             { selector: 'input[name="outbound_from"]', snapshotKey: 'outbound_from', routeRole: 'origin', placeRole: 'origin' },
             { selector: 'input[name="outbound_to"]', snapshotKey: 'outbound_to', routeRole: 'destination', placeRole: 'destination' },
+            { selector: 'input[name="outbound_additional_stop"]', snapshotKey: 'outbound_additional_stop', routeRole: 'stop', placeRole: 'outbound_stop' },
             { selector: 'input[name="return_from"]', snapshotKey: 'return_from', routeRole: 'return_origin', placeRole: 'return_origin' },
             { selector: 'input[name="return_to"]', snapshotKey: 'return_to', routeRole: 'return_destination', placeRole: 'return_destination' },
+            { selector: 'input[name="return_additional_stop"]', snapshotKey: 'return_additional_stop', routeRole: 'stop', placeRole: 'return_stop' },
             { selector: 'input[name="charter_pickup_location"]', snapshotKey: 'charter_pickup_location', routeRole: 'charter_origin', placeRole: 'charter_origin' },
             { selector: 'input[name="charter_dropoff_location"]', snapshotKey: 'charter_dropoff_location', routeRole: 'charter_destination', placeRole: 'charter_destination' },
             { selector: 'input[data-wsb-charter-day-field="pickup_location"]', snapshotKey: function (input) { return getCharterDaySnapshotKey(input.closest('[data-wsb-charter-day-card]'), 'pickup_location'); }, routeRole: 'charter_day_origin', placeRole: 'charter_day_origin' },
@@ -1636,87 +1932,90 @@ function clonePlaceSnapshot(snapshot) {
         ];
 
         autocompleteFields.forEach(function (field) {
-            var input = root.querySelector(field.selector);
-            if (!input) {
-                return;
-            }
+            forEachNode(root.querySelectorAll(field.selector), function (input) {
+                if (!input || input.dataset.wsbPlaceInitialized === 'true') {
+                    return;
+                }
+                input.dataset.wsbPlaceInitialized = 'true';
 
-            if (input.dataset.wsbPlaceInitialized === 'true') {
-                return;
-            }
-            input.dataset.wsbPlaceInitialized = 'true';
+                if (field.routeRole) {
+                    input.setAttribute('data-ws-route-role', field.routeRole);
+                }
+                if (field.placeRole) {
+                    input.setAttribute('data-ws-place-role', field.placeRole);
+                }
+                if (!input.hasAttribute('data-ws-field-key')) {
+                    input.setAttribute('data-ws-field-key', input.getAttribute('name') || '');
+                }
 
-            if (field.routeRole) {
-                input.setAttribute('data-ws-route-role', field.routeRole);
-            }
-            if (field.placeRole) {
-                input.setAttribute('data-ws-place-role', field.placeRole);
-            }
-            if (!input.hasAttribute('data-ws-field-key')) {
-                input.setAttribute('data-ws-field-key', input.getAttribute('name') || '');
-            }
+                var autocomplete = new google.maps.places.Autocomplete(input, {
+                    types: ['establishment', 'geocode'],
+                    componentRestrictions: { country: 'ZA' },
+                    fields: ['address_components', 'geometry', 'name', 'place_id', 'formatted_address']
+                });
 
-            var autocomplete = new google.maps.places.Autocomplete(input, {
-                types: ['establishment', 'geocode'],
-                componentRestrictions: { country: 'ZA' },
-                fields: ['address_components', 'geometry', 'name', 'place_id', 'formatted_address']
-            });
+                autocomplete.addListener('place_changed', function () {
+                    var place = autocomplete.getPlace();
+                    var currentInputValue = input.value;
+                    var snapshot = extractPlaceDetails(place, currentInputValue);
+                    var snapshotKey = typeof field.snapshotKey === 'function' ? field.snapshotKey(input) : field.snapshotKey;
 
-            autocomplete.addListener('place_changed', function () {
-                var place = autocomplete.getPlace();
-                var currentInputValue = input.value;
-                var snapshot = extractPlaceDetails(place, currentInputValue);
-                var snapshotKey = typeof field.snapshotKey === 'function' ? field.snapshotKey(input) : field.snapshotKey;
+                    if (!snapshot.place_id) {
+                        placeSnapshots[snapshotKey] = clonePlaceSnapshot(PLACE_SNAPSHOT_EMPTY);
+                        markPlaceFieldSelected(input);
+                        input.value = '';
+                        updateLocationFieldState(input, false);
+                        if (typeof refreshCallback === 'function') {
+                            refreshCallback('');
+                        }
+                        return;
+                    }
 
-                if (!snapshot.place_id) {
-                    placeSnapshots[snapshotKey] = clonePlaceSnapshot(PLACE_SNAPSHOT_EMPTY);
+                    placeSnapshots[snapshotKey] = snapshot;
+                    if (snapshot.label) {
+                        input.value = snapshot.label;
+                    }
                     markPlaceFieldSelected(input);
-                    input.value = '';
+                    updateLocationFieldState(input, true);
                     if (typeof refreshCallback === 'function') {
                         refreshCallback('');
                     }
-                    return;
-                }
+                });
 
-                placeSnapshots[snapshotKey] = snapshot;
-                if (snapshot.label) {
-                    input.value = snapshot.label;
-                }
-                markPlaceFieldSelected(input);
-                if (typeof refreshCallback === 'function') {
-                    refreshCallback('');
-                }
-            });
+                input.addEventListener('click', function () {
+                    if (input.hasAttribute('readonly')) {
+                        input.removeAttribute('readonly');
+                    }
+                });
 
-            input.addEventListener('click', function () {
-                if (input.hasAttribute('readonly')) {
-                    input.removeAttribute('readonly');
-                }
-            });
+                input.addEventListener('focus', function () {
+                    if (input.hasAttribute('readonly')) {
+                        input.removeAttribute('readonly');
+                    }
+                });
 
-            input.addEventListener('focus', function () {
-                if (input.hasAttribute('readonly')) {
-                    input.removeAttribute('readonly');
-                }
-            });
+                input.addEventListener('input', function () {
+                    var wrapper = input.closest('.wsb-booking-client-field');
+                    if (!wrapper) {
+                        return;
+                    }
+                    if (wrapper.classList.contains('wsb-booking-client-field--place-selected')) {
+                        markPlaceFieldStale(input);
+                    }
+                    updateLocationFieldState(input, !!input.value);
+                });
 
-            input.addEventListener('input', function () {
-                var wrapper = input.closest('.wsb-booking-client-field');
-                if (!wrapper) {
-                    return;
-                }
-                if (wrapper.classList.contains('wsb-booking-client-field--place-selected')) {
-                    markPlaceFieldStale(input);
-                }
-            });
-
-            input.addEventListener('focus', function () {
-                var wrapper = input.closest('.wsb-booking-client-field');
-                if (wrapper && wrapper.classList.contains('wsb-booking-client-field--place-stale')) {
-                    clearPlaceFieldState(input);
-                }
+                input.addEventListener('focus', function () {
+                    var wrapper = input.closest('.wsb-booking-client-field');
+                    if (wrapper && wrapper.classList.contains('wsb-booking-client-field--place-stale')) {
+                        clearPlaceFieldState(input);
+                    }
+                    updateLocationFieldState(input, !!input.value);
+                });
             });
         });
+
+        initClearButtons(root, refreshCallback);
     }
 
     function refreshPickerStatusMessages(root) {
@@ -1777,52 +2076,6 @@ function clonePlaceSnapshot(snapshot) {
 
         updateStatus(outboundDate, outboundTime, '[data-wsb-outbound-picker-status]');
         updateStatus(returnDate, returnTime, '[data-wsb-return-picker-status]');
-    }
-
-    function initClockTimePicker(root) {
-        if (typeof jQuery === 'undefined' || typeof jQuery.fn.clockTimePicker === 'undefined') {
-            return;
-        }
-
-        var $ = jQuery;
-        var baseSelector = 'input[name="outbound_pickup_time"], input[name="return_pickup_time"], input[data-wsb-charter-day-field="start_time"], input[data-wsb-charter-day-field="end_time"]';
-        var charterPickup = 'input[name="charter_pickup_time"]';
-        var charterDropoff = 'input[name="charter_dropoff_time"]';
-
-        $(baseSelector).clockTimePicker({
-            alwaysSelectHoursFirst: true,
-            duration: false,
-            precision: 5,
-            i18n: { cancelButton: 'Cancel', okButton: 'Done' },
-            colors: { popupHeaderBackgroundColor: '#c0392b', selectorColor: '#c0392b' },
-            onChange: function (newValue) {
-                updateAmPmLabels(root);
-                refreshPickerStatusMessages(root);
-                refreshPreview('');
-            }
-        });
-
-        [
-            { selector: charterPickup, defaultTime: '08:00' },
-            { selector: charterDropoff, defaultTime: '17:00' }
-        ].forEach(function (cfg) {
-            var $el = $(cfg.selector);
-            if (!$el.length) return;
-            $el.clockTimePicker({
-                alwaysSelectHoursFirst: true,
-                duration: false,
-                precision: 5,
-                i18n: { cancelButton: 'Cancel', okButton: 'Done' },
-                colors: { popupHeaderBackgroundColor: '#c0392b', selectorColor: '#c0392b' },
-                onChange: function (newValue) {
-                    updateAmPmLabels(root);
-                    refreshPickerStatusMessages(root);
-                }
-            });
-            $el.val(cfg.defaultTime);
-        });
-
-        updateAmPmLabels(root);
     }
 
     function initBookingBuilder(root) {
@@ -1974,6 +2227,101 @@ function clonePlaceSnapshot(snapshot) {
             }
         }
 
+
+        function handleAdditionalStopRemove(event) {
+            var button = event.target && event.target.closest ? event.target.closest('[data-wsb-additional-stop-remove]') : null;
+            if (!button) {
+                return false;
+            }
+            var section = button.closest('[data-wsb-outbound-additional-stop-section], [data-wsb-return-additional-stop-section]');
+            var toggle = null;
+            if (section && section.hasAttribute('data-wsb-outbound-additional-stop-section')) {
+                toggle = outboundAdditionalStopToggle;
+            } else if (section && section.hasAttribute('data-wsb-return-additional-stop-section')) {
+                toggle = returnAdditionalStopToggle;
+            }
+            if (toggle) {
+                toggle.checked = false;
+                updateAdditionalStop(toggle, section);
+                refreshPreview('');
+            }
+            event.preventDefault();
+            return true;
+        }
+
+        function handleReturnAccordionClick(event) {
+            var button = event.target && event.target.closest ? event.target.closest('[data-wsb-return-accordion-toggle]') : null;
+            if (!button || !returnSection) {
+                return false;
+            }
+            var isOpen = button.getAttribute('aria-expanded') !== 'false';
+            setReturnAccordionOpen(returnSection, !isOpen);
+            event.preventDefault();
+            return true;
+        }
+
+        function refreshCharterDayOrderLabels() {
+            getVisibleCharterDayCards(root).forEach(function (card, index) {
+                card.setAttribute('data-wsb-charter-day-slot', String(index + 1));
+                var label = card.querySelector('.wsb-booking-client-eyebrow');
+                if (label) {
+                    label.textContent = 'Day ' + (index + 1);
+                }
+                var title = card.querySelector('.wsb-charter-day-title strong');
+                var route = card.querySelector('[data-wsb-day-route-label]');
+                var summary = card.querySelector('[data-wsb-day-summary]');
+                var pickup = getCharterDayField(card, 'pickup_location');
+                var dropoff = getCharterDayField(card, 'dropoff_location');
+                var date = getCharterDayField(card, 'date');
+                var start = getCharterDayField(card, 'start_time');
+                var end = getCharterDayField(card, 'end_time');
+                if (title) {
+                    title.firstChild.nodeValue = 'Day ' + (index + 1) + ' — ';
+                }
+                if (route) {
+                    var p = pickup && pickup.value ? pickup.value.split(',')[0] : 'Start location';
+                    var d = dropoff && dropoff.value ? dropoff.value.split(',')[0] : 'End location';
+                    route.textContent = p + ' to ' + d;
+                }
+                if (summary) {
+                    summary.textContent = (date && date.value ? date.value : 'Date') + ' · ' + (start && start.value ? start.value : 'start time') + ' – ' + (end && end.value ? end.value : 'end time');
+                }
+            });
+        }
+
+        function initNativeCharterDayDragDrop() {
+            var list = root.querySelector('[data-wsb-sortable-list="charter-day-list"]');
+            if (!list || list.dataset.wsbSortableReady === 'true') {
+                return;
+            }
+            list.dataset.wsbSortableReady = 'true';
+            if (typeof window.Sortable === 'function') {
+                try {
+                    new window.Sortable(list, {
+                        animation: 180,
+                        draggable: '.wsb-charter-day-card:not(.wsb-booking-client-hidden)',
+                        handle: '[data-wsb-drag-handle]',
+                        ghostClass: 'wsb-sortable-placeholder',
+                        chosenClass: 'wsb-sortable-chosen',
+                        onEnd: function () {
+                            refreshCharterDayOrderLabels();
+                            document.dispatchEvent(new CustomEvent('wsb:charter-days-updated'));
+                            refreshPreview('');
+                        }
+                    });
+                    return;
+                } catch (error) {
+                    if (DEBUG) {
+                        logDebug('Sortable initialisation failed, falling back to simple drag', error);
+                    }
+                }
+            }
+            // Minimal fallback if Sortable is unavailable.
+            forEachNode(list.querySelectorAll('[data-wsb-drag-handle]'), function (handle) {
+                handle.setAttribute('draggable', 'true');
+            });
+        }
+
         var debouncedRefresh = debounce(function () {
             refreshPreview('');
         }, 150);
@@ -1990,10 +2338,10 @@ function clonePlaceSnapshot(snapshot) {
         forEachNode(serviceTabs, function (tab) {
             tab.addEventListener('click', function () {
                 var serviceGroup = trimValue(tab.getAttribute('data-service'));
-                if (serviceGroup === 'charter' || serviceGroup === 'transfer') {
+                if (serviceGroup === 'charter' || serviceGroup === 'transfer' || serviceGroup === 'plan') {
                     state.serviceGroup = serviceGroup;
                     root.dataset.wsbServiceGroup = serviceGroup;
-                    state.serviceType = serviceGroup === 'charter' ? 'charter_hire' : 'city_transfer';
+                    state.serviceType = serviceGroup === 'charter' ? 'charter_hire' : (serviceGroup === 'plan' ? 'multi_trip_plan' : 'city_transfer');
                     root.dataset.wsbServiceType = state.serviceType;
                     if (serviceGroup === 'charter') {
                         setCharterTimeDefaults(root);
@@ -2001,12 +2349,20 @@ function clonePlaceSnapshot(snapshot) {
                         clearCharterTimeDefaults(root);
                     }
                     updateServiceMode(root, serviceGroup, state.charterMode);
+                    updateReturnVisibility(returnSection, tripTypeInputs);
+                    initClockTimePicker(root);
+                    initGooglePlacesAutocomplete(root, refreshPreview);
                     refreshPreview('');
                 }
             });
         });
 
-        root.addEventListener('click', handleCharterDayAction);
+        root.addEventListener('click', function (event) {
+            if (handleAdditionalStopRemove(event) || handleReturnAccordionClick(event)) {
+                return;
+            }
+            handleCharterDayAction(event);
+        });
 
         if (outboundAdditionalStopToggle) {
             outboundAdditionalStopToggle.addEventListener('change', function () {
@@ -2022,8 +2378,8 @@ function clonePlaceSnapshot(snapshot) {
             });
         }
 
-        var outboundDateInput = form.querySelector('input[name="outbound_pickup_date"]');
-        var outboundTimeInput = form.querySelector('input[name="outbound_pickup_time"]');
+        var outboundDateInput = form.querySelector('input[name$="-pickup-date"], input[name$="_pickup_date"]');
+        var outboundTimeInput = form.querySelector('input[name$="-pickup-time"], input[name$="_pickup_time"]');
         if (outboundDateInput && outboundTimeInput) {
             outboundDateInput.addEventListener('change', function () {
                 constrainTimeByDate(outboundDateInput, outboundTimeInput, constraints);
@@ -2033,8 +2389,8 @@ function clonePlaceSnapshot(snapshot) {
             });
         }
 
-        var charterDateInput = form.querySelector('input[name="outbound_pickup_date"]');
-        var charterTimeInput = form.querySelector('input[name="charter_pickup_time"]');
+        var charterDateInput = form.querySelector('input[name$="-pickup-date"], input[name$="_pickup_date"]');
+        var charterTimeInput = form.querySelector('input[name$="-pickup-time"], input[name$="_pickup_time"]');
         if (charterDateInput && charterTimeInput) {
             charterDateInput.addEventListener('change', function () {
                 constrainTimeByDate(charterDateInput, charterTimeInput, constraints);
@@ -2078,6 +2434,18 @@ function clonePlaceSnapshot(snapshot) {
         }
 
         form.addEventListener('input', debouncedRefresh);
+        forEachNode(root.querySelectorAll('.wsb-booking-client-field--location input[type="text"]'), function (input) {
+            if (input.dataset.wsbInputStateBound === 'true') {
+                return;
+            }
+            input.dataset.wsbInputStateBound = 'true';
+            input.addEventListener('input', function () {
+                updateLocationFieldState(input, !!input.value);
+            });
+            input.addEventListener('change', function () {
+                updateLocationFieldState(input, !!input.value);
+            });
+        });
         form.addEventListener('change', function (event) {
             var target = event && event.target ? event.target : null;
             if (target && target.name === 'charter_mode') {
@@ -2109,15 +2477,22 @@ function clonePlaceSnapshot(snapshot) {
 
          updateServiceMode(root, state.serviceGroup, state.charterMode);
         updateReturnVisibility(returnSection, tripTypeInputs);
+        applyFeatureGateVisibility(root);
+        resetAdditionalStopClosed(outboundAdditionalStopToggle, outboundAdditionalStopField);
+        resetAdditionalStopClosed(returnAdditionalStopToggle, returnAdditionalStopField);
         updateAdditionalStop(outboundAdditionalStopToggle, outboundAdditionalStopField);
         updateAdditionalStop(returnAdditionalStopToggle, returnAdditionalStopField);
-        applyFeatureGateVisibility(root);
         updateCharterMode(root, state.charterMode);
+        initNativeCharterDayDragDrop();
+        refreshCharterDayOrderLabels();
         setDateDefaults(root);
         updateAmPmLabels(root);
         refreshPickerStatusMessages(root);
         initClockTimePicker(root);
         initGooglePlacesAutocomplete(root, refreshPreview);
+        forEachNode(root.querySelectorAll('.wsb-booking-client-field--location input[type="text"]'), function (input) {
+            updateLocationFieldState(input, !!input.value);
+        });
         refreshPreview('Booking summary initialised');
         if (fixtureStatus && fixtures.length) {
             updateFixtureDrawerStatus(
@@ -2203,14 +2578,180 @@ function clonePlaceSnapshot(snapshot) {
     document.addEventListener('DOMContentLoaded', function () {
         var wrappers = document.querySelectorAll('[data-wsb-booking-builder]');
 
-        if (!wrappers.length) {
-            if (DEBUG) {
-                logDebug('No booking builder wrapper found on page');
+if (!wrappers.length) {
+             if (DEBUG) {
+                 logDebug('No booking builder wrapper found on page');
+             }
+             return;
+         }
+
+         logDebug('Booking Builder preview initialised', 'wrapper count:', wrappers.length);
+         forEachNode(wrappers, initBookingBuilder);
+     });
+
+    var activeClockInput = null;
+    var clockPositionTimer = null;
+
+    function getClockPopupCandidates() {
+        var selectors = [
+            '.clock-timepicker-popup',
+            '.clock-timepicker-popover',
+            '.ui-clockpicker',
+            '.clockpicker-popover'
+        ];
+        var nodes = [];
+        selectors.forEach(function (selector) {
+            nodes = nodes.concat(Array.prototype.slice.call(document.querySelectorAll(selector)));
+        });
+        return nodes.filter(function (node) {
+            if (!node || !node.getBoundingClientRect) {
+                return false;
             }
+            var style = window.getComputedStyle(node);
+            if (style.display === 'none' || style.visibility === 'hidden' || parseFloat(style.opacity || '1') === 0) {
+                return false;
+            }
+            var rect = node.getBoundingClientRect();
+            return rect.width > 20 && rect.height > 20;
+        });
+    }
+
+    function getVisibleClockPopup() {
+        var candidates = getClockPopupCandidates();
+        return candidates.length ? candidates[candidates.length - 1] : null;
+    }
+
+    function positionClockPopup(input) {
+        if (!input || !input.getBoundingClientRect) {
+            return;
+        }
+        var popup = getVisibleClockPopup();
+        if (!popup) {
             return;
         }
 
-        logDebug('Booking Builder preview initialised', 'wrapper count:', wrappers.length);
-        forEachNode(wrappers, initBookingBuilder);
+        var rect = input.getBoundingClientRect();
+        var popupRect = popup.getBoundingClientRect();
+        var popupWidth = Math.max(popupRect.width || 280, 260);
+        var popupHeight = Math.max(popupRect.height || 260, 240);
+        var gap = 12;
+        var viewportWidth = window.innerWidth || document.documentElement.clientWidth || 1024;
+        var viewportHeight = window.innerHeight || document.documentElement.clientHeight || 768;
+        var left = rect.left;
+        var top;
+
+        // Prefer above the field. This avoids the CTA/footer collision at the bottom of the form.
+        if (rect.top > popupHeight + gap + 8) {
+            top = rect.top - popupHeight - gap;
+            popup.setAttribute('data-wsb-placement', 'top');
+        } else if (viewportHeight - rect.bottom > popupHeight + gap + 8) {
+            top = rect.bottom + gap;
+            popup.setAttribute('data-wsb-placement', 'bottom');
+        } else {
+            top = Math.max(16, rect.top - popupHeight - gap);
+            popup.setAttribute('data-wsb-placement', 'top-clamped');
+        }
+
+        if (left + popupWidth > viewportWidth - 16) {
+            left = viewportWidth - popupWidth - 16;
+        }
+        left = Math.max(16, left);
+
+        popup.style.position = 'fixed';
+        popup.style.top = Math.round(top) + 'px';
+        popup.style.left = Math.round(left) + 'px';
+        popup.style.zIndex = '2147483000';
+        popup.style.maxWidth = 'calc(100vw - 32px)';
+        popup.classList.add('wsb-clock-popup-positioned');
+    }
+
+    function scheduleClockPosition(root, input) {
+        activeClockInput = input || activeClockInput;
+        if (clockPositionTimer) {
+            window.clearTimeout(clockPositionTimer);
+        }
+        clockPositionTimer = window.setTimeout(function () {
+            clockPositionTimer = null;
+            if (activeClockInput) {
+                positionClockPopup(activeClockInput);
+            }
+            updateAmPmLabels(root);
+        }, 16);
+    }
+
+    function bindClockPositioning(root, input) {
+        if (input.dataset.wsbClockPositionReady === 'true') {
+            return;
+        }
+        input.dataset.wsbClockPositionReady = 'true';
+        ['focus', 'click', 'mousedown', 'touchstart', 'input', 'change'].forEach(function (eventName) {
+            input.addEventListener(eventName, function () {
+                [0, 40, 120].forEach(function (delay) {
+                    window.setTimeout(function () {
+                        scheduleClockPosition(root, input);
+                    }, delay);
+                });
+            }, { passive: eventName === 'touchstart' });
+        });
+    }
+
+    window.addEventListener('resize', function () {
+        if (activeClockInput) {
+            scheduleClockPosition(document, activeClockInput);
+        }
     });
+
+    window.addEventListener('scroll', function () {
+        if (activeClockInput) {
+            scheduleClockPosition(document, activeClockInput);
+        }
+    }, true);
+
+    function initClockTimePicker(root) {
+        if (!window.jQuery || !jQuery.fn.clockTimePicker) {
+            return;
+        }
+        var timeInputs = root.querySelectorAll('input[type="text"][name$="-pickup-time"], input[type="text"][name$="-dropoff-time"], input[type="text"][name$="_pickup_time"], input[type="text"][name$="_dropoff_time"], input[type="text"][name$="_start_time"], input[type="text"][name$="_end_time"], input[type="text"][data-wsb-charter-day-field="start_time"], input[type="text"][data-wsb-charter-day-field="end_time"]');
+        var clockTheme = {
+            alwaysSelectHoursFirst: true,
+            duration: false,
+            precision: 5,
+            onlyShowClockOnMobile: false,
+            popupWidthOnDesktop: 280,
+            i18n: { cancelButton: 'Cancel', okButton: 'Done' },
+            colors: {
+                buttonTextColor: '#d92d20',
+                clockFaceColor: '#ffffff',
+                clockInnerCircleTextColor: '#6b7280',
+                clockInnerCircleUnselectableTextColor: '#d1d5db',
+                clockOuterCircleTextColor: '#111827',
+                clockOuterCircleUnselectableTextColor: '#d1d5db',
+                hoverCircleColor: 'rgba(217, 45, 32, 0.12)',
+                popupBackgroundColor: '#ffffff',
+                popupHeaderBackgroundColor: '#d92d20',
+                popupHeaderTextColor: '#ffffff',
+                selectorColor: '#d92d20',
+                selectorNumberColor: '#ffffff',
+                signButtonColor: '#ffffff',
+                signButtonBackgroundColor: '#d92d20'
+            }
+        };
+        forEachNode(timeInputs, function (input) {
+            bindClockPositioning(root, input);
+            if (input.dataset.wsbClockReady === 'true' || input.closest('.clock-timepicker')) {
+                return;
+            }
+            input.dataset.wsbClockReady = 'true';
+            try {
+                jQuery(input).clockTimePicker(clockTheme);
+            } catch (e) {
+                input.dataset.wsbClockReady = 'false';
+                if (DEBUG) {
+                    logDebug('Clock timepicker init failed', e);
+                }
+            }
+        });
+
+        updateAmPmLabels(root);
+     }
 })();

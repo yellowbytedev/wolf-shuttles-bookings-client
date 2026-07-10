@@ -72,6 +72,7 @@ The AI handoff pack lives at:
 - Phase 2V complete: legacy clock-style timepicker restored (jquery-clock-timepicker ported into plugin, AM/PM badge integration).
 - Phase 2W complete: section wording and hero cleanup.
 - Phase 2X complete: additional stop control reordered between From and To on outbound/return legs; AM/PM badge moved inside time input (absolutely positioned, right-aligned, subtle).
+- UX-003D complete: datepicker hard runtime debug/fix — PHP selector updated to match booking-builder field names, date format changed to `yy-mm-dd`, z-index CSS added for visibility.
 - Phase 2V complete: legacy clock-style timepicker restored — `jquery-clock-timepicker.min.js` copied from theme into plugin `assets/js/`, enqueued via `wsb-clock-timepicker` handle, `initClockTimePicker` wired into `initBookingBuilder` with 5-minute precision, AM/PM badges, charter defaults 08:00/17:00.
 - Phase 2W complete: section wording updated — "Trip details" replaces "Outbound leg", "Return transfer" replaces "Return leg", "Shuttle Hire" section uses charter-friendly language, hero heading removed from normal page.
 

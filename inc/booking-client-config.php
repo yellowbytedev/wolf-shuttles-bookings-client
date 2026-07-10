@@ -81,3 +81,7 @@ function wsb_client_ui_interactions_enabled(): bool {
 
     return (bool) WSB_CLIENT_UI_INTERACTIONS_ENABLED;
 }
+
+if ( ! defined( 'WSB_CLIENT_BOOKING_SITE_URL' ) ) {
+    define( 'WSB_CLIENT_BOOKING_SITE_URL', '' );
+}

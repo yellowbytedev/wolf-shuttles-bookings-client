@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" vector-effect="non-scaling-stroke" role="img" aria-label="calendar">
+<title>calendar</title>
+<rect x="4" y="5.25" width="16" height="15" rx="2.25"/>
+<path d="M8 3.75v3"/>
+<path d="M16 3.75v3"/>
+<path d="M4 9.25h16"/>
+<path d="M8 12.25h.01"/>
+<path d="M12 12.25h.01"/>
+<path d="M16 12.25h.01"/>
+<path d="M8 15.75h.01"/>
+<path d="M12 15.75h.01"/>
+</svg>

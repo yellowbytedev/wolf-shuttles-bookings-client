@@ -512,3 +512,26 @@ The next major task is the **booking-site v2 dry-run receiver** implementation i
   - Handles preview mode vs real handoff in response handling
 - All PHP syntax checks passed
 - All JS syntax checks passed
+
+## Phase 2Y — Legacy Bricks V2 Handover Adapter (completed)
+
+- Created `inc/legacy-snippets/php/26-legacy-bricks-v2-handover-adapter.php`:
+  - `wsb_legacy_adapter_is_v2_enabled()` - Returns true when `WSB_CLIENT_HANDOVER_MODE === 'v2_token'`
+  - `wsb_legacy_adapter_is_v2_strict_mode()` - Prevents fallback to legacy on V2 failure
+  - `wsb_legacy_adapter_normalize_keys()` - Transforms legacy camelCase field names to snake_case
+  - `wsb_legacy_adapter_normalize_trip_type()` - Converts `point_to_point_transfer` → `one_way`/`return`
+  - `wsb_legacy_adapter_normalize_service_type()` - Maps service types to canonical values
+  - `wsb_legacy_adapter_send_to_v2_intake()` - POSTs to `/wp-json/ws-bookings/v2/intake`
+- Modified `inc/legacy-snippets/php/15-submit-booking-form-and.php`:
+  - `send_booking_data()` checks V2 mode and POSTs to intake endpoint
+  - Returns redirect URL with `booking_token` on success
+  - Falls back to legacy hash on failure (or surfaces error in strict mode)
+- Modified `inc/legacy-snippets/loader.php`:
+  - Added adapter file to load sequence before submit handler
+- Added V2 mode constants to `wp-config.php`:
+  - `WSB_CLIENT_HANDOVER_MODE = 'v2_token'`
+  - `WSB_CLIENT_V2_STRICT_MODE = true`
+- V2 intake endpoint tested successfully with flat-field payload
+- Redirect URL verified: `https://bookings.wolfshuttles.local?booking_token=...` (NOT `/book-online/`)
+- PHP lint passed on all modified files
+- Documentation: `docs/implementation/LEGACY-BRICKS-V2-ADAPTER-ENABLE-VERIFY-002.md`

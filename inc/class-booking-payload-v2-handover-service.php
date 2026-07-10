@@ -53,7 +53,7 @@ if ( ! class_exists( 'WSB_Client_Booking_Payload_V2_Handover_Service' ) ) {
 	 * @param string              $action Envelope action label, e.g. 'preview'.
 	 * @return array<string,mixed>
 	 */
-	public function build_envelope( array $payload, string $action = 'preview' ) : array {
+	public function build_envelope( array $payload, string $action = 'preview', bool $real_handover = false ) : array {
 		$request_id = $this->generate_request_id();
 		$created_at = gmdate( 'c' );
 		$expires_at = gmdate( 'c', strtotime( '+' . self::EXPIRY_HOURS . ' hour' ) );
@@ -61,7 +61,7 @@ if ( ! class_exists( 'WSB_Client_Booking_Payload_V2_Handover_Service' ) ) {
 		$envelope = array(
 			'handover_version'   => self::HANDOVER_VERSION,
 			'schema_version'     => '2.0',
-			'mode'               => self::MODE,
+			'mode'               => $real_handover ? 'real' : self::MODE,
 			'action'             => sanitize_key( $action ),
 			'request_id'         => $request_id,
 			'created_at'         => $created_at,
@@ -83,8 +83,8 @@ if ( ! class_exists( 'WSB_Client_Booking_Payload_V2_Handover_Service' ) ) {
 				),
 			),
 			'meta'               => array(
-				'preview_only'           => true,
-				'real_handover_enabled'  => false,
+				'preview_only'           => ! $real_handover,
+				'real_handover_enabled'  => $real_handover,
 			),
 		);
 

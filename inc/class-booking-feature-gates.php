@@ -21,6 +21,7 @@ if ( ! class_exists( '\WSB_Booking_Client\Booking_Feature_Gates' ) ) {
             'enable_day_duplicate_delete',
             'enable_charter_poi_fields',
             'enable_debug_free_text_locations_local_only',
+            'enable_real_handover',
         ];
 
         private const DEFAULTS = [
@@ -35,6 +36,7 @@ if ( ! class_exists( '\WSB_Booking_Client\Booking_Feature_Gates' ) ) {
                 'enable_day_duplicate_delete'              => true,
                 'enable_charter_poi_fields'                => true,
                 'enable_debug_free_text_locations_local_only' => true,
+                'enable_real_handover'                     => true,
             ],
             'staging' => [
                 'enable_multi_day_charters'                => false,
@@ -47,6 +49,7 @@ if ( ! class_exists( '\WSB_Booking_Client\Booking_Feature_Gates' ) ) {
                 'enable_day_duplicate_delete'              => false,
                 'enable_charter_poi_fields'                => false,
                 'enable_debug_free_text_locations_local_only' => false,
+                'enable_real_handover'                     => false,
             ],
             'production' => [
                 'enable_multi_day_charters'                => false,
@@ -59,6 +62,7 @@ if ( ! class_exists( '\WSB_Booking_Client\Booking_Feature_Gates' ) ) {
                 'enable_day_duplicate_delete'              => false,
                 'enable_charter_poi_fields'                => false,
                 'enable_debug_free_text_locations_local_only' => false,
+                'enable_real_handover'                     => false,
             ],
         ];
 

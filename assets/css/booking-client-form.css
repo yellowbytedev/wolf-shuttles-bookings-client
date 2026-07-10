@@ -4634,8 +4634,16 @@ body.wsb-is-sorting { user-select: none !important; cursor: grabbing !important;
 .wsb-booking-client-shell .wsb-booking-client-grid--day-card{grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:16px!important}
 /* Sortable behaviour */
 .wsb-sortable-placeholder{border:1.5px dashed rgba(107,43,191,.35)!important;background:rgba(107,43,191,.045)!important;box-shadow:none!important;min-height:92px!important}
-.wsb-sortable-chosen{cursor:grabbing!important}
+.wsb-sortable-chosen{cursor:grabbing!important;will-change:transform}
 html.wsb-sortable-is-dragging,html.wsb-sortable-is-dragging *{user-select:none!important}
+html.wsb-sortable-is-dragging .wsb-booking-client-charter-day-card{
+  transition:none!important;
+  box-shadow:none!important;
+}
+html.wsb-sortable-is-dragging .wsb-booking-client-charter-day-card .wsb-booking-client-charter-day-header,
+html.wsb-sortable-is-dragging .wsb-booking-client-charter-day-card .wsb-booking-client-charter-day-body{
+  transition:none!important;
+}
 /* Popups */
 .ui-datepicker.ui-widget,
 #ui-datepicker-div{
@@ -5636,4 +5644,624 @@ textarea.wsb-form__input {
 }
 .wsb-booking-client-transfer-only:not(.wsb-booking-client-hidden) {
   padding-bottom: 110px !important;
+}
+
+/* MARKETING-FORM-PLAYWRIGHT-RESET-001: final component reset over previous patch layers. */
+.wsb-booking-client-shell {
+  --wsb-red: #ff1f2d;
+  --wsb-purple: #6d22b8;
+  --wsb-ink: #121722;
+  --wsb-text: #344054;
+  --wsb-muted: #667085;
+  --wsb-line: #d9dee7;
+  --wsb-line-soft: #edf0f5;
+  --wsb-soft: #f7f8fb;
+  --wsb-green: #2fa865;
+  width: min(1180px, calc(100vw - 40px)) !important;
+  max-width: 1180px !important;
+  margin: 0 auto !important;
+  overflow: visible !important;
+  font-family: inherit !important;
+  color: var(--wsb-text) !important;
+}
+
+.wsb-booking-client-shell *,
+.wsb-booking-client-shell *::before,
+.wsb-booking-client-shell *::after {
+  box-sizing: border-box;
+}
+
+.wsb-booking-client-shell .wsb-booking-client-hidden {
+  display: none !important;
+}
+
+.wsb-booking-client-shell .wsb-tabs.wsb-booking-client-service-tabs {
+  display: inline-flex !important;
+  width: auto !important;
+  max-width: 760px !important;
+  border-radius: 14px 14px 0 0 !important;
+  overflow: hidden !important;
+  box-shadow: 0 12px 32px rgba(17, 24, 39, .08) !important;
+}
+
+.wsb-booking-client-shell .wsb-booking-client-service-tab {
+  min-width: 178px !important;
+  height: 62px !important;
+  padding: 0 28px !important;
+  border: 1px solid var(--wsb-line-soft) !important;
+  border-radius: 0 !important;
+  background: rgba(255,255,255,.94) !important;
+  color: var(--wsb-ink) !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 10px !important;
+  font-size: 15px !important;
+  font-weight: 760 !important;
+  letter-spacing: 0 !important;
+}
+
+.wsb-booking-client-shell .wsb-booking-client-service-tab--active {
+  background: var(--wsb-red) !important;
+  border-color: var(--wsb-red) !important;
+  color: #fff !important;
+}
+
+.wsb-booking-client-shell .wsb-form-layout.wsb-booking-client-grid {
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) !important;
+  gap: 28px !important;
+  align-items: start !important;
+  padding: 0 !important;
+  border: 0 !important;
+  background: transparent !important;
+}
+
+@media (min-width: 1060px) {
+  .wsb-booking-client-shell[data-wsb-service-group="charter"] .wsb-form-layout.wsb-booking-client-grid {
+    grid-template-columns: minmax(0, 1fr) 300px !important;
+  }
+}
+
+.wsb-booking-client-shell .wsb-booking-client-main-column {
+  display: grid !important;
+  gap: 0 !important;
+  padding: 0 !important;
+}
+
+.wsb-booking-client-shell .wsb-form-shell.wsb-booking-client-card {
+  width: 100% !important;
+  display: grid !important;
+  gap: 22px !important;
+  padding: 38px !important;
+  border: 1px solid var(--wsb-line-soft) !important;
+  border-radius: 0 16px 16px 16px !important;
+  background: rgba(255,255,255,.98) !important;
+  box-shadow: 0 22px 54px rgba(17,24,39,.10) !important;
+}
+
+.wsb-booking-client-shell .wsb-form-shell.wsb-booking-client-hidden {
+  display: none !important;
+}
+
+.wsb-booking-client-shell .wsb-booking-client-card-header {
+  margin: 0 !important;
+  display: flex !important;
+  align-items: flex-start !important;
+  justify-content: space-between !important;
+  gap: 18px !important;
+}
+
+.wsb-booking-client-shell .wsb-booking-client-eyebrow {
+  margin: 0 0 8px !important;
+  color: var(--wsb-muted) !important;
+  font-size: 11px !important;
+  font-weight: 800 !important;
+  line-height: 1.2 !important;
+  letter-spacing: .18em !important;
+}
+
+.wsb-booking-client-shell h3,
+.wsb-booking-client-shell h4 {
+  margin: 0 !important;
+  color: var(--wsb-ink) !important;
+  letter-spacing: 0 !important;
+}
+
+.wsb-booking-client-shell h3 {
+  font-size: clamp(26px, 3vw, 34px) !important;
+  line-height: 1.08 !important;
+  font-weight: 780 !important;
+}
+
+.wsb-booking-client-shell h4 {
+  font-size: 18px !important;
+  line-height: 1.25 !important;
+  font-weight: 760 !important;
+}
+
+.wsb-booking-client-shell .wsb-booking-client-card-copy,
+.wsb-booking-client-shell .wsb-charter-panel__header p,
+.wsb-booking-client-shell .wsb-charter-trip-details__header p {
+  margin: 6px 0 0 !important;
+  color: var(--wsb-muted) !important;
+  font-size: 14px !important;
+  line-height: 1.45 !important;
+}
+
+.wsb-booking-client-shell .wsb-top-controls.wsb-booking-client-mode-row {
+  display: grid !important;
+  grid-template-columns: minmax(260px, 430px) auto !important;
+  gap: 20px !important;
+  align-items: center !important;
+  margin: 0 !important;
+}
+
+.wsb-booking-client-shell .wsb-segmented-switch,
+.wsb-booking-client-shell .wsb-charter-mode-switch {
+  width: min(100%, 430px) !important;
+  display: grid !important;
+  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  gap: 0 !important;
+  padding: 3px !important;
+  border: 1px solid var(--wsb-line) !important;
+  border-radius: 999px !important;
+  background: #fff !important;
+  margin: 0 !important;
+}
+
+.wsb-booking-client-shell .wsb-booking-client-pill {
+  min-height: 42px !important;
+  justify-content: center !important;
+  border: 1px solid transparent !important;
+  border-radius: 999px !important;
+  background: transparent !important;
+  color: var(--wsb-text) !important;
+  padding: 0 16px !important;
+  font-size: 14px !important;
+  font-weight: 720 !important;
+}
+
+.wsb-booking-client-shell .wsb-booking-client-pill:has(input:checked) {
+  border-color: rgba(255,31,45,.44) !important;
+  background: #fff7f8 !important;
+  color: var(--wsb-red) !important;
+}
+
+.wsb-booking-client-shell .wsb-booking-client-pill input:checked + span {
+  color: inherit !important;
+}
+
+.wsb-booking-client-shell .wsb-booking-client-addons-row {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  align-items: center !important;
+  gap: 18px !important;
+  margin: 0 !important;
+}
+
+.wsb-booking-client-shell .wsb-checkbox-option {
+  color: var(--wsb-text) !important;
+  font-size: 14px !important;
+  font-weight: 650 !important;
+  gap: 9px !important;
+}
+
+.wsb-booking-client-shell .wsb-checkbox-option input {
+  width: 20px !important;
+  height: 20px !important;
+  margin: 0 !important;
+  accent-color: var(--wsb-red) !important;
+}
+
+.wsb-booking-client-shell .wsb-booking-client-grid--compact {
+  display: grid !important;
+  gap: 18px !important;
+  grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+  border: 0 !important;
+  background: transparent !important;
+}
+
+.wsb-booking-client-shell .wsb-booking-client-grid--datetime {
+  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+}
+
+.wsb-booking-client-shell .wsb-grid--three {
+  grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+}
+
+.wsb-booking-client-shell .wsb-booking-client-grid--locations,
+.wsb-booking-client-shell .wsb-booking-client-grid--notes {
+  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+}
+
+.wsb-booking-client-shell .wsb-form__label {
+  margin: 0 0 8px !important;
+  color: var(--wsb-ink) !important;
+  font-size: 12px !important;
+  line-height: 1.2 !important;
+  font-weight: 780 !important;
+  letter-spacing: .09em !important;
+  text-transform: uppercase !important;
+}
+
+.wsb-booking-client-shell .wsb-field-control,
+.wsb-booking-client-shell .wsb-booking-client-location-row,
+.wsb-booking-client-shell .wsb-booking-client-date-row,
+.wsb-booking-client-shell .wsb-booking-client-time-row {
+  position: relative !important;
+  min-height: 54px !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 12px !important;
+  border: 1px solid var(--wsb-line) !important;
+  border-radius: 12px !important;
+  background: #fff !important;
+  box-shadow: 0 2px 10px rgba(17,24,39,.03) !important;
+  padding: 0 12px !important;
+}
+
+.wsb-booking-client-shell .wsb-field-control::before,
+.wsb-booking-client-shell .wsb-field-control::after,
+.wsb-booking-client-shell .wsb-booking-client-location-row::before,
+.wsb-booking-client-shell .wsb-booking-client-location-row::after,
+.wsb-booking-client-shell .wsb-booking-client-date-row::before,
+.wsb-booking-client-shell .wsb-booking-client-date-row::after,
+.wsb-booking-client-shell .wsb-booking-client-time-row::before,
+.wsb-booking-client-shell .wsb-booking-client-time-row::after,
+.wsb-booking-client-shell .wsb-booking-client-picker-wrapper::after {
+  content: none !important;
+  display: none !important;
+}
+
+.wsb-booking-client-shell .wsb-form__input,
+.wsb-booking-client-shell select.wsb-form__input,
+.wsb-booking-client-shell textarea.wsb-form__input {
+  width: 100% !important;
+  min-width: 0 !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  outline: 0 !important;
+  background: transparent !important;
+  color: var(--wsb-ink) !important;
+  padding: 0 !important;
+  font-size: 16px !important;
+  line-height: 1.35 !important;
+  font-weight: 520 !important;
+}
+
+.wsb-booking-client-shell input.wsb-form__input {
+  text-overflow: ellipsis !important;
+}
+
+.wsb-booking-client-shell textarea.wsb-form__input {
+  min-height: 72px !important;
+  padding: 12px 0 !important;
+  resize: vertical !important;
+}
+
+.wsb-booking-client-shell .wsb-field-control__icon,
+.wsb-booking-client-shell .wsb-booking-client-field-icon,
+.wsb-booking-client-shell .wsb-booking-client-date-icon,
+.wsb-booking-client-shell .wsb-booking-client-time-icon {
+  position: static !important;
+  width: 22px !important;
+  height: 22px !important;
+  flex: 0 0 22px !important;
+  background: var(--wsb-ink) !important;
+  opacity: .9 !important;
+  transform: none !important;
+}
+
+.wsb-booking-client-shell .wsb-booking-client-place-current {
+  position: static !important;
+  width: 44px !important;
+  height: 44px !important;
+  flex: 0 0 44px !important;
+  display: inline-grid !important;
+  place-items: center !important;
+  border: 1px solid var(--wsb-line) !important;
+  border-radius: 12px !important;
+  background: #fff !important;
+  box-shadow: 0 8px 22px rgba(17,24,39,.08) !important;
+}
+
+.wsb-booking-client-shell .wsb-booking-client-location-actions {
+  position: static !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  margin-left: auto !important;
+  flex: 0 0 auto !important;
+}
+
+.wsb-booking-client-shell .wsb-booking-client-place-clear {
+  position: static !important;
+  transform: none !important;
+  flex: 0 0 28px !important;
+}
+
+.wsb-booking-client-shell .wsb-route-stack {
+  display: grid !important;
+  gap: 14px !important;
+}
+
+.wsb-booking-client-shell .wsb-add-stop-control {
+  width: fit-content !important;
+  min-height: 38px !important;
+  margin: 0 0 0 28px !important;
+  padding: 0 16px !important;
+  border: 1px solid #ffd1d7 !important;
+  border-radius: 999px !important;
+  background: #fff6f7 !important;
+  color: var(--wsb-red) !important;
+  font-weight: 760 !important;
+}
+
+.wsb-booking-client-shell .wsb-return-accordion {
+  display: grid !important;
+  gap: 16px !important;
+  padding: 18px !important;
+  border: 1px solid var(--wsb-line-soft) !important;
+  border-radius: 12px !important;
+  background: #f8fafc !important;
+}
+
+.wsb-booking-client-shell .wsb-return-accordion.wsb-booking-client-hidden {
+  display: none !important;
+}
+
+.wsb-booking-client-shell .wsb-booking-client-return-toggle {
+  min-height: 28px !important;
+  border: 0 !important;
+  background: transparent !important;
+  color: var(--wsb-ink) !important;
+  padding: 0 !important;
+  font-size: 17px !important;
+  font-weight: 780 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+}
+
+.wsb-booking-client-shell .wsb-charter-trip-details,
+.wsb-booking-client-shell .wsb-charter-single-day-panel,
+.wsb-booking-client-shell .wsb-booking-client-charter-multiday-shell {
+  display: grid !important;
+  gap: 18px !important;
+  margin: 0 !important;
+  padding-top: 22px !important;
+  border-top: 1px solid var(--wsb-line-soft) !important;
+}
+
+.wsb-booking-client-shell .wsb-charter-single-day-panel.wsb-booking-client-hidden,
+.wsb-booking-client-shell .wsb-booking-client-charter-multiday-shell.wsb-booking-client-hidden {
+  display: none !important;
+}
+
+.wsb-booking-client-shell .wsb-booking-client-charter-multiday-shell > .wsb-booking-client-card-header {
+  padding: 0 !important;
+  border: 0 !important;
+  margin: 0 !important;
+}
+
+.wsb-booking-client-shell .wsb-booking-client-charter-multiday-toolbar {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  gap: 10px !important;
+}
+
+.wsb-booking-client-shell .wsb-booking-client-charter-action {
+  min-height: 36px !important;
+  border: 1px solid var(--wsb-line) !important;
+  border-radius: 999px !important;
+  background: #fff !important;
+  color: var(--wsb-ink) !important;
+  padding: 0 14px !important;
+  font-size: 13px !important;
+  font-weight: 720 !important;
+}
+
+.wsb-booking-client-shell .wsb-charter-day-list {
+  display: grid !important;
+  gap: 12px !important;
+}
+
+.wsb-booking-client-shell .wsb-charter-day-card {
+  display: grid !important;
+  gap: 0 !important;
+  overflow: hidden !important;
+  border: 1px solid var(--wsb-line) !important;
+  border-radius: 12px !important;
+  background: #fff !important;
+  box-shadow: 0 8px 20px rgba(17,24,39,.04) !important;
+}
+
+.wsb-booking-client-shell .wsb-charter-day-card.wsb-booking-client-hidden {
+  display: none !important;
+}
+
+.wsb-booking-client-shell .wsb-charter-day-header {
+  min-height: 78px !important;
+  display: grid !important;
+  grid-template-columns: 24px 38px minmax(0, 1fr) auto !important;
+  gap: 14px !important;
+  align-items: center !important;
+  padding: 14px 18px !important;
+  margin: 0 !important;
+  background: #fff !important;
+}
+
+.wsb-booking-client-shell .wsb-drag-handle,
+.wsb-booking-client-shell .wsb-icon-action {
+  width: 38px !important;
+  height: 38px !important;
+  min-width: 0 !important;
+  border: 1px solid var(--wsb-line-soft) !important;
+  border-radius: 9px !important;
+  background-color: #fff !important;
+  color: var(--wsb-ink) !important;
+  padding: 0 !important;
+  display: inline-grid !important;
+  place-items: center !important;
+  font-size: 0 !important;
+}
+
+.wsb-booking-client-shell .wsb-drag-handle {
+  width: 24px !important;
+  border: 0 !important;
+  cursor: grab !important;
+}
+
+.wsb-booking-client-shell .wsb-charter-day-title strong {
+  font-size: 16px !important;
+  font-weight: 780 !important;
+  color: var(--wsb-ink) !important;
+}
+
+.wsb-booking-client-shell .wsb-charter-day-title small {
+  font-size: 13px !important;
+  color: var(--wsb-muted) !important;
+}
+
+.wsb-booking-client-shell .wsb-charter-day-body {
+  display: grid !important;
+  gap: 16px !important;
+  padding: 18px !important;
+  border-top: 1px solid var(--wsb-line-soft) !important;
+  background: #fff !important;
+}
+
+.wsb-booking-client-shell .wsb-charter-day-body.wsb-booking-client-hidden {
+  display: none !important;
+}
+
+.wsb-booking-client-shell .wsb-booking-client-actions {
+  display: grid !important;
+  gap: 10px !important;
+  padding: 22px 0 0 !important;
+  margin: 0 !important;
+  position: static !important;
+  z-index: auto !important;
+}
+
+.wsb-booking-client-shell .wsb-primary-cta.wsb-booking-client-submit {
+  min-height: 58px !important;
+  border-radius: 999px !important;
+  font-size: 18px !important;
+  font-weight: 680 !important;
+  letter-spacing: 0 !important;
+}
+
+.wsb-booking-client-shell .wsb-secure-note.wsb-booking-client-note {
+  font-size: 13px !important;
+  color: var(--wsb-muted) !important;
+}
+
+.wsb-booking-client-shell .wsb-booking-client-preview-column {
+  display: none !important;
+}
+
+@media (min-width: 1060px) {
+  .wsb-booking-client-shell[data-wsb-service-group="charter"] .wsb-booking-client-preview-column {
+    display: grid !important;
+    padding: 0 !important;
+    position: sticky !important;
+    top: 24px !important;
+  }
+}
+
+.wsb-booking-client-shell .wsb-booking-client-card--preview {
+  border: 1px solid var(--wsb-line-soft) !important;
+  border-radius: 14px !important;
+  padding: 22px !important;
+  background: rgba(255,255,255,.98) !important;
+  box-shadow: 0 22px 54px rgba(17,24,39,.08) !important;
+}
+
+.wsb-booking-client-shell .wsb-booking-client-card--preview h3 {
+  font-size: 22px !important;
+  line-height: 1.15 !important;
+  font-weight: 780 !important;
+}
+
+.wsb-booking-client-shell .wsb-booking-client-card--preview .wsb-booking-client-card-header {
+  margin-bottom: 14px !important;
+}
+
+.clock-timepicker-popup {
+  max-width: min(320px, calc(100vw - 28px)) !important;
+}
+
+@media (max-width: 780px) {
+  .wsb-booking-client-shell {
+    width: min(100%, calc(100vw - 20px)) !important;
+  }
+
+  .wsb-booking-client-shell .wsb-tabs.wsb-booking-client-service-tabs {
+    display: grid !important;
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+    width: 100% !important;
+  }
+
+  .wsb-booking-client-shell .wsb-booking-client-service-tab {
+    min-width: 0 !important;
+    height: 54px !important;
+    padding: 0 8px !important;
+    font-size: 12px !important;
+  }
+
+  .wsb-booking-client-shell .wsb-form-shell.wsb-booking-client-card {
+    padding: 22px !important;
+    border-radius: 0 0 14px 14px !important;
+  }
+
+  .wsb-booking-client-shell .wsb-top-controls.wsb-booking-client-mode-row,
+  .wsb-booking-client-shell .wsb-booking-client-grid--compact,
+  .wsb-booking-client-shell .wsb-booking-client-grid--datetime,
+  .wsb-booking-client-shell .wsb-grid--three,
+  .wsb-booking-client-shell .wsb-booking-client-grid--locations,
+  .wsb-booking-client-shell .wsb-booking-client-grid--notes {
+    grid-template-columns: 1fr !important;
+  }
+
+  .wsb-booking-client-shell .wsb-charter-day-header {
+    grid-template-columns: 22px 34px minmax(0, 1fr) !important;
+  }
+
+  .wsb-booking-client-shell .wsb-booking-client-charter-day-actions {
+    grid-column: 1 / -1 !important;
+    justify-content: flex-end !important;
+  }
+}
+
+.wsb-booking-client-shell .wsb-booking-client-place-current::before,
+.wsb-booking-client-shell .wsb-booking-client-place-current::after {
+  content: '' !important;
+  position: static !important;
+  display: block !important;
+  width: 18px !important;
+  height: 18px !important;
+  transform: none !important;
+  border: 0 !important;
+  background: currentColor !important;
+  -webkit-mask: url('../icons/target-location.svg') center / contain no-repeat !important;
+  mask: url('../icons/target-location.svg') center / contain no-repeat !important;
+}
+
+.wsb-booking-client-shell .wsb-booking-client-place-current::after {
+  display: none !important;
+}
+
+/* MARKETING-FORM-PERF-001: filter/backdrop blur caused scroll-frame paint jank. */
+.wsb-booking-client-shell .wsb-booking-client-form {
+  background: rgba(255,255,255,.98) !important;
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
+}
+
+.wsb-booking-client-shell .wsb-tabs.wsb-booking-client-service-tabs,
+.wsb-booking-client-shell .wsb-booking-client-service-tabs {
+  filter: none !important;
+  box-shadow: 0 12px 32px rgba(17,24,39,.08) !important;
 }

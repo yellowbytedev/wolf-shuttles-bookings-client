@@ -18,10 +18,6 @@
     }));
 
     var scanQueued = false;
-    var scanRetryTimer = null;
-    var retryCount = 0;
-    var MAX_RETRIES = 30;
-    var rootObserver = null;
 
     function formatIso(date) {
         return $.datepicker.formatDate('yy-mm-dd', date);
@@ -163,15 +159,30 @@
         }
     }
 
+    function isVisible(el) {
+        if (!el || !el.ownerDocument) {
+            return false;
+        }
+        var style = window.getComputedStyle(el);
+        if (!style || style.display === 'none' || style.visibility === 'hidden' || parseFloat(style.opacity || '1') === 0) {
+            return false;
+        }
+        var rect = el.getBoundingClientRect();
+        return rect.width > 0 && rect.height > 0;
+    }
+
     function scan(root) {
         if (!$.fn || !$.fn.datepicker) {
-            scheduleRetry();
             return;
         }
 
         var scope = root || document;
         var fields = scope.querySelectorAll ? scope.querySelectorAll(DATE_SEL) : [];
-        fields.forEach(attachOne);
+        fields.forEach(function (field) {
+            if (isVisible(field)) {
+                attachOne(field);
+            }
+        });
     }
 
     function scheduleScan(root) {
@@ -185,55 +196,15 @@
         });
     }
 
-    function scheduleRetry() {
-        if (scanRetryTimer || retryCount >= MAX_RETRIES) {
-            return;
-        }
-        scanRetryTimer = window.setTimeout(function () {
-            scanRetryTimer = null;
-            retryCount++;
-            scheduleScan(document);
-        }, 200);
-    }
-
-    function observeBuilderRoots() {
-        if (rootObserver || typeof MutationObserver === 'undefined') {
-            return;
-        }
-
-        var roots = document.querySelectorAll('[data-wsb-booking-builder]');
-        if (!roots.length) {
-            return;
-        }
-
-        rootObserver = new MutationObserver(function (mutations) {
-            var shouldScan = false;
-            mutations.forEach(function (mutation) {
-                if (shouldScan) {
-                    return;
-                }
-                mutation.addedNodes.forEach(function (node) {
-                    if (shouldScan || !node || node.nodeType !== 1) {
-                        return;
-                    }
-                    if ((node.matches && node.matches(DATE_SEL)) || (node.querySelector && node.querySelector(DATE_SEL))) {
-                        shouldScan = true;
-                    }
-                });
-            });
-            if (shouldScan) {
-                scheduleScan(document);
-            }
-        });
-
-        roots.forEach(function (root) {
-            rootObserver.observe(root, { childList: true, subtree: true });
-        });
-    }
-
     function boot() {
+        document.addEventListener('focusin', function (event) {
+            var target = event.target;
+            if (!target || !target.matches || !target.matches(DATE_SEL) || !isVisible(target)) {
+                return;
+            }
+            attachOne(target);
+        });
         scheduleScan(document);
-        observeBuilderRoots();
     }
 
     if (document.readyState === 'loading') {

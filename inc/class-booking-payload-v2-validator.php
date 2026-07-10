@@ -218,14 +218,17 @@ if ( ! class_exists( 'WSB_Client_Booking_Payload_V2_Validator' ) ) {
                 }
             }
 
-            // Google Places enforcement authority: Server-side feature gates control whether snapshots are required.
-            // Payload validation_flags.google_place_snapshots_ready is diagnostic only, not enforcement authority.
-            $validation_flags = is_array( $payload['validation_flags'] ?? null ) ? $payload['validation_flags'] : array();
-            $is_diagnostic_ready = ! empty( $validation_flags['google_place_snapshots_ready'] );
-            $enforce_place_snapshots = class_exists( 'WSB_Booking_Client\Booking_Feature_Gates' )
-                && WSB_Booking_Client\Booking_Feature_Gates::is_enabled( 'enable_google_places_required' );
-            $google_places_ready = true;
-            $missing_place_ids = array();
+// Google Places enforcement authority: Server-side feature gates control whether snapshots are required.
+		// Payload validation_flags.google_place_snapshots_ready is diagnostic only, not enforcement authority.
+		$validation_flags = is_array( $payload['validation_flags'] ?? null ) ? $payload['validation_flags'] : array();
+		$is_diagnostic_ready = ! empty( $validation_flags['google_place_snapshots_ready'] );
+		$debug_free_text_enabled = class_exists( 'WSB_Booking_Client\Booking_Feature_Gates' )
+			&& WSB_Booking_Client\Booking_Feature_Gates::is_enabled( 'enable_debug_free_text_locations_local_only' );
+		$enforce_place_snapshots = class_exists( 'WSB_Booking_Client\Booking_Feature_Gates' )
+			&& WSB_Booking_Client\Booking_Feature_Gates::is_enabled( 'enable_google_places_required' )
+			&& ! $debug_free_text_enabled;
+		$google_places_ready = true;
+		$missing_place_ids = array();
 
             foreach ( $legs as $leg_index => $leg ) {
                 if ( ! is_array( $leg ) ) {

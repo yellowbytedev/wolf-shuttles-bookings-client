@@ -2268,10 +2268,8 @@
     },
     {
         "id": "reserved-multiday-charter-two-days",
-        "description": "Reserved multi-day charter with two distinct days (skipped: multi-day charter scaffold only)",
+        "description": "Reserved multi-day charter with two distinct days",
         "expected_ok": true,
-        "skip": true,
-        "skip_reason": "Reserved multi-day charter structure - scaffold only, not yet implemented",
         "payload": {
             "schema_version": "2.0",
             "source": "marketing_booking_builder",
@@ -2339,6 +2337,26 @@
                             "place_id": "ChIJNcaAuaNHzB0Ruy1x8vqiSUM"
                         },
                         "stops": []
+                        ,
+                        "place_snapshots": {
+                            "from": {
+                                "provider": "google_places",
+                                "place_id": "ChIJvQtA90JFzB0RkF7P43l1SEA",
+                                "label": "Cape Town International Airport",
+                                "formatted_address": "Cape Town International Airport, Cape Town, South Africa",
+                                "lat": -33.9696,
+                                "lng": 18.5978
+                            },
+                            "to": {
+                                "provider": "google_places",
+                                "place_id": "ChIJNcaAuaNHzB0Ruy1x8vqiSUM",
+                                "label": "Winelands Hotel",
+                                "formatted_address": "Winelands Hotel, Stellenbosch, South Africa",
+                                "lat": -33.9333,
+                                "lng": 18.8467
+                            },
+                            "stops": []
+                        }
                     },
                     {
                         "day_id": "day_1",
@@ -2354,7 +2372,26 @@
                             "label": "Hermanus",
                             "place_id": "ChIJw5Yb8rZJDzR4R3VqiSUM"
                         },
-                        "stops": []
+                        "stops": [],
+                        "place_snapshots": {
+                            "from": {
+                                "provider": "google_places",
+                                "place_id": "ChIJNcaAuaNHzB0Ruy1x8vqiSUM",
+                                "label": "Winelands Hotel",
+                                "formatted_address": "Winelands Hotel, Stellenbosch, South Africa",
+                                "lat": -33.9333,
+                                "lng": 18.8467
+                            },
+                            "to": {
+                                "provider": "google_places",
+                                "place_id": "ChIJw5Yb8rZJDzR4R3VqiSUM",
+                                "label": "Hermanus",
+                                "formatted_address": "Hermanus, Western Cape, South Africa",
+                                "lat": -34.417,
+                                "lng": 19.234
+                            },
+                            "stops": []
+                        }
                     }
                 ]
             },

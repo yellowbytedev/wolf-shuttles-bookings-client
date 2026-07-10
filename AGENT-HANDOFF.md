@@ -75,6 +75,7 @@ The AI handoff pack lives at:
 - UX-003D complete: datepicker hard runtime debug/fix — PHP selector updated to match booking-builder field names, date format changed to `yy-mm-dd`, z-index CSS added for visibility.
 - Phase 2V complete: legacy clock-style timepicker restored — `jquery-clock-timepicker.min.js` copied from theme into plugin `assets/js/`, enqueued via `wsb-clock-timepicker` handle, `initClockTimePicker` wired into `initBookingBuilder` with 5-minute precision, AM/PM badges, charter defaults 08:00/17:00.
 - Phase 2W complete: section wording updated — "Trip details" replaces "Outbound leg", "Return transfer" replaces "Return leg", "Shuttle Hire" section uses charter-friendly language, hero heading removed from normal page.
+- Phase 2X complete: V2 intake handoff foundation — marketing-to-booking real handoff implemented with `class-booking-intake-client.php`, handover controller updated for conditional real handoff, feature gate `enable_real_handover` added (enabled for local, disabled for production), JS submit handler redirects to `redirect_url` on success.
 
 If roadmap or phase status changes, update this file at the same time.
 
@@ -105,7 +106,8 @@ If roadmap or phase status changes, update this file at the same time.
 ## 6. What Is Deliberately Not Enabled Yet
 
 - No real booking-site call.
-- No booking token creation.
+- Real booking-site call is now possible when `enable_real_handover` feature gate is enabled (local default). POSTs to `/wp-json/ws-bookings/v2/intake` and redirects to returned `redirect_url`.
+- No booking token created by marketing site (booking-site generates token on successful intake).
 - No WooCommerce/cart item creation.
 - No route, distance, or toll integration yet in the new intake layer.
 - No itinerary database table yet.
@@ -125,6 +127,7 @@ If roadmap or phase status changes, update this file at the same time.
 - `inc/class-booking-payload-preview-controller.php` - REST preview endpoint for validation-only payload inspection.
 - `inc/class-booking-payload-v2-handover-service.php` - HMAC-signed envelope builder and signing logic.
 - `inc/class-booking-payload-handover-preview-controller.php` - handover preview REST endpoint.
+- `inc/class-booking-intake-client.php` - **NEW** - sends signed envelopes to booking-site v2 intake endpoint.
 - `inc/class-booking-handover-v2-service.php` - scaffold for future `legacy_hash` / `v2_token` handover branching.
 - `inc/class-booking-intake-fixture-loader.php` - WP-CLI fixture loader stub.
 - `inc/class-booking-external-services.php` - no-op adapter scaffold for Google/HERE/route/toll integrations.
@@ -221,3 +224,8 @@ No third-party library is loaded yet. See `docs/ui-interaction-scaffold.md` for 
 `AGENT-HANDOFF.md` is the canonical current-state document for this repo.
 
 If the roadmap, phase status, testing workflow, or current implementation changes, update this file in the same change.
+## Phase 2Y-Z Implementation Notes
+
+- **Phase 2Y**: redirect URL fix applied to `build_redirect_url()` in `ws-bookings/inc/v2/class-v2-intake-controller.php`
+- **Phase 2Z**: Google Places validation bypass implemented in `class-booking-payload-v2-validator.php`
+- **Browser test updates**: `v2-intake-handoff.spec.ts` updated to use fixture loading system instead of manual form filling

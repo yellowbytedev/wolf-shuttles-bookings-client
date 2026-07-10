@@ -126,24 +126,6 @@ class BookingClientFormShortcode {
                                 </div>
                             </div>
 
-                            <div class="wsb-booking-client-grid wsb-booking-client-grid--compact wsb-booking-client-grid--options">
-                                <?php echo self::render_number_field($fields['passengers'], 'shuttle-hire'); ?>
-                                <?php echo self::render_number_field($fields['baby_seats'], 'shuttle-hire'); ?>
-                                <?php echo self::render_number_field($fields['check_in_bags'], 'shuttle-hire'); ?>
-                                <?php echo self::render_number_field($fields['carry_on_bags'], 'shuttle-hire'); ?>
-                            </div>
-
-                            <div class="wsb-booking-client-addons-row wsb-booking-client-addons-row--below">
-                                <label class="wsb-checkbox-option wsb-booking-client-checkbox-label">
-                                    <input type="checkbox" name="trailer">
-                                    <span><?php echo esc_html($fields['trailer']['label'] ?? __('Trailer required', 'wsb')); ?></span>
-                                </label>
-                                <label class="wsb-checkbox-option wsb-booking-client-checkbox-label">
-                                    <input type="checkbox" name="oversize_luggage">
-                                    <span><?php echo esc_html($fields['oversize_luggage']['label'] ?? __('Oversize luggage', 'wsb')); ?></span>
-                                </label>
-                            </div>
-
                             <?php if ($multi_day_enabled): ?>
                             <div class="wsb-charter-mode-switch wsb-booking-client-charter-mode-bar" role="radiogroup" aria-label="<?php echo esc_attr__('Hire length', 'wsb'); ?>">
                                 <label class="wsb-booking-client-pill wsb-booking-client-pill--switch">
@@ -156,6 +138,31 @@ class BookingClientFormShortcode {
                                 </label>
                             </div>
                             <?php endif; ?>
+
+                            <div class="wsb-charter-trip-details">
+                                <div class="wsb-charter-trip-details__header">
+                                    <h4><?php echo esc_html__('Your trip details', 'wsb'); ?></h4>
+                                    <p><?php echo esc_html__('Let us know the details of your group and luggage.', 'wsb'); ?></p>
+                                </div>
+
+                                <div class="wsb-booking-client-grid wsb-booking-client-grid--compact wsb-booking-client-grid--options">
+                                    <?php echo self::render_number_field($fields['passengers'], 'shuttle-hire'); ?>
+                                    <?php echo self::render_number_field($fields['baby_seats'], 'shuttle-hire'); ?>
+                                    <?php echo self::render_number_field($fields['check_in_bags'], 'shuttle-hire'); ?>
+                                    <?php echo self::render_number_field($fields['carry_on_bags'], 'shuttle-hire'); ?>
+                                </div>
+
+                                <div class="wsb-booking-client-addons-row wsb-booking-client-addons-row--below">
+                                    <label class="wsb-checkbox-option wsb-booking-client-checkbox-label">
+                                        <input type="checkbox" name="trailer">
+                                        <span><?php echo esc_html($fields['trailer']['label'] ?? __('Trailer required', 'wsb')); ?></span>
+                                    </label>
+                                    <label class="wsb-checkbox-option wsb-booking-client-checkbox-label">
+                                        <input type="checkbox" name="oversize_luggage">
+                                        <span><?php echo esc_html($fields['oversize_luggage']['label'] ?? __('Oversize luggage', 'wsb')); ?></span>
+                                    </label>
+                                </div>
+                            </div>
 
                             <div class="wsb-charter-single-day-panel wsb-booking-client-charter-same-day-panel wsb-charter-panel" data-wsb-charter-same-day-panel>
                                 <div class="wsb-charter-panel__header">

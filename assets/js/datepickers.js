@@ -199,7 +199,22 @@
     function boot() {
         document.addEventListener('focusin', function (event) {
             var target = event.target;
-            if (!target || !target.matches || !target.matches(DATE_SEL) || !isVisible(target)) {
+            if (!target || !target.matches) {
+                return;
+            }
+
+            if (!target.matches(DATE_SEL)) {
+                if (!target.closest || !target.closest('#ui-datepicker-div')) {
+                    try {
+                        $.datepicker._hideDatepicker();
+                    } catch (error) {
+                        // The picker may not have been initialised yet.
+                    }
+                }
+                return;
+            }
+
+            if (!isVisible(target)) {
                 return;
             }
             attachOne(target);

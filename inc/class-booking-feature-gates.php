@@ -27,7 +27,7 @@ if ( ! class_exists( '\WSB_Booking_Client\Booking_Feature_Gates' ) ) {
         private const DEFAULTS = [
             'local' => [
                 'enable_multi_day_charters'                => true,
-                'enable_multi_trip_bookings'               => false,
+                'enable_multi_trip_bookings'               => true,
                 'enable_additional_stops'                  => true,
                 'enable_route_options_payload'             => true,
                 'enable_route_alternatives_on_shuttles_page' => false,
@@ -178,16 +178,16 @@ if ( ! class_exists( '\WSB_Booking_Client\Booking_Feature_Gates' ) ) {
          * @return string
          */
         private static function resolve_environment(): string {
+            if ( defined( 'WP_ENVIRONMENT_TYPE' ) && is_string( WP_ENVIRONMENT_TYPE ) && WP_ENVIRONMENT_TYPE !== '' ) {
+                return strtolower( WP_ENVIRONMENT_TYPE );
+            }
+
             if ( function_exists( 'wp_get_environment_type' ) ) {
                 $env = wp_get_environment_type();
 
                 if ( is_string( $env ) && $env !== '' ) {
                     return strtolower( $env );
                 }
-            }
-
-            if ( defined( 'WP_ENVIRONMENT_TYPE' ) && is_string( WP_ENVIRONMENT_TYPE ) && WP_ENVIRONMENT_TYPE !== '' ) {
-                return strtolower( WP_ENVIRONMENT_TYPE );
             }
 
             return 'production';

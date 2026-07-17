@@ -110,7 +110,6 @@ if ( ! class_exists( 'WSB_Client_Booking_Payload_V2_Handover_Preview_Controller'
 
             $response_data = array(
                 'ok'         => $ok,
-                'payload'    => $normalized,
                 'validation' => $validation,
                 'meta'       => array(
                     'preview_only'          => ! $is_real_handover,
@@ -120,21 +119,28 @@ if ( ! class_exists( 'WSB_Client_Booking_Payload_V2_Handover_Preview_Controller'
             );
 
             if ( $ok ) {
-                $response_data['normalised_payload']  = $normalized;
-                $response_data['handover_envelope']   = $this->handover_service->build_envelope( $normalized, 'handover_preview', $is_real_handover );
+                $envelope = $this->handover_service->build_envelope( $normalized, $is_real_handover ? 'submit' : 'handover_preview', $is_real_handover );
 
                 if ( $is_real_handover ) {
-                    $envelope = $response_data['handover_envelope'];
                     $intake_result = wsb_client_booking_intake()->send( $envelope );
 
                     if ( $intake_result['success'] ) {
                         $response_data['success']     = true;
                         $response_data['redirect_url'] = $intake_result['redirect_url'];
-                        $response_data['booking_data'] = $intake_result['data'] ?? array();
                     } else {
                         $response_data['success'] = false;
                         $response_data['error']   = $intake_result['error'] ?? 'Handover to booking site failed';
                     }
+                } elseif ( function_exists( 'wp_get_environment_type' ) && 'local' === wp_get_environment_type() && current_user_can( 'manage_options' ) ) {
+                    $response_data['normalised_payload'] = WSB_Client_Security::redact_value( $normalized );
+                    $response_data['envelope_summary'] = array(
+                        'handover_version' => $envelope['handover_version'],
+                        'schema_version'   => $envelope['schema_version'],
+                        'request_id'       => $envelope['request_id'],
+                        'created_at'       => $envelope['created_at'],
+                        'expires_at'       => $envelope['expires_at'],
+                        'signature'        => '[REDACTED]',
+                    );
                 }
             }
 

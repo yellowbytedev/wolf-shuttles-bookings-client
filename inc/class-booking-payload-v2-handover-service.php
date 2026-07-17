@@ -32,7 +32,7 @@ if ( ! class_exists( 'WSB_Client_Booking_Payload_V2_Handover_Service' ) ) {
 	/**
 	 * Hours of validity for a generated envelope.
 	 */
-	private const EXPIRY_HOURS = 1;
+	private const EXPIRY_SECONDS = 300;
 
 	/**
 	 * @var string
@@ -56,7 +56,8 @@ if ( ! class_exists( 'WSB_Client_Booking_Payload_V2_Handover_Service' ) ) {
 	public function build_envelope( array $payload, string $action = 'preview', bool $real_handover = false ) : array {
 		$request_id = $this->generate_request_id();
 		$created_at = gmdate( 'c' );
-		$expires_at = gmdate( 'c', strtotime( '+' . self::EXPIRY_HOURS . ' hour' ) );
+		$expires_at = gmdate( 'c', time() + self::EXPIRY_SECONDS );
+		$body_hash  = hash( 'sha256', wp_json_encode( $this->canonicalise( $payload ), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES ) );
 
 		$envelope = array(
 			'handover_version'   => self::HANDOVER_VERSION,
@@ -68,6 +69,7 @@ if ( ! class_exists( 'WSB_Client_Booking_Payload_V2_Handover_Service' ) ) {
 			'expires_at'         => $expires_at,
 			'source_site'         => 'marketing',
 			'target_site'         => 'booking',
+			'body_hash'          => $body_hash,
 			'payload'            => $payload,
 			'integrity'          => array(
 				'algorithm'    => 'hash_hmac_sha256',
@@ -79,6 +81,9 @@ if ( ! class_exists( 'WSB_Client_Booking_Payload_V2_Handover_Service' ) ) {
 					'request_id',
 					'created_at',
 					'expires_at',
+					'source_site',
+					'target_site',
+					'body_hash',
 					'payload',
 				),
 			),

@@ -10,6 +10,8 @@ if (!defined('ABSPATH')) exit;
 
 define('WSB_CLIENT_VERSION', '1.0.0');
 
+require_once __DIR__ . '/inc/class-booking-security.php';
+
 if (!defined('WSB_CLIENT_LOAD_LEGACY_SNIPPETS')) {
   define('WSB_CLIENT_LOAD_LEGACY_SNIPPETS', false);
 }
@@ -67,7 +69,7 @@ function wsb_client_fetch_blockouts(bool $force = false): array {
   ]);
 
   if (is_wp_error($res)) {
-    error_log('[WSB Client] fetch error: '.$res->get_error_message());
+    WSB_Client_Security::log('blockout_fetch_error', ['message' => $res->get_error_message()]);
     // still stamp checked_at so we’ll try again after TTL
     $store['checked_at'] = $now;
     update_option('wsb_client_blockouts_store', $store, false);
@@ -76,7 +78,7 @@ function wsb_client_fetch_blockouts(bool $force = false): array {
 
   $code = wp_remote_retrieve_response_code($res);
   if ((int)$code !== 200) {
-    error_log('[WSB Client] fetch HTTP '.$code.' from '.$url);
+    WSB_Client_Security::log('blockout_fetch_http', ['status' => $code, 'url' => $url]);
     $store['checked_at'] = $now;
     update_option('wsb_client_blockouts_store', $store, false);
     return $store;
@@ -84,7 +86,7 @@ function wsb_client_fetch_blockouts(bool $force = false): array {
 
   $json = json_decode(wp_remote_retrieve_body($res), true);
   if (!is_array($json) || !isset($json['days']) || !is_array($json['days'])) {
-    error_log('[WSB Client] invalid JSON payload');
+    WSB_Client_Security::log('blockout_invalid_json');
     $store['checked_at'] = $now;
     update_option('wsb_client_blockouts_store', $store, false);
     return $store;

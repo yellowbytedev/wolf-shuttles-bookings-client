@@ -27,10 +27,11 @@ $safe = WSB_Client_Security::redact_value( array(
 	'email' => 'synthetic@example.test',
 	'phone' => '+27000000000',
 	'booking_token' => 'synthetic-booking-token',
+	'request_id' => '123e4567-e89b-42d3-a456-426614174000',
 	'operation' => 'handover',
 ) );
 $encoded = wp_json_encode( $safe );
-foreach ( array( 'synthetic-bearer', 'synthetic@example.test', '+27000000000', 'synthetic-booking-token' ) as $needle ) {
+foreach ( array( 'synthetic-bearer', 'synthetic@example.test', '+27000000000', 'synthetic-booking-token', '123e4567-e89b-42d3-a456-426614174000' ) as $needle ) {
 	$assert( false === strpos( $encoded, $needle ), 'sensitive payload value survived redaction' );
 }
 $assert( 'handover' === $safe['operation'], 'safe operational context was removed' );

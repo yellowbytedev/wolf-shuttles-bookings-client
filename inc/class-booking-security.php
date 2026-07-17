@@ -15,6 +15,7 @@ if ( ! class_exists( 'WSB_Client_Security' ) ) {
 			'email', 'phone', 'address', 'formatted_address', 'lat', 'lng',
 			'hash', 'sig', 'ws_trip_sig', 'origin', 'destination', 'location',
 			'coords', 'customer', 'tracking', 'name', 'request_uri',
+			'request_id',
 		);
 
 		public static function redact_url( string $url ): string {

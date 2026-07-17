@@ -60,6 +60,7 @@ inc/
   class-booking-payload-v2-handover-service.php
   class-booking-payload-preview-controller.php
   class-booking-payload-handover-preview-controller.php
+  class-booking-intake-client.php      ← NEW for v2 intake handoff
   class-booking-intake-fixture-loader.php
   booking-client-config.php
   booking-client.php

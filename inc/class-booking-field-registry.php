@@ -65,11 +65,11 @@ class BookingFieldRegistry {
                 'key' => 'passengers',
                 'label' => __('Passengers', 'wsb'),
                 'placeholder' => __('Number of passengers', 'wsb'),
-                'type' => 'number',
+                'type' => 'select',
                 'required' => true,
                 'applies_to' => ['transfer', 'charter'],
                 'admin_editable' => true,
-                'max_attr' => $max_passengers,
+                'options' => range(1, $max_passengers),
                 'data_attributes' => [
                     'data-ws-field-key' => 'passengers',
                     'data-ws-form-section' => 'passengers',
@@ -81,11 +81,11 @@ class BookingFieldRegistry {
                 'key' => 'baby_seats',
                 'label' => __('Baby seats', 'wsb'),
                 'placeholder' => __('Number of baby seats', 'wsb'),
-                'type' => 'number',
+                'type' => 'select',
                 'required' => false,
                 'applies_to' => ['transfer', 'charter'],
                 'admin_editable' => true,
-                'max_attr' => $max_passengers,
+                'options' => range(0, 3),
                 'data_attributes' => [
                     'data-ws-field-key' => 'baby_seats',
                     'data-ws-form-section' => 'passengers',
@@ -97,11 +97,11 @@ class BookingFieldRegistry {
                 'key' => 'check_in_bags',
                 'label' => __('Check-in bags', 'wsb'),
                 'placeholder' => __('Number of check-in bags', 'wsb'),
-                'type' => 'number',
+                'type' => 'select',
                 'required' => false,
                 'applies_to' => ['transfer', 'charter'],
                 'admin_editable' => true,
-                'max_attr' => $max_bags,
+                'options' => range(0, $max_bags),
                 'data_attributes' => [
                     'data-ws-field-key' => 'check_in_bags',
                     'data-ws-form-section' => 'luggage',
@@ -113,11 +113,11 @@ class BookingFieldRegistry {
                 'key' => 'carry_on_bags',
                 'label' => __('Carry-on bags', 'wsb'),
                 'placeholder' => __('Number of carry-on bags', 'wsb'),
-                'type' => 'number',
+                'type' => 'select',
                 'required' => false,
                 'applies_to' => ['transfer', 'charter'],
                 'admin_editable' => true,
-                'max_attr' => $max_bags,
+                'options' => range(0, $max_bags),
                 'data_attributes' => [
                     'data-ws-field-key' => 'carry_on_bags',
                     'data-ws-form-section' => 'luggage',
@@ -158,7 +158,7 @@ class BookingFieldRegistry {
             'outbound_from' => [
                 'key' => 'outbound_from',
                 'label' => __('From', 'wsb'),
-                'placeholder' => __('Pick up from', 'wsb'),
+                'placeholder' => __('Enter pickup address, airport or area', 'wsb'),
                 'type' => 'text',
                 'required' => true,
                 'applies_to' => ['transfer', 'charter'],
@@ -175,7 +175,7 @@ class BookingFieldRegistry {
             'outbound_to' => [
                 'key' => 'outbound_to',
                 'label' => __('To', 'wsb'),
-                'placeholder' => __('Drop off at', 'wsb'),
+                'placeholder' => __('Enter drop-off address, airport or area', 'wsb'),
                 'type' => 'text',
                 'required' => true,
                 'applies_to' => ['transfer', 'charter'],
@@ -198,6 +198,7 @@ class BookingFieldRegistry {
                 'applies_to' => ['transfer', 'charter'],
                 'admin_editable' => true,
                 'date_min_attr' => $min_date_str,
+                'charter_date_min_attr' => $charter_min_date_str,
                 'date_max_attr' => $max_date_str,
                 'data_attributes' => [
                     'data-ws-field-key' => 'outbound_pickup_date',
@@ -225,7 +226,7 @@ class BookingFieldRegistry {
             'return_from' => [
                 'key' => 'return_from',
                 'label' => __('Return from', 'wsb'),
-                'placeholder' => __('Return pickup from', 'wsb'),
+                'placeholder' => __('Enter return pickup address, airport or area', 'wsb'),
                 'type' => 'text',
                 'required' => false,
                 'applies_to' => ['transfer'],
@@ -242,7 +243,7 @@ class BookingFieldRegistry {
             'return_to' => [
                 'key' => 'return_to',
                 'label' => __('Return to', 'wsb'),
-                'placeholder' => __('Return drop off at', 'wsb'),
+                'placeholder' => __('Enter return drop-off address, airport or area', 'wsb'),
                 'type' => 'text',
                 'required' => false,
                 'applies_to' => ['transfer'],
@@ -292,7 +293,7 @@ class BookingFieldRegistry {
             'additional_stop' => [
                 'key' => 'additional_stop',
                 'label' => __('Additional stop', 'wsb'),
-                'placeholder' => __('Add an optional stop', 'wsb'),
+                'placeholder' => __('Enter additional stop address or area', 'wsb'),
                 'type' => 'text',
                 'required' => false,
                 'applies_to' => ['transfer'],
@@ -309,7 +310,7 @@ class BookingFieldRegistry {
             'outbound_additional_stop' => [
                 'key' => 'outbound_additional_stop',
                 'label' => __('Additional stop', 'wsb'),
-                'placeholder' => __('Add an optional stop', 'wsb'),
+                'placeholder' => __('Enter additional stop address or area', 'wsb'),
                 'type' => 'text',
                 'required' => false,
                 'applies_to' => ['transfer'],
@@ -327,7 +328,7 @@ class BookingFieldRegistry {
             'return_additional_stop' => [
                 'key' => 'return_additional_stop',
                 'label' => __('Additional stop', 'wsb'),
-                'placeholder' => __('Add an optional stop', 'wsb'),
+                'placeholder' => __('Enter additional stop address or area', 'wsb'),
                 'type' => 'text',
                 'required' => false,
                 'applies_to' => ['transfer', 'charter'],
@@ -345,7 +346,7 @@ class BookingFieldRegistry {
             'charter_pickup_location' => [
                 'key' => 'charter_pickup_location',
                 'label' => __('Pickup location', 'wsb'),
-                'placeholder' => __('Pickup address or area', 'wsb'),
+                'placeholder' => __('Enter pickup address or area', 'wsb'),
                 'type' => 'text',
                 'required' => true,
                 'applies_to' => ['charter'],
@@ -362,7 +363,7 @@ class BookingFieldRegistry {
             'charter_dropoff_location' => [
                 'key' => 'charter_dropoff_location',
                 'label' => __('Drop-off location', 'wsb'),
-                'placeholder' => __('Drop-off address or area', 'wsb'),
+                'placeholder' => __('Enter drop-off address or area', 'wsb'),
                 'type' => 'text',
                 'required' => true,
                 'applies_to' => ['charter'],
@@ -411,7 +412,7 @@ class BookingFieldRegistry {
             'charter_additional_stop' => [
                 'key' => 'charter_additional_stop',
                 'label' => __('Additional stop', 'wsb'),
-                'placeholder' => __('Add an optional stop', 'wsb'),
+                'placeholder' => __('Enter additional stop address or area', 'wsb'),
                 'type' => 'text',
                 'required' => false,
                 'applies_to' => ['transfer'],
@@ -428,8 +429,8 @@ class BookingFieldRegistry {
             ],
             'charter_poi' => [
                 'key' => 'charter_poi',
-                'label' => __('Points of interest', 'wsb'),
-                'placeholder' => __('e.g. wine estates, landmarks', 'wsb'),
+                'label' => __('Point of interest', 'wsb'),
+                'placeholder' => __('Search or select a point of interest', 'wsb'),
                 'type' => 'text',
                 'required' => false,
                 'applies_to' => ['charter'],
@@ -443,8 +444,8 @@ class BookingFieldRegistry {
             ],
             'charter_notes' => [
                 'key' => 'charter_notes',
-                'label' => __('Charter notes', 'wsb'),
-                'placeholder' => __('Special requests or itinerary notes', 'wsb'),
+                'label' => __('Notes for this hire', 'wsb'),
+                'placeholder' => __('Any timing, route or itinerary notes', 'wsb'),
                 'type' => 'text',
                 'required' => false,
                 'applies_to' => ['charter'],
@@ -459,7 +460,7 @@ class BookingFieldRegistry {
             'charter_day_date' => [
                 'key' => 'charter_day_date',
                 'label' => __('Date', 'wsb'),
-                'placeholder' => __('Select day date', 'wsb'),
+                'placeholder' => __('Select date', 'wsb'),
                 'type' => 'date',
                 'required' => true,
                 'applies_to' => ['charter'],
@@ -514,7 +515,7 @@ class BookingFieldRegistry {
             'charter_day_pickup_location' => [
                 'key' => 'charter_day_pickup_location',
                 'label' => __('Pickup location', 'wsb'),
-                'placeholder' => __('Pickup address or area', 'wsb'),
+                'placeholder' => __('Enter pickup address or area', 'wsb'),
                 'type' => 'text',
                 'required' => true,
                 'applies_to' => ['charter'],
@@ -531,7 +532,7 @@ class BookingFieldRegistry {
             'charter_day_dropoff_location' => [
                 'key' => 'charter_day_dropoff_location',
                 'label' => __('Drop-off location', 'wsb'),
-                'placeholder' => __('Drop-off address or area', 'wsb'),
+                'placeholder' => __('Enter drop-off address or area', 'wsb'),
                 'type' => 'text',
                 'required' => true,
                 'applies_to' => ['charter'],

@@ -57,6 +57,11 @@ function wsb_client_v2_handover_secret(): string {
 	}
 
 	// Local/development environment fallback only.
+	// Prefer the explicit WP_ENVIRONMENT_TYPE constant, then the WordPress runtime helper.
+	if ( defined( 'WP_ENVIRONMENT_TYPE' ) && is_string( WP_ENVIRONMENT_TYPE ) && strtolower( WP_ENVIRONMENT_TYPE ) === 'local' ) {
+		return 'local_v2_handover_secret';
+	}
+
 	// Uses wp_get_environment_type() to ensure staging/production never fall back.
 	if ( function_exists( 'wp_get_environment_type' ) && wp_get_environment_type() === 'local' ) {
 		return 'local_v2_handover_secret';
@@ -80,4 +85,8 @@ function wsb_client_ui_interactions_enabled(): bool {
     }
 
     return (bool) WSB_CLIENT_UI_INTERACTIONS_ENABLED;
+}
+
+if ( ! defined( 'WSB_CLIENT_BOOKING_SITE_URL' ) ) {
+    define( 'WSB_CLIENT_BOOKING_SITE_URL', '' );
 }

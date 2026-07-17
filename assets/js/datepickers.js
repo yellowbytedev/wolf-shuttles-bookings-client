@@ -1,79 +1,87 @@
 (function ($) {
-    // --- helpers ---------------------------------------------------------------
+    'use strict';
+
     var CFG = window.WSB_BLOCKOUTS || {};
     var DAYS = CFG.days || {};
-    var FULL = new Set(Object.keys(DAYS).filter(function (iso) { return isFullDay(DAYS[iso]); }));
-
-    // fallbacks if PHP didn't provide selectors
-    var DATE_SEL = (CFG.selectors && CFG.selectors.date) || 'input[name$="_date"]';
-
-    // Texts (can be overridden from PHP via WSB_BLOCKOUTS.i18n)
-    var WSB_I18N = {};
+    var DATE_SEL = (CFG.selectors && CFG.selectors.date) || '[data-wsb-datepicker], input[type="date"], input[data-wsb-charter-day-field="date"]';
+    var WSB_I18N = CFG.i18n || {};
     WSB_I18N.fullDay = WSB_I18N.fullDay || 'Unavailable (fully booked)';
     WSB_I18N.partial = WSB_I18N.partial || 'Partially unavailable';
 
-    // Build a Set of fully blocked days (00:00—23:59 or 24:00)
     var FULL = new Set(Object.keys(DAYS).filter(function (iso) {
         var ranges = DAYS[iso] || [];
         return ranges.some(function (r) {
-            var s = (r && r[0] || '').trim(), e = (r && r[1] || '').trim();
+            var s = (r && r[0] || '').trim();
+            var e = (r && r[1] || '').trim();
             return s === '00:00' && (e === '23:59' || e === '24:00');
         });
     }));
 
-    // Find the next selectable calendar day starting from tomorrow.
-    // Skips days that are fully blocked in DAYS/FULL.
+    var scanQueued = false;
+
+    function formatIso(date) {
+        return $.datepicker.formatDate('yy-mm-dd', date);
+    }
+
     function wsbNextAvailableDate(fromDate) {
         var d = new Date(fromDate.getFullYear(), fromDate.getMonth(), fromDate.getDate());
-        var max = 370; // safety
+        var max = 370;
         for (var i = 0; i < max; i++) {
-            d.setDate(d.getDate() + 1); // start at *tomorrow*
-            var iso = jQuery.datepicker.formatDate('yy-mm-dd', d);
-            if (!FULL.has(iso)) return new Date(d.getTime());
+            d.setDate(d.getDate() + 1);
+            var iso = formatIso(d);
+            if (!FULL.has(iso)) {
+                return new Date(d.getTime());
+            }
         }
-        return null; // everything blocked (unlikely)
+        return null;
     }
 
-
-    // Format [["05:00","07:00"],["09:00","12:00"]] -> "05:00—07:00, 09:00—12:00"
     function wsbFormatRanges(ranges) {
-        if (!Array.isArray(ranges) || !ranges.length) return '';
-        return ranges.map(function (r) { return (r[0] || '') + '—' + (r[1] || ''); }).join(', ');
+        if (!Array.isArray(ranges) || !ranges.length) {
+            return '';
+        }
+        return ranges.map(function (r) {
+            return (r[0] || '') + '—' + (r[1] || '');
+        }).join(', ');
     }
 
-    // jQuery UI hook: controls disabled/selectable + class + native title
     function wsbBeforeShowDay(date) {
-        var iso = jQuery.datepicker.formatDate('yy-mm-dd', date);
+        var iso = formatIso(date);
         var ranges = DAYS[iso];
 
         if (FULL.has(iso)) {
-            // disabled + tooltip
             return [false, 'wsb-day-blocked', WSB_I18N.fullDay];
         }
+
         if (ranges && ranges.length) {
-            // selectable + tooltip with the blocked windows
             return [true, 'wsb-day-partial', WSB_I18N.partial + ': ' + wsbFormatRanges(ranges)];
         }
+
         return [true, ''];
     }
 
-    // Fallback: force titles on the rendered cells (covers all jQuery UI versions)
     function wsbPaintTitles(inst) {
-        var $dp = inst && inst.dpDiv ? inst.dpDiv : jQuery('#ui-datepicker-div');
-        if (!$dp.length) return;
+        var $dp = inst && inst.dpDiv ? inst.dpDiv : $('#ui-datepicker-div');
+        if (!$dp.length) {
+            return;
+        }
 
         $dp.find('td > a, td > span').each(function () {
-            var $a = jQuery(this);
+            var $a = $(this);
             var $td = $a.closest('td');
-            if ($td.hasClass('ui-datepicker-other-month')) return;
+            if ($td.hasClass('ui-datepicker-other-month')) {
+                return;
+            }
 
-            var txt = $a.text();
-            var day = parseInt(txt, 10);
-            if (!day) return;
+            var day = parseInt($a.text(), 10);
+            if (!day) {
+                return;
+            }
 
-            var y = inst.drawYear, m = inst.drawMonth;              // month is 0-based
+            var y = inst.drawYear;
+            var m = inst.drawMonth;
             var d = new Date(y, m, day);
-            var iso = jQuery.datepicker.formatDate('yy-mm-dd', d);
+            var iso = formatIso(d);
             var ranges = DAYS[iso];
 
             if (FULL.has(iso)) {
@@ -86,72 +94,151 @@
         });
     }
 
-    function mins(t) {
-        if (!t) return NaN;
-        t = String(t).trim().toLowerCase();
-        var m = t.match(/^(\d{1,2})(?::?(\d{2}))?\s*(am|pm)?$/); if (!m) return NaN;
-        var h = +m[1], mi = +(m[2] || 0), ap = m[3] || '';
-        if (ap === 'pm' && h < 12) h += 12; if (ap === 'am' && h === 12) h = 0;
-        return h * 60 + mi;
-    }
-
-    function isFullDay(ranges) {
-        if (!Array.isArray(ranges)) return false;
-        for (var i = 0; i < ranges.length; i++) {
-            var s = mins(ranges[i][0]), e = mins(ranges[i][1]);
-            if (s === 0 && (e >= 1439 && e <= 1440)) return true;
-        }
-        return false;
+    function schedulePaint(inst) {
+        window.setTimeout(function () {
+            if (inst) {
+                wsbPaintTitles(inst);
+            }
+        }, 0);
     }
 
     function attachOne(el) {
         var $el = $(el);
-        if ($el.data('wsbDp')) return;
-        $el.attr('autocomplete', 'off');
-        $el.datepicker({
-            dateFormat: 'dd/mm/yy',
-            minDate: 0,                          // TODAY selectable
-            beforeShowDay: wsbBeforeShowDay,     // <- enables tooltip + disable logic
-            beforeShow: function (input, inst) { // <- force titles when popup opens
-                setTimeout(function () { wsbPaintTitles(inst); }, 0);
-            },
-            onChangeMonthYear: function (y, m, inst) { // <- repaint when month changes
-                setTimeout(function () { wsbPaintTitles(inst); }, 0);
-            },
-            onSelect: function () {               // keep your existing change events
-                var inst = jQuery(this).data('datepicker') || jQuery.datepicker._getInst(this);
-                setTimeout(function () { if (inst) wsbPaintTitles(inst); }, 0);
-                this.dispatchEvent(new Event('change', { bubbles: true }));
-                document.dispatchEvent(new CustomEvent('wsb:blockouts:rescan'));
-            }
-        });
+        if ($el.data('wsbDp')) {
+            return;
+        }
 
-        // Prefill default date if the field is empty: tomorrow or next available day.
-        if (!$el.val()) {
-            var pick = wsbNextAvailableDate(new Date());
-            if (pick) {
-                try { $el.datepicker('setDate', pick); } catch (e) { }
-                // Fire the same hooks your onSelect uses so the rest of your logic runs:
-                setTimeout(function () {
-                    el.dispatchEvent(new Event('change', { bubbles: true }));
-                    document.dispatchEvent(new CustomEvent('wsb:blockouts:rescan'));
-                }, 0);
-            }
+        if (!$.fn || !$.fn.datepicker) {
+            return;
         }
 
         $el.data('wsbDp', 1);
+        $el.attr('autocomplete', 'off');
+
+        $el.datepicker({
+            dateFormat: 'yy-mm-dd',
+            showOn: 'focus',
+            showAnim: 'fadeIn',
+            minDate: 0,
+            beforeShowDay: wsbBeforeShowDay,
+            beforeShow: function (input, inst) {
+                schedulePaint(inst);
+            },
+            onChangeMonthYear: function (y, m, inst) {
+                schedulePaint(inst);
+            },
+            onSelect: function () {
+                var inst = $(this).data('datepicker') || $.datepicker._getInst(this);
+                schedulePaint(inst);
+                this.dispatchEvent(new Event('input', { bubbles: true }));
+                this.dispatchEvent(new Event('change', { bubbles: true }));
+                document.dispatchEvent(new CustomEvent('wsb:blockouts:date-selected'));
+            }
+        });
+
+        $el.off('.wsbDatepicker').on('click.wsbDatepicker focus.wsbDatepicker', function () {
+            try {
+                $el.datepicker('show');
+            } catch (error) {
+                // Ignore browsers that block programmatic opening.
+            }
+        });
+
+        if (!$el.val()) {
+            var pick = wsbNextAvailableDate(new Date());
+            if (pick) {
+                try {
+                    $el.datepicker('setDate', pick);
+                } catch (e) {}
+                window.setTimeout(function () {
+                    el.dispatchEvent(new Event('input', { bubbles: true }));
+                    el.dispatchEvent(new Event('change', { bubbles: true }));
+                    document.dispatchEvent(new CustomEvent('wsb:blockouts:date-prefilled'));
+                }, 0);
+            }
+        }
     }
 
-    function scan() {
-        if (!$.fn || !$.fn.datepicker) return;
-        document.querySelectorAll(DATE_SEL).forEach(attachOne);
+    function isVisible(el) {
+        if (!el || !el.ownerDocument) {
+            return false;
+        }
+        var style = window.getComputedStyle(el);
+        if (!style || style.display === 'none' || style.visibility === 'hidden' || parseFloat(style.opacity || '1') === 0) {
+            return false;
+        }
+        var rect = el.getBoundingClientRect();
+        return rect.width > 0 && rect.height > 0;
     }
 
-    // run, retry, and observe
-    var tries = 0, t = setInterval(function () { tries++; scan(); if (tries > 20) clearInterval(t); }, 150);
-    new MutationObserver(scan).observe(document.documentElement, { subtree: true, childList: true });
-    document.addEventListener('wsb:blockouts:rescan', scan);
+    function scan(root) {
+        if (!$.fn || !$.fn.datepicker) {
+            return;
+        }
 
-    if (CFG.debug) console.info('[WSB] datepickers.js running; selector:', DATE_SEL);
+        var scope = root || document;
+        var fields = scope.querySelectorAll ? scope.querySelectorAll(DATE_SEL) : [];
+        fields.forEach(function (field) {
+            if (isVisible(field)) {
+                attachOne(field);
+            }
+        });
+    }
+
+    function scheduleScan(root) {
+        if (scanQueued) {
+            return;
+        }
+        scanQueued = true;
+        window.requestAnimationFrame(function () {
+            scanQueued = false;
+            scan(root || document);
+        });
+    }
+
+    function boot() {
+        document.addEventListener('focusin', function (event) {
+            var target = event.target;
+            if (!target || !target.matches) {
+                return;
+            }
+
+            if (!target.matches(DATE_SEL)) {
+                if (!target.closest || !target.closest('#ui-datepicker-div')) {
+                    try {
+                        $.datepicker._hideDatepicker();
+                    } catch (error) {
+                        // The picker may not have been initialised yet.
+                    }
+                }
+                return;
+            }
+
+            if (!isVisible(target)) {
+                return;
+            }
+            attachOne(target);
+        });
+        scheduleScan(document);
+    }
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', boot);
+    } else {
+        boot();
+    }
+
+    document.addEventListener('wsb:blockouts:rescan', function () {
+        scheduleScan(document);
+    });
+    document.addEventListener('wsb:booking-builder:fields-added', function () {
+        scheduleScan(document);
+    });
+    document.addEventListener('wsb:charter-days-updated', function () {
+        scheduleScan(document);
+    });
+
+    if (CFG.debug) {
+        console.info('[WSB] datepickers.js safe mode; selector:', DATE_SEL);
+    }
 })(jQuery);
-

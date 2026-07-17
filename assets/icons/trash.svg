@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" vector-effect="non-scaling-stroke" role="img" aria-label="trash">
+<title>trash</title>
+<path d="M4.75 7.25h14.5"/>
+<path d="M9.5 7.25V5.75A1.75 1.75 0 0 1 11.25 4h1.5a1.75 1.75 0 0 1 1.75 1.75v1.5"/>
+<path d="M7.25 7.25 8 19.25A1.9 1.9 0 0 0 9.9 21h4.2a1.9 1.9 0 0 0 1.9-1.75l.75-12"/>
+<path d="M10.25 10.75v6.5"/>
+<path d="M13.75 10.75v6.5"/>
+</svg>

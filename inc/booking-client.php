@@ -14,6 +14,7 @@ require_once __DIR__ . '/class-booking-payload-preview-controller.php';
 require_once __DIR__ . '/class-booking-site-client.php';
 require_once __DIR__ . '/class-booking-payload-v2-handover-service.php';
 require_once __DIR__ . '/class-booking-payload-handover-preview-controller.php';
+require_once __DIR__ . '/class-booking-intake-client.php';
 require_once __DIR__ . '/class-booking-field-registry.php';
 require_once __DIR__ . '/class-booking-client-form-shortcode.php';
 require_once __DIR__ . '/class-booking-intake-fixture-loader.php';

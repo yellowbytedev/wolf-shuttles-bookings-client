@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" vector-effect="non-scaling-stroke" role="img" aria-label="map-pin-plus">
+<title>map-pin-plus</title>
+<path d="M10.8 20.4C9.25 18.95 5.5 15.05 5.5 10.8a5.3 5.3 0 1 1 10.6 0c0 .75-.12 1.48-.35 2.2"/>
+<circle cx="10.8" cy="10.8" r="1.75"/>
+<path d="M17.25 14.5v6"/>
+<path d="M14.25 17.5h6"/>
+</svg>

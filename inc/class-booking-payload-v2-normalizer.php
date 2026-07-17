@@ -18,7 +18,7 @@ if ( ! class_exists( 'WSB_Client_Booking_Payload_V2_Normalizer' ) ) {
          * @return array<string,mixed>
          */
         public function normalize( array $raw ) : array {
-            $trip_type = $this->sanitize_enum( $raw['trip_type'] ?? 'one_way', array( 'one_way', 'return', 'charter' ), 'one_way' );
+            $trip_type = $this->sanitize_enum( $raw['trip_type'] ?? 'one_way', array( 'one_way', 'return', 'charter', 'multi_trip' ), 'one_way' );
             $service_type = $this->sanitize_enum( $raw['service_type'] ?? 'city_transfer', array( 'city_transfer', 'airport_pickup', 'airport_dropoff', 'charter_hire' ), 'city_transfer' );
             $service_group = $this->normalize_service_group( $raw );
 

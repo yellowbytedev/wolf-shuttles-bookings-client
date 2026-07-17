@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" vector-effect="non-scaling-stroke" role="img" aria-label="luggage-check-in">
+<title>luggage-check-in</title>
+<path d="M9 7V5.9a1.9 1.9 0 0 1 1.9-1.9h2.2A1.9 1.9 0 0 1 15 5.9V7"/>
+<rect x="6" y="7" width="12" height="13" rx="2"/>
+<path d="M9.5 10.5v6"/>
+<path d="M14.5 10.5v6"/>
+<path d="M8.25 20v1"/>
+<path d="M15.75 20v1"/>
+</svg>

@@ -177,14 +177,14 @@ add_action('wp_enqueue_scripts', function () {
     true
   );
 
-  $selectors = apply_filters('wsb_client_selectors', [
+$selectors = apply_filters('wsb_client_selectors', [
     // Dates present on marketing site (adjust if needed)
-    'date'       => 'input[name="pickup_date"], input[name="return_date"], input[name="charter_pickup_date"]',
+    'date'       => 'input[type="date"], input[data-wsb-datepicker]',
     // Times (cover text/clock, native, select)
-    'timeText'   => 'input[name$="_time"]',
-    'timeInput'  => 'input[type="time"][name$="_time"]',
-    'timeSelect' => 'select[name$="_time"]',
-  ]);
+    'timeText'   => 'input[name$="-time"], input[name$="_time"]',
+    'timeInput'  => 'input[type="time"][name$="-time"], input[type="time"][name$="_time"]',
+    'timeSelect' => 'select[name$="-time"], select[name$="_time"]',
+]);
 
   $cfg = [
     'days'      => $store['days'],
@@ -199,15 +199,24 @@ add_action('wp_enqueue_scripts', function () {
   wp_add_inline_script('wsb-client-frontend', 'window.WSB_BLOCKOUTS = '.wp_json_encode($cfg).';', 'before');
   wp_enqueue_script('wsb-client-frontend');
 
-  // 2) Datepicker (jQuery UI) + your datepicker initializer for marketing site
-  wp_enqueue_script('jquery-ui-datepicker');
-  wp_enqueue_style('jquery-ui-theme', 'https://code.jquery.com/ui/1.13.3/themes/base/jquery-ui.css', [], '1.13.3');
+// 2) Datepicker (jQuery UI) + your datepicker initializer for marketing site
+   wp_enqueue_script('jquery-ui-datepicker');
+   wp_enqueue_style('jquery-ui-theme', 'https://code.jquery.com/ui/1.13.3/themes/base/jquery-ui.css', [], '1.13.3');
 
-  wp_enqueue_script(
-    'wsb-client-datepickers',
-    plugins_url('assets/js/datepickers.js', __FILE__), // your marketing-site datepicker JS
-    ['jquery', 'jquery-ui-datepicker', 'wsb-client-frontend'],
-    WSB_CLIENT_VERSION,
-    true
-  );
+   wp_enqueue_script(
+     'wsb-client-datepickers',
+     plugins_url('assets/js/datepickers.js', __FILE__), // your marketing-site datepicker JS
+     ['jquery', 'jquery-ui-datepicker', 'wsb-client-frontend'],
+     WSB_CLIENT_VERSION,
+     true
+   );
+
+   // 3) Clock timepicker for time inputs (must be loaded before booking-client-form)
+   wp_enqueue_script(
+     'wsb-clock-timepicker',
+     plugins_url('assets/js/jquery-clock-timepicker.min.js', __FILE__),
+     ['jquery'],
+     WSB_CLIENT_VERSION,
+     true
+   );
 });

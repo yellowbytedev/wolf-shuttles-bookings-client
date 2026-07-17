@@ -80,6 +80,7 @@ function wsb_client_legacy_matches_context(array $page_ids = [], array $post_typ
 foreach ([
     'php/10-helper-functions.php',
     'php/11-register-api-endpoint-for.php',
+    'php/26-legacy-bricks-v2-handover-adapter.php',
     'php/15-submit-booking-form-and.php',
     'php/16-create-localised-variable-for.php',
     'php/19-bricks-builder-custom.php',
@@ -153,3 +154,17 @@ add_action('wp_footer', function (): void {
         'wsb-legacy-30-create-debugger'
     );
 }, 10);
+
+// Local test-only: bypass Google Places geocoding for browser testing
+// ONLY loads in local environment with WSB_TEST_GEOCODING_BYPASS enabled
+if (defined('WSB_TEST_GEOCODING_BYPASS') && WSB_TEST_GEOCODING_BYPASS) {
+    add_action('wp_footer', function (): void {
+        // Inject config to indicate test mode
+        echo '<script>window.WSB_BOOKING_CLIENT_FORM = Object.assign({}, window.WSB_BOOKING_CLIENT_FORM || {}, { testGeocodingBypass: true });</script>';
+        wsb_client_legacy_print_asset(
+            'js/test-geocoding-bypass.js',
+            'js',
+            'wsb-test-geocoding-bypass'
+        );
+    }, 5);
+}

@@ -152,16 +152,63 @@
         hint.textContent = text || '';
     }
 
+    function clearHint(el) {
+        var id = (el.id || 'wsb_time') + '_hint';
+        var hint = document.getElementById(id);
+        if (hint && hint.parentNode) {
+            hint.parentNode.removeChild(hint);
+        }
+    }
+
+    function pushScopedMatches(list, scope, selector) {
+        if (!scope || !selector) return;
+        pushAll(list, scope.querySelectorAll(selector));
+    }
+
     // --- Pairing: date input name 'X_date' → time name 'X_time'
     function pairedTimeElements(dateInput) {
         var list = [];
-        var name = dateInput && dateInput.getAttribute('name') || '';
-        var base = name.replace(/_date$/, '');
+        if (!dateInput) {
+            return list;
+        }
+
+        var charterDayCard = dateInput.closest && dateInput.closest('[data-wsb-charter-day-card]');
+        if (charterDayCard) {
+            pushScopedMatches(list, charterDayCard, 'input[data-wsb-charter-day-field="start_time"]');
+            pushScopedMatches(list, charterDayCard, 'input[data-wsb-charter-day-field="end_time"]');
+            return list;
+        }
+
+        var charterSameDay = dateInput.closest && dateInput.closest('[data-wsb-charter-same-day-panel]');
+        if (charterSameDay) {
+            pushScopedMatches(list, charterSameDay, 'input[name="charter_pickup_time"]');
+            pushScopedMatches(list, charterSameDay, 'input[name="charter-dropoff-time"]');
+            pushScopedMatches(list, charterSameDay, 'input[name$="-pickup-time"]');
+            pushScopedMatches(list, charterSameDay, 'input[name$="-dropoff-time"]');
+            return list;
+        }
+
+        var outboundSection = dateInput.closest && dateInput.closest('[data-wsb-outbound-section]');
+        if (outboundSection) {
+            pushScopedMatches(list, outboundSection, 'input[name$="-pickup-time"]');
+            pushScopedMatches(list, outboundSection, 'input[name$="_pickup_time"]');
+            return list;
+        }
+
+        var returnSection = dateInput.closest && dateInput.closest('[data-wsb-return-section]');
+        if (returnSection) {
+            pushScopedMatches(list, returnSection, 'input[name$="-pickup-time"]');
+            pushScopedMatches(list, returnSection, 'input[name$="_pickup_time"]');
+            return list;
+        }
+
+        var name = dateInput.getAttribute('name') || '';
+        var base = name.replace(/-date$/, '').replace(/_date$/, '');
         if (!base || base === name) {
             // Fallback to global selectors
             pushAll(list, document.querySelectorAll(SEL.timeSelect || ''));
-            pushAll(list, document.querySelectorAll(SEL.timeInput || ''));
-            pushAll(list, document.querySelectorAll(SEL.timeText || ''));
+            pushAll(list, document.querySelectorAll(SEL.timeInput || ''))
+            pushAll(list, document.querySelectorAll(SEL.timeText || ''))
             return list;
         }
         var tname = base + '_time';
@@ -599,7 +646,8 @@
 
 
     function observePopupForRedraw(popup /*, oldHourCanvas */) {
-        if (!popup) return;
+        if (!popup || popup.dataset.wsbOverlayObserverBound === 'true') return;
+        popup.dataset.wsbOverlayObserverBound = 'true';
 
         function draw() {
             var hourCanvas = popup.querySelector('.clock-timepicker-hour-canvas');
@@ -652,17 +700,54 @@
     // Apply rules to a specific date + its paired time fields
     function applyForDate(dateInput) {
         var iso = toISO(dateInput.value);
-        if (!iso) return;
+        var pairedElements = pairedTimeElements(dateInput);
+        if (!iso) {
+            dateInput.classList.remove('wsb-date-blocked');
+            try { dateInput.setCustomValidity(''); } catch (e) { }
+            clearHint(dateInput);
+            pairedElements.forEach(function (el) {
+                el.disabled = false;
+                el.classList.remove('wsb-time-disabled');
+                if (el._wsbInputValidator) {
+                    el.removeEventListener('input', el._wsbInputValidator);
+                    el._wsbInputValidator = null;
+                }
+                if (el.tagName === 'SELECT') {
+                    [].forEach.call(el.options, function (opt) {
+                        opt.disabled = false;
+                        opt.hidden = false;
+                    });
+                }
+                mkHint(el, '');
+                try { el.setCustomValidity(''); } catch (e) { }
+            });
+            return;
+        }
         var prettyRanges = (DAYS[iso] || []).map(function (r) { return r[0] + ' – ' + r[1]; }).join(', ');
         var ranges = rangesFor(iso);
         var blockedSet = blockedHoursFromRanges(ranges);
 
         var fullDay = isFullDayRanges(DAYS[iso] || []);
+        if (fullDay) {
+            dateInput.classList.add('wsb-date-blocked');
+            try { dateInput.setCustomValidity('That date is unavailable.'); } catch (e) { }
+            mkHint(dateInput, 'Fully booked for the selected day');
+        } else {
+            dateInput.classList.remove('wsb-date-blocked');
+            try { dateInput.setCustomValidity(''); } catch (e) { }
+            clearHint(dateInput);
+        }
 
-        pairedTimeElements(dateInput).forEach(function (el) {
+        pairedElements.forEach(function (el) {
             // Always reset when switching dates
             el.disabled = false;
             el.classList.remove('wsb-time-disabled');
+            if (el.tagName === 'SELECT') {
+                [].forEach.call(el.options, function (opt) {
+                    opt.disabled = false;
+                    opt.hidden = false;
+                });
+            }
 
             if (fullDay) {
                 // Full-day: disable time field entirely (any type)
@@ -862,10 +947,17 @@
 
 
     function attach() {
-        var dates = document.querySelectorAll(SEL.date || '');
+        var dateSelector = 'input[name$="-date"], input[name$="_date"], input[data-wsb-charter-day-field="date"], input[type="date"]';
+        if (SEL.date) {
+            dateSelector = SEL.date + ', ' + dateSelector;
+        }
+        var dates = document.querySelectorAll(dateSelector);
         dates.forEach(wireDate);
 
-        document.addEventListener('wsb:blockouts:rescan', attach);
+        if (!document._wsbBlockoutRescanBound) {
+            document._wsbBlockoutRescanBound = true;
+            document.addEventListener('wsb:blockouts:rescan', attach);
+        }
 
         // Optional: if your form dynamically replaces these nodes, re-scan cheaply
         // setTimeout(() => document.querySelectorAll(SEL.date||'').forEach(wireDate), 300);

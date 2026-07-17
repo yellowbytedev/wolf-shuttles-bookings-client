@@ -445,6 +445,35 @@ The next major task is the **booking-site v2 dry-run receiver** implementation i
 - All 29 payload fixtures pass.
 - All 18 valid handover fixtures pass (11 invalid skipped as expected).
 
+## UX-002 — Copy cleanup and removal of internal/developer wording (completed)
+
+- Verified the production `/booking-builder/` page renders **no** internal/developer wording from the FRONTEND-UX-001 hard-copy rule.
+- Forbidden-word scan of normal page visible text + customer-facing attributes (`placeholder`, `aria-label`, `title`, `alt`, `value`): **0 matches**.
+- Forbidden-word scan of `*.php`/`*.js`/`*.css` source (excluding docs/tests/vendor) for clearly-developer terms (`fixed slot`, `reserved slot`, `hidden slot`, `mock day`, `feature gate`, `V3`, `M4A`, `M4B`, `TODO`, `booking_token`, `raw JSON`, `envelope`, `handover_mode`, `testing`, `beta`, `metadata`, etc.): **0 matches**.
+- All remaining `payload`/`place_id`/`lat`/`lng`/`handover`/`schema_version` strings are internal code keys, the `window.WSB_BOOKING_CLIENT_FORM` JSON config, or `?debug=1`-gated fixture/preview content.
+- Debug page (`?debug=1`) confirmed working; its internal wording (fixture drawer, dev header, raw preview) stays scoped to `?debug=1` / `.wb-debug` and does not leak into the normal page.
+- No customer-facing copy string required replacement; no runtime logic, field keys, payload fields, or form flow changed.
+- Checks: `php -l inc/class-booking-client-form-shortcode.php` OK; `node --check assets/js/booking-client-form.js` OK; both pages HTTP 200.
+- Report: `docs/ux-002-copy-cleanup-internal-wording.md`.
+
+## UX-003D — Datepicker hard runtime debug/fix (completed)
+
+- Fixed PHP selector in `ws-bookings-client.php` to match booking-builder field names:
+  - Changed from: `input[name="pickup_date"], input[name="return_date"], input[name="charter_pickup_date"]`
+  - Changed to: `input[name="outbound_pickup_date"], input[name="return_pickup_date"], input[data-wsb-datepicker]`
+- Updated `assets/js/datepickers.js`:
+  - Added fallback selector `[data-wsb-datepicker], input[name$="_date"], input[data-wsb-charter-day-field="date"]`
+  - Changed date format to `yy-mm-dd` (YYYY-MM-DD) for consistent payload format
+- Added `.ui-datepicker` z-index styling in `assets/css/booking-client-form.css`
+- Verified datepicker opens on click/focus for all date fields:
+  - `outbound_pickup_date` (Book a Ride) ✓
+  - `return_pickup_date` (Return) ✓
+  - Shuttle Hire single-day date ✓
+  - Multi-day charter day date fields ✓
+- Date selection works; values saved in `yy-mm-dd` format ✓
+- No regressions to timepicker, AM/PM badge, or other UI elements
+- All PHP/JS syntax checks pass; all fixture runners pass
+
 ## Traveller Count Cache Fix (completed)
 
 - Added `ws_travelers_purge_count_cache()` helper in `inc/legacy-snippets/php/24-create-rest-endpoint-for.php`.
@@ -455,3 +484,54 @@ The next major task is the **booking-site v2 dry-run receiver** implementation i
 - Created documentation in `docs/traveller-count-cache-investigation.md`.
 - Investigation found no second writer; likely cause is stale HTML cache with 12-hour TTL.
 - No changes to traveler calculation logic or booking-side sync.
+
+## Phase 2X — V2 Intake Handoff Foundation (in progress)
+
+- Created `inc/class-booking-intake-client.php`:
+  - Sends signed envelopes to `/wp-json/ws-bookings/v2/intake`
+  - Configurable booking site URL via `WSB_CLIENT_BOOKING_SITE_URL` constant or filter
+  - 15-second HTTP timeout, returns `success`, `redirect_url`, `error` fields
+  - Static `is_real_handover_enabled()` method checks feature gate
+- Updated `inc/class-booking-payload-v2-handover-service.php`:
+  - Added optional `$real_handover` parameter to `build_envelope()`
+  - Sets `mode` to `'real'` when real handover is enabled
+  - Updates `meta.preview_only` and `meta.real_handover_enabled` accordingly
+- Updated `inc/class-booking-payload-handover-preview-controller.php`:
+  - Calls intake client after successful validation when `enable_real_handover` is true
+  - Returns `redirect_url` on success for browser redirect
+- Updated `inc/class-booking-feature-gates.php`:
+  - Added `enable_real_handover` gate to `KNOWN_GATES`
+  - Enabled for local (true), disabled for staging/production (false)
+- Updated `inc/booking-client-config.php`:
+  - Added `WSB_CLIENT_BOOKING_SITE_URL` constant definition (empty default)
+- Updated `inc/booking-client.php`:
+  - Added require_once for `class-booking-intake-client.php`
+- Updated `assets/js/booking-client-form.js`:
+  - Added `requestHandoverPreview()` function for fetch-based submission
+  - Modified submit handler to redirect on `redirect_url` success
+  - Handles preview mode vs real handoff in response handling
+- All PHP syntax checks passed
+- All JS syntax checks passed
+
+## Phase 2Y — Legacy Bricks V2 Handover Adapter (completed)
+
+- Created `inc/legacy-snippets/php/26-legacy-bricks-v2-handover-adapter.php`:
+  - `wsb_legacy_adapter_is_v2_enabled()` - Returns true when `WSB_CLIENT_HANDOVER_MODE === 'v2_token'`
+  - `wsb_legacy_adapter_is_v2_strict_mode()` - Prevents fallback to legacy on V2 failure
+  - `wsb_legacy_adapter_normalize_keys()` - Transforms legacy camelCase field names to snake_case
+  - `wsb_legacy_adapter_normalize_trip_type()` - Converts `point_to_point_transfer` → `one_way`/`return`
+  - `wsb_legacy_adapter_normalize_service_type()` - Maps service types to canonical values
+  - `wsb_legacy_adapter_send_to_v2_intake()` - POSTs to `/wp-json/ws-bookings/v2/intake`
+- Modified `inc/legacy-snippets/php/15-submit-booking-form-and.php`:
+  - `send_booking_data()` checks V2 mode and POSTs to intake endpoint
+  - Returns redirect URL with `booking_token` on success
+  - Falls back to legacy hash on failure (or surfaces error in strict mode)
+- Modified `inc/legacy-snippets/loader.php`:
+  - Added adapter file to load sequence before submit handler
+- Added V2 mode constants to `wp-config.php`:
+  - `WSB_CLIENT_HANDOVER_MODE = 'v2_token'`
+  - `WSB_CLIENT_V2_STRICT_MODE = true`
+- V2 intake endpoint tested successfully with flat-field payload
+- Redirect URL verified: `https://bookings.wolfshuttles.local?booking_token=...` (NOT `/book-online/`)
+- PHP lint passed on all modified files
+- Documentation: `docs/implementation/LEGACY-BRICKS-V2-ADAPTER-ENABLE-VERIFY-002.md`

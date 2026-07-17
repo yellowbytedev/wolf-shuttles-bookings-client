@@ -55,10 +55,15 @@ function wsb_ms_check_blockouts(array $pairs): array {
   return $errs;
 }
 
-// dd/mm/YYYY → YYYY-mm-dd
+// dd/mm/YYYY → YYYY-mm-dd (or already ISO format → passthrough)
 function wsb_ms_to_iso(?string $d): string {
   $d = trim((string)$d);
   if ($d === '') return '';
+  // If already ISO format (Y-m-d), return as-is
+  if (preg_match('#^\d{4}-\d{2}-\d{2}$#', $d)) {
+      return $d;
+  }
+  // Convert d/m/Y → Y-m-d
   if (preg_match('#^(\d{2})/(\d{2})/(\d{4})$#', $d, $m)) return "{$m[3]}-{$m[2]}-{$m[1]}";
   return $d;
 }
@@ -826,11 +831,15 @@ function custom_booking_form_action( $form ) {
     // Generate a hash for the booking data
     $secret_key = BOOKING_HASH_SECRET;
     error_log('[WSB] secret_configured=1');
-    $hash = send_booking_data( $data, $secret_key );
+    $result = send_booking_data( $data, $secret_key );
 
-    if ( $hash ) {
-        // Redirect to the booking URL
-        $redirect_url = get_booking_url( '?hash=' . urlencode( $hash ) );
+    if ( $result ) {
+        // V2 returns a full redirect URL; legacy returns just a hash
+        if ( function_exists( 'wsb_legacy_adapter_is_v2_enabled' ) && wsb_legacy_adapter_is_v2_enabled() && preg_match( '~booking_token=~', $result ) ) {
+            $redirect_url = $result; // Already contains booking_token
+        } else {
+            $redirect_url = get_booking_url( '?hash=' . urlencode( $result ) );
+        }
         $form->set_result([
             'action' => 'custom_redirect',
             'type' => 'redirect',
@@ -848,9 +857,27 @@ function send_booking_data( $data, $secret_key ) {
 
     error_log('[WSB] handover_hash_generated=1');
 
-    // API URL of the booking system
+    // V2 handover: POST directly to intake endpoint when enabled
+    if ( function_exists( 'wsb_legacy_adapter_is_v2_enabled' ) && wsb_legacy_adapter_is_v2_enabled() ) {
+        $result = wsb_legacy_adapter_send_to_v2_intake( $data );
+
+        if ( $result['ok'] && ! empty( $result['redirect_url'] ) ) {
+            error_log( '[WSB] V2 handover succeeded: booking_token=' . ( $result['booking_token'] ? 'present' : 'missing' ) );
+            return $result['redirect_url'];
+        }
+
+        // In strict mode, do NOT fall back to legacy - surface the failure.
+        if ( function_exists( 'wsb_legacy_adapter_is_v2_strict_mode' ) && wsb_legacy_adapter_is_v2_strict_mode() ) {
+            error_log( '[WSB] V2 STRICT MODE: V2 intake failed, NOT falling back: ' . ( $result['error'] ?? 'unknown' ) );
+            return false;
+        }
+
+        error_log( '[WSB] V2 handover failed, falling back to legacy: ' . ( $result['error'] ?? 'unknown' ) );
+    }
+
+// Legacy flow (unchanged): API URL of the booking system
     $api_url = get_booking_url( '/wp-json/booking-api/v1/receive-booking' );
-     
+
     error_log('[WSB] handover_endpoint_configured=1');
 
     // Send data and hash to the booking system
@@ -1024,17 +1051,20 @@ function calculate_duration($pickup_date, $pickup_time, $drop_off_time, $format 
  * @return string|null Returns an error message if invalid, or null if the gap is valid.
  */
 function validate_time_gap($date, $time, $duration, $vehicle_type) {
-    // error_log('duration in validate_time_gap: ' . $duration);
     $format = 'd/m/Y H:i';
     $datetime_str = $date . ' ' . $time;
-    
+
     // Use WordPress's timezone for consistency.
     $timezone = wp_timezone();
     $datetime_obj = DateTime::createFromFormat($format, $datetime_str, $timezone);
-    
-    // If parsing fails, return an error message.
+
+    // If parsing fails with d/m/Y format, try ISO format (Y-m-d H:i) as fallback
     if (!$datetime_obj) {
-        return 'Failed to parse date/time: ' . $datetime_str;
+        $iso_format = 'Y-m-d H:i';
+        $datetime_obj = DateTime::createFromFormat($iso_format, $datetime_str, $timezone);
+        if (!$datetime_obj) {
+            return 'Failed to parse date/time: ' . $datetime_str;
+        }
     }
     
     $pickup_timestamp = $datetime_obj->getTimestamp();
@@ -1063,19 +1093,27 @@ function validate_time_gap($date, $time, $duration, $vehicle_type) {
 function validate_dropoff_after_pickup($pickup_date, $pickup_time, $drop_off_time, $format = 'd/m/Y H:i') {
     // Use WordPress's timezone for consistency.
     $timezone = wp_timezone();
-    
-    // Build pickup datetime
+
+    // Build pickup datetime - try both formats
     $pickup_datetime_str = $pickup_date . ' ' . $pickup_time;
     $pickup_dt = DateTime::createFromFormat($format, $pickup_datetime_str, $timezone);
     if (!$pickup_dt) {
-        return 'Failed to parse pickup date/time: ' . $pickup_datetime_str;
+        $iso_format = 'Y-m-d H:i';
+        $pickup_dt = DateTime::createFromFormat($iso_format, $pickup_datetime_str, $timezone);
+        if (!$pickup_dt) {
+            return 'Failed to parse pickup date/time: ' . $pickup_datetime_str;
+        }
     }
-    
-    // Build drop off datetime
+
+    // Build drop off datetime - try both formats
     $dropoff_datetime_str = $pickup_date . ' ' . $drop_off_time;
     $dropoff_dt = DateTime::createFromFormat($format, $dropoff_datetime_str, $timezone);
     if (!$dropoff_dt) {
-        return 'Failed to parse drop off date/time: ' . $dropoff_datetime_str;
+        $iso_format = 'Y-m-d H:i';
+        $dropoff_dt = DateTime::createFromFormat($iso_format, $dropoff_datetime_str, $timezone);
+        if (!$dropoff_dt) {
+            return 'Failed to parse drop off date/time: ' . $dropoff_datetime_str;
+        }
     }
     
     // Check that drop off time is strictly after pickup time.
@@ -1142,16 +1180,20 @@ function validate_general_transfer_booking($errors, $form) {
         $trip_type_value = $trip_type[0];
         $trip_distance_str = $form_fields['trip_distance']; // e.g. "20.5,77.1"
 
-        // Convert the string to an array
-        $trip_distance = explode(',', $trip_distance_str);
+        // Local/test-only bypass: allow empty trip_distance for testing
+        $is_local_env = function_exists('wp_get_environment_type') && wp_get_environment_type() === 'local' && defined('WSB_TEST_GEOCODING_BYPASS') && WSB_TEST_GEOCODING_BYPASS;
+        if (!$is_local_env || $trip_distance_str !== '') {
+            // Convert the string to an array
+            $trip_distance = explode(',', $trip_distance_str);
 
-        if ($trip_type_value === 'roundtrip') {
-            $error_message = validate_trip_distances($trip_distance, 'return');
-        } else {
-            $error_message = validate_trip_distances($trip_distance, 'one-way');
-        }
-        if ($error_message !== null) {
-            $errors[] = esc_html__($error_message, 'bricks');
+            if ($trip_type_value === 'roundtrip') {
+                $error_message = validate_trip_distances($trip_distance, 'return');
+            } else {
+                $error_message = validate_trip_distances($trip_distance, 'one-way');
+            }
+            if ($error_message !== null) {
+                $errors[] = esc_html__($error_message, 'bricks');
+            }
         }
     }
     

@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" vector-effect="non-scaling-stroke" role="img" aria-label="car">
+<title>car</title>
+<path d="M5 16h14"/>
+<path d="M6.2 16.2v-3.15c0-.45.12-.9.34-1.29l1.5-2.68A2.15 2.15 0 0 1 9.92 8h4.16c.78 0 1.5.42 1.88 1.08l1.5 2.68c.22.39.34.84.34 1.29v3.15"/>
+<path d="M7.25 12h9.5"/>
+<path d="M8.3 16.2v1.25"/>
+<path d="M15.7 16.2v1.25"/>
+<circle cx="8.25" cy="17.25" r="1.15"/>
+<circle cx="15.75" cy="17.25" r="1.15"/>
+</svg>

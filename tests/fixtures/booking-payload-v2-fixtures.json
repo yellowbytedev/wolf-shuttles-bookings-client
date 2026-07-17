@@ -2435,7 +2435,14 @@
                     },
                     "pickup_date": "2026-08-15",
                     "pickup_time": "09:00",
-                    "stops": [],
+                    "stops": [
+                        {
+                            "type": "additional_stop",
+                            "location": {
+                                "label": "Engen Winelands 1 Stop"
+                            }
+                        }
+                    ],
                     "place_snapshots": {
                         "from": {
                             "provider": "google_places",
@@ -2451,7 +2458,16 @@
                             "lat": -33.9333,
                             "lng": 18.8467
                         },
-                        "stops": []
+                        "stops": [
+                            {
+                                "provider": "google_places",
+                                "place_id": "mock_engen_winelands_1_stop_place_id",
+                                "label": "Engen Winelands 1 Stop",
+                                "formatted_address": "Engen Winelands 1 Stop, Western Cape, South Africa",
+                                "lat": -34,
+                                "lng": 18.75
+                            }
+                        ]
                     }
                 }
             ],
@@ -2473,19 +2489,41 @@
                                 },
                                 "pickup_date": "2026-08-15",
                                 "pickup_time": "09:00",
-                                "stops": [],
+                                "passengers": 2,
+                                "bags": 0,
+                                "stops": [
+                                    {
+                                        "type": "additional_stop",
+                                        "location": {
+                                            "label": "Engen Winelands 1 Stop"
+                                        }
+                                    }
+                                ],
                                 "place_snapshots": {
                                     "from": {
                                         "provider": "google_places",
                                         "place_id": "ChIJvQtA90JFzB0RkF7P43l1SEA",
-                                        "label": "Cape Town International Airport"
+                                        "label": "Cape Town International Airport",
+                                        "lat": -33.9696,
+                                        "lng": 18.5978
                                     },
                                     "to": {
                                         "provider": "google_places",
                                         "place_id": "ChIJNcaAuaNHzB0Ruy1x8vqiSUM",
-                                        "label": "Stellenbosch"
+                                        "label": "Stellenbosch",
+                                        "lat": -33.9333,
+                                        "lng": 18.8467
                                     },
-                                    "stops": []
+                                    "stops": [
+                                        {
+                                            "provider": "google_places",
+                                            "place_id": "mock_engen_winelands_1_stop_place_id",
+                                            "label": "Engen Winelands 1 Stop",
+                                            "formatted_address": "Engen Winelands 1 Stop, Western Cape, South Africa",
+                                            "lat": -34,
+                                            "lng": 18.75
+                                        }
+                                    ]
                                 }
                             }
                         ]
@@ -2506,17 +2544,23 @@
                                 },
                                 "pickup_date": "2026-08-20",
                                 "pickup_time": "17:00",
+                                "passengers": 2,
+                                "bags": 0,
                                 "stops": [],
                                 "place_snapshots": {
                                     "from": {
                                         "provider": "google_places",
                                         "place_id": "ChIJNcaAuaNHzB0Ruy1x8vqiSUM",
-                                        "label": "Stellenbosch"
+                                        "label": "Stellenbosch",
+                                        "lat": -33.9333,
+                                        "lng": 18.8467
                                     },
                                     "to": {
                                         "provider": "google_places",
                                         "place_id": "ChIJvQtA90JFzB0RkF7P43l1SEA",
-                                        "label": "Cape Town International Airport"
+                                        "label": "Cape Town International Airport",
+                                        "lat": -33.9696,
+                                        "lng": 18.5978
                                     },
                                     "stops": []
                                 }

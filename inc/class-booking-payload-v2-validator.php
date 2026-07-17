@@ -64,7 +64,7 @@ if ( ! class_exists( 'WSB_Client_Booking_Payload_V2_Validator' ) ) {
             }
 
             $trip_type = (string) ( $payload['trip_type'] ?? '' );
-            if ( ! in_array( $trip_type, array( 'one_way', 'return', 'charter' ), true ) ) {
+            if ( ! in_array( $trip_type, array( 'one_way', 'return', 'charter', 'multi_trip' ), true ) ) {
                 $errors[] = $this->error( 'trip_type', 'invalid_trip_type', 'Trip type is invalid.' );
             }
 

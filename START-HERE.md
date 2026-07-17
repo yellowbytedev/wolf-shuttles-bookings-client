@@ -1,9 +1,7 @@
 # Wolf Shuttles Booking Rebuild — Start Here
 
-**Branch:** `feature/phase-2h-v2-handover-foundation`
-**Current checkpoint:** Senior review passed; marketing foundation safe for booking-site v2 receiver planning.
-**Latest UI polish commit:** `4e0aadf`
-**Latest review commit:** `3dcae11`
+**Branch:** `main`
+**Current checkpoint:** Booking V4 Phase 0.9 repository consolidation; local builder and V2 handover history merged, production/staging gates fail closed.
 
 ## What this is
 
@@ -14,25 +12,30 @@ Wolf Shuttles is rebuilding its booking system across two WordPress sites:
 | `wolfshuttlescoza` | `ws-bookings-client` | **Marketing intake** — captures booking intent, normalises to `BookingPayload v2`, validates, and hands off |
 | `wolf-shuttles-booking-site` | `ws-bookings` | **Booking authority** — owns pricing, availability, routes, tolls, blockouts, vehicle selection, WooCommerce cart/orders |
 
-Currently the marketing plugin produces a validated `BookingPayload v2` with `schema_version: "2.0"` and an HMAC-signed handover envelope. No booking is created yet.
+The marketing plugin produces a validated `BookingPayload v2` with
+`schema_version: "2.0"` and an HMAC-signed handover envelope. In local development
+it can submit that envelope to the Booking Site V2 intake endpoint and follow the
+returned booking-token redirect; it does not own pricing, payment, or order creation.
 
 ## What has been completed
 
-- `BookingPayload v2` canonical shape (legs-based trip model, `one_way` / `return` / `charter`)
+- `BookingPayload v2` canonical shape, including `one_way`, `return`, `charter`, and gated `multi_trip` intent
 - PHP normaliser + validator with lead-time and capacity rules
 - HMAC-signed handover envelope (deterministic signing, 1-hour expiry)
-- 29 payload fixtures (all passing), 18 valid handover fixtures (all passing), 11 invalid intentionally skipped
+- Expanded payload and handover fixture corpus (with known absolute-date clock debt documented at the Phase 0.9 checkpoint)
 - Google Places Autocomplete + place snapshots per leg (active when Google API key is configured)
 - Legacy clock-timepicker restored (5-min precision, AM/PM badges)
 - Fixture drawer / payload test lab (debug-only)
 - Charter preview mode + additional stop support (leg-scoped)
 - UI polish matching legacy form tabs/cards/inputs
 - Senior review checkpoint — no critical issues
+- Local multi-trip itinerary builder and reserved multi-day charter experience
+- Local V2 intake handover and booking-token redirect, with non-local defaults disabled
 
 ## What must NOT be done accidentally
 
 1. Do not edit Bricks/Fluent legacy form.
-2. Do not call booking-site endpoints from the marketing plugin.
+2. Do not enable booking-site handover or multi-trip gates in production/staging without explicit release approval.
 3. Do not call Google Distance Matrix, HERE Maps, or any route/toll API from the marketing plugin.
 4. Do not create bookings, tokens, cart items, or database records in the marketing plugin.
 5. Do not push without explicit instruction.
@@ -40,7 +43,7 @@ Currently the marketing plugin produces a validated `BookingPayload v2` with `sc
 
 ## Next recommended step
 
-**Booking-site v2 intake endpoint implementation in `ws-bookings`.**
+**Begin Booking V4 Phase 1 from the consolidated, tagged two-repository checkpoint.**
 
 See `docs/AI-CONTEXT-HANDOFF.md` → "Next roadmap steps" for the full roadmap.
 

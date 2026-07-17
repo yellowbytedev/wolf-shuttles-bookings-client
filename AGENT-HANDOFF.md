@@ -1,6 +1,10 @@
 # Wolf Shuttles Booking Client Handoff
 
-Current branch: `feature/phase-2h-v2-handover-foundation`
+Current branch: `main`
+
+Current checkpoint: Booking V4 Phase 0.9 repository consolidation. The local
+multi-trip/multi-day Booking Builder and signed V2 handover work are merged into
+`main`; production/staging feature-gate defaults remain fail-closed.
 
 Read this file first, together with `AGENTS.md`, before starting substantial work.
 
@@ -10,7 +14,10 @@ Read this file first, together with `AGENTS.md`, before starting substantial wor
 
 Its job is to capture booking intent on the marketing site, normalise that intent into `BookingPayload v2`, validate it, and hand it off to the booking-system site.
 
-This repository is in Phase 2 of the booking intake foundation work. The new Booking Builder flow is being added beside the legacy Bricks/Fluent booking flow. The legacy flow must keep working until the booking-site v2 intake path is ready.
+This repository contains the consolidated booking-intake foundation and the
+local Booking V4 builder checkpoint. The new Booking Builder remains beside the
+legacy Bricks/Fluent booking flow, which must continue working while customer-facing
+V4 surfaces remain gated.
 
 The canonical data direction is:
 
@@ -76,6 +83,10 @@ The AI handoff pack lives at:
 - Phase 2V complete: legacy clock-style timepicker restored — `jquery-clock-timepicker.min.js` copied from theme into plugin `assets/js/`, enqueued via `wsb-clock-timepicker` handle, `initClockTimePicker` wired into `initBookingBuilder` with 5-minute precision, AM/PM badges, charter defaults 08:00/17:00.
 - Phase 2W complete: section wording updated — "Trip details" replaces "Outbound leg", "Return transfer" replaces "Return leg", "Shuttle Hire" section uses charter-friendly language, hero heading removed from normal page.
 - Phase 2X complete: V2 intake handoff foundation — marketing-to-booking real handoff implemented with `class-booking-intake-client.php`, handover controller updated for conditional real handoff, feature gate `enable_real_handover` added (enabled for local, disabled for production), JS submit handler redirects to `redirect_url` on success.
+- Booking V4 Phase 0.9 checkpoint complete locally: multi-trip itinerary builder,
+  reserved multi-day charter state, contextual form guidance, canonical
+  `itinerary.trips[]` handover preservation, and the local-only multi-trip gate
+  are consolidated on `main`.
 
 If roadmap or phase status changes, update this file at the same time.
 
@@ -85,16 +96,20 @@ If roadmap or phase status changes, update this file at the same time.
 - The `/booking-builder/?debug=1` page renders the developer fixture drawer and smoke-tested at HTTP 200.
 - Realtime BookingPayload v2 preview works in the browser.
 - The server-side preview endpoint works at `POST /wp-json/ws-bookings-client/v1/payload-preview`.
-- The payload fixture runner passes (29 fixtures).
-- The handover preview fixture runner passes (18 valid pass, 11 skipped as invalid).
+- The fixture corpus has expanded beyond the original Phase 2 counts. Some
+  absolute-date fixtures now fail lead-time checks as the wall clock advances;
+  treat those as known fixture-clock debt and inspect unexpected failures separately.
 - The normalizer now preserves `service_group`, top-level `route`, `validation_flags`, and `charter` scaffolds.
 - Meta fields are aligned: both `meta.preview_only` and `meta.handover_mode` are set in JS and PHP.
 - The developer fixture drawer loads fixtures from `tests/fixtures/booking-payload-v2-fixtures.json`, populates the form, and re-runs preview checks.
 - Each leg (outbound/return) has its own additional stop toggle and field; stops are stored in `legs[].stops[]`. Charter legs use empty stops.
 - `blockouts` diagnostic scaffold added for future vehicle-scoped blockout support.
 - **Charter preview mode**: Shuttle Hire tab enabled, charter leg type supported, `dropoff_time` preserved in legs, `charter` block populated, `trip_type: "charter"` when charter active. Charter does not offer additional stops.
-- Legacy Bricks/Fluent booking flow is still untouched.
-- No real booking submission is enabled yet.
+- The legacy Bricks/Fluent adapter remains available for coexistence.
+- Local real handover to the Booking Site V2 intake endpoint is supported behind
+  `enable_real_handover`; production/staging remain disabled by default.
+- Local multi-trip builder UI is supported behind `enable_multi_trip_bookings`;
+  production/staging remain disabled by default.
 - Booking Builder UI polished to closer match legacy form tabs/cards/inputs.
 - Debug tools (fixture drawer, preview panel, dev header) visible only on `?debug=1`.
 - Normal `/booking-builder/` page hides developer preview copy and shows product-style tabs and CTA.
@@ -105,16 +120,15 @@ If roadmap or phase status changes, update this file at the same time.
 
 ## 6. What Is Deliberately Not Enabled Yet
 
-- No real booking-site call.
-- Real booking-site call is now possible when `enable_real_handover` feature gate is enabled (local default). POSTs to `/wp-json/ws-bookings/v2/intake` and redirects to returned `redirect_url`.
+- No production-default real booking-site call. Local real handover is available
+  when `enable_real_handover` is enabled and posts to `/wp-json/ws-bookings/v2/intake`.
 - No booking token created by marketing site (booking-site generates token on successful intake).
 - No WooCommerce/cart item creation.
 - No route, distance, or toll integration yet in the new intake layer.
-- No itinerary database table yet.
-- No multi-trip cart yet.
+- No customer-facing multi-trip cart or checkout enablement yet.
 - No production UI polish yet.
-- Charter pricing not implemented.
-- Multi-day charter drag/drop not implemented.
+- Production pricing/parity approval and customer-facing Booking Site display
+  remain gated work.
 
 ## 7. Key Files and Responsibilities
 
@@ -180,11 +194,12 @@ See `AGENTS.md` for specialist agent roles and sub-agent rules.
 
 ## 11. Next Recommended Tasks
 
-1. Implement the booking-site v2 intake endpoint as documented in `docs/booking-site-v2-receiver-plan.md`.
-2. Prepare the itinerary parent table and trip linkage for Phase 3.
-3. Prepare the booking token flow for the future v2 handover path.
-4. Wire a real v2 receiver in the booking plugin when that repo is ready.
-5. Implement the Booking Test Engine per `docs/testing-engine.md`.
+1. Start Booking V4 Phase 1 from the consolidated two-repository checkpoint.
+2. Resolve the dated-fixture clock debt so CLI suites remain deterministic.
+3. Verify production-like pricing and availability parity before enabling any
+   customer-facing Booking Site V2 display gate.
+4. Keep real handover and multi-trip production/staging defaults fail-closed until
+   the corresponding release gate is approved.
 
 ## 12. Standard Agent Completion Report
 

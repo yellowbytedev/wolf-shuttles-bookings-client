@@ -160,8 +160,16 @@ function wsb_legacy_adapter_send_to_v2_intake( array $legacy_data ): array {
         ];
     }
 
-    // Normalize legacy keys to V2 format.
+    if ( ! class_exists( 'WSB_Client_Booking_Payload_V2_Normalizer' ) || ! class_exists( 'WSB_Client_Booking_Payload_V2_Handover_Service' ) ) {
+        return [ 'ok' => false, 'error' => 'Signed handover service unavailable' ];
+    }
+
     $normalized_data = wsb_legacy_adapter_normalize_keys( $legacy_data );
+	$payload = ( new WSB_Client_Booking_Payload_V2_Normalizer() )->normalize( $normalized_data );
+	$handover = new WSB_Client_Booking_Payload_V2_Handover_Service(
+		function_exists( 'wsb_client_v2_handover_secret' ) ? wsb_client_v2_handover_secret() : ''
+	);
+	$envelope = $handover->build_envelope( $payload, 'submit', true );
 
     $endpoint = rtrim( $booking_site_url, '/' ) . '/wp-json/ws-bookings/v2/intake';
 
@@ -171,8 +179,11 @@ function wsb_legacy_adapter_send_to_v2_intake( array $legacy_data ): array {
             'timeout' => 15,
             'headers' => [
                 'Content-Type' => 'application/json',
+				'Origin' => home_url(),
+				'Idempotency-Key' => (string) $envelope['request_id'],
+				'X-WSB-Sender' => 'marketing-legacy',
             ],
-            'body' => wp_json_encode( $normalized_data ),
+			'body' => wp_json_encode( [ 'handover_envelope' => $envelope ] ),
         ]
     );
 

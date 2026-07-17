@@ -38,6 +38,26 @@ add_action('wp_ajax_nopriv_fetch_place_id_by_name', 'fetch_place_id_by_name');
 add_action('wp_ajax_calculate_tolls', 'calculate_tolls');
 add_action('wp_ajax_nopriv_calculate_tolls', 'calculate_tolls');
 
+function wsb_client_guard_provider_proxy(string $scope): void {
+    $guard = WSB_Client_Security::guard_provider_request($scope);
+    if (is_wp_error($guard)) {
+        $data = $guard->get_error_data();
+        $status = is_array($data) ? (int)($data['status'] ?? 403) : 403;
+        wp_send_json_error(['error' => $guard->get_error_message()], $status);
+    }
+}
+
+function wsb_client_valid_place_id($value): bool {
+    return is_string($value) && (bool) preg_match('/^[A-Za-z0-9_-]{1,255}$/', $value);
+}
+
+function wsb_client_valid_coordinates($value): bool {
+    if (!is_string($value) || !preg_match('/^\s*(-?\d{1,2}(?:\.\d+)?)\s*,\s*(-?\d{1,3}(?:\.\d+)?)\s*$/', $value, $matches)) {
+        return false;
+    }
+    return abs((float)$matches[1]) <= 90 && abs((float)$matches[2]) <= 180;
+}
+
 // function fetch_place_id_by_name() {
 //     if (!isset($_GET['place_name'])) {
 //         wp_send_json_error(['error' => 'Missing place_name parameter']);
@@ -76,11 +96,15 @@ add_action('wp_ajax_nopriv_calculate_tolls', 'calculate_tolls');
 // }
 
 function fetch_place_id_by_name() {
+    wsb_client_guard_provider_proxy('place_lookup');
     if (!isset($_GET['place_name'])) {
         wp_send_json_error(['error' => 'Missing place_name parameter']);
     }
 
     $place_name = sanitize_text_field($_GET['place_name']);
+    if ($place_name === '' || strlen($place_name) > 160) {
+        wp_send_json_error(['error' => 'Invalid place name'], 422);
+    }
     $api_key = GOOGLE_API_KEY;
 
     // Include address_components so we can extract both town and neighborhood
@@ -135,9 +159,10 @@ function fetch_place_id_by_name() {
 }
 
 function proxy_google_places_request() {
+    wsb_client_guard_provider_proxy('place_details');
     $place_id = $_GET['place_id'] ?? null;
 
-    if (!$place_id) {
+    if (!wsb_client_valid_place_id($place_id)) {
         wp_send_json_error(['message' => 'Missing Place ID']);
     }
 
@@ -155,12 +180,16 @@ function proxy_google_places_request() {
 }
 
 function fetch_google_geocode() {
+    wsb_client_guard_provider_proxy('geocode');
     if (!isset($_GET['lat']) || !isset($_GET['lng'])) {
         wp_send_json_error(['error' => 'Missing lat/lng parameters']);
     }
 
     $lat = sanitize_text_field($_GET['lat']);
     $lng = sanitize_text_field($_GET['lng']);
+    if (!is_numeric($lat) || !is_numeric($lng) || abs((float)$lat) > 90 || abs((float)$lng) > 180) {
+        wp_send_json_error(['error' => 'Invalid coordinates'], 422);
+    }
 
     $api_key = GOOGLE_API_KEY;
     $url = "https://maps.googleapis.com/maps/api/geocode/json?latlng={$lat},{$lng}&key={$api_key}";
@@ -191,6 +220,7 @@ function fetch_google_geocode() {
 }
 
 function calculate_distance_callback() {
+    wsb_client_guard_provider_proxy('distance');
     // // Log raw POST data for debugging
     // error_log('Raw POST data: ' . file_get_contents('php://input'));
     // error_log(print_r($_POST, true));
@@ -204,6 +234,9 @@ function calculate_distance_callback() {
     // Get the origin and destination from the POST request
     $origin = sanitize_text_field($_POST['origin']);
     $destination = sanitize_text_field($_POST['destination']);
+    if (!wsb_client_valid_place_id($origin) || !wsb_client_valid_place_id($destination)) {
+        wp_send_json_error(['error' => 'Invalid route scope'], 422);
+    }
 
     // Build the Google Distance Matrix API URL
     $api_key = GOOGLE_API_KEY; // Replace with your actual API key
@@ -259,12 +292,16 @@ function calculate_distance_callback() {
 
 // v8 version for HERE routing 
 function calculate_tolls() {
+  wsb_client_guard_provider_proxy('tolls');
   // ── 0) Inputs ──────────────────────────────────────────────────────────────
   if (empty($_POST['origin']) || empty($_POST['destination'])) {
     wp_send_json_error(['error' => 'Missing origin or destination parameters']); return;
   }
   $origin      = trim(sanitize_text_field($_POST['origin']));        // "lat,lng"
   $destination = trim(sanitize_text_field($_POST['destination']));
+  if (!wsb_client_valid_coordinates($origin) || !wsb_client_valid_coordinates($destination)) {
+    wp_send_json_error(['error' => 'Invalid route scope'], 422); return;
+  }
 
   if (!defined('HERE_MAPS_API_KEY') || !HERE_MAPS_API_KEY) {
     wp_send_json_error(['error' => 'HERE API key is missing']); return;
@@ -404,6 +441,5 @@ function calculate_tolls() {
     ],
   ]);
 }
-
 
 

@@ -89,7 +89,10 @@ if ( ! class_exists( 'WSB_Client_Booking_Intake_Client' ) ) {
                 'httpversion' => '1.1',
                 'blocking'    => true,
                 'headers'     => array(
-                    'Content-Type' => 'application/json',
+                    'Content-Type'    => 'application/json',
+                    'Origin'          => home_url(),
+                    'Idempotency-Key' => (string) ( $envelope['request_id'] ?? '' ),
+                    'X-WSB-Sender'    => 'marketing',
                 ),
                 'body'        => wp_json_encode( array( 'handover_envelope' => $envelope ) ),
                 'data_format' => 'body',

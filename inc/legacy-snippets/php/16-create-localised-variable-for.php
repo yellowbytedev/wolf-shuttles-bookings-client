@@ -24,7 +24,10 @@
 function my_add_ajax_url_inline_script() {
     // We can use an already registered script handle, for example 'jquery'
     $ajax_url = admin_url('admin-ajax.php');
-    $inline_js = "var myAjax = { ajaxurl: '" . esc_url($ajax_url) . "' };";
+    $inline_js = 'var myAjax = ' . wp_json_encode([
+        'ajaxurl'       => esc_url($ajax_url),
+        'providerNonce' => wp_create_nonce('wsb_provider_proxy'),
+    ]) . ';';
     wp_add_inline_script('jquery', $inline_js);
 }
 add_action('wp_enqueue_scripts', 'my_add_ajax_url_inline_script');

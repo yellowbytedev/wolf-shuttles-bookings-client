@@ -465,7 +465,7 @@ function getLocationData(place) {
 
 async function fetchPlaceIDByName(placeName) {    
     try {        
-        const response = await fetch(`${myAjax.ajaxurl}?action=fetch_place_id_by_name&place_name=${encodeURIComponent(placeName)}`, {
+        const response = await fetch(`${myAjax.ajaxurl}?action=fetch_place_id_by_name&place_name=${encodeURIComponent(placeName)}&_wsb_nonce=${encodeURIComponent(myAjax.providerNonce)}`, {
             method: 'GET'
         });
                 
@@ -498,7 +498,7 @@ async function fetchPlaceIDByName(placeName) {
  */
 async function getPlaceIDFromLatLng(lat, lng) {
     try {
-         const response = await fetch(`${myAjax.ajaxurl}?action=fetch_google_geocode&lat=${lat}&lng=${lng}`);
+         const response = await fetch(`${myAjax.ajaxurl}?action=fetch_google_geocode&lat=${lat}&lng=${lng}&_wsb_nonce=${encodeURIComponent(myAjax.providerNonce)}`);
          const data = response.json();
 
         if (data.success && data.place_id) {
@@ -518,7 +518,7 @@ async function getPlaceIDFromLatLng(lat, lng) {
  */
 async function validateAndRefreshPlaceID(placeId) {
     try {
-         const response = await fetch(`${myAjax.ajaxurl}?action=get_place_details&place_id=${placeId}`);
+         const response = await fetch(`${myAjax.ajaxurl}?action=get_place_details&place_id=${encodeURIComponent(placeId)}&_wsb_nonce=${encodeURIComponent(myAjax.providerNonce)}`);
          const data = await response.json();
 
         if (data.success && data.data.result) {
@@ -906,6 +906,7 @@ async function checkTollGates(origin, destination) {
     formData.append('action', 'calculate_tolls'); // you can put it in body as well
     formData.append('origin', origin);
     formData.append('destination', destination);
+    formData.append('_wsb_nonce', myAjax.providerNonce);
 
     const response = await fetch(myAjax.ajaxurl, {
       method: 'POST',
@@ -1191,6 +1192,7 @@ async function getDistanceFromAPI(originPlaceId, destinationPlaceId) {
                 action: 'calculate_distance',
                 origin: originPlaceId,
                 destination: destinationPlaceId,
+                _wsb_nonce: myAjax.providerNonce,
             }),
         });
 

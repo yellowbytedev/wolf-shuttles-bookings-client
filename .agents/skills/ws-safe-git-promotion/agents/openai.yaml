@@ -1,0 +1,4 @@
+interface:
+  display_name: "WS Safe Git Promotion"
+  short_description: "Prepare evidence-based Git promotion safely"
+  default_prompt: "Use $ws-safe-git-promotion to prepare a clean, evidence-based promotion without pushing or merging."

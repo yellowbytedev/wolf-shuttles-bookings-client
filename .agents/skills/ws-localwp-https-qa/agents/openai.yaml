@@ -1,0 +1,4 @@
+interface:
+  display_name: "WS LocalWP HTTPS QA"
+  short_description: "Verify Wolf Shuttles safely over LocalWP HTTPS"
+  default_prompt: "Use $ws-localwp-https-qa to verify the approved scope through the canonical HTTPS LocalWP surfaces."

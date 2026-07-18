@@ -1,0 +1,4 @@
+interface:
+  display_name: "WS Handoff Authority Review"
+  short_description: "Review signed handoffs and booking authority"
+  default_prompt: "Use $ws-handoff-authority-review to review signed handoffs, payload ownership, and booking authority."
